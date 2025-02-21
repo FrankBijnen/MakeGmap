@@ -41,7 +41,7 @@ Units tested and working:
 
 # Screen shots
 
-- [Images](images/ShowCase.md)<br>
+- [Images](Images/ShowCase.md)<br>
 
 # Credits
 
