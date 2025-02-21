@@ -26,7 +26,7 @@ Units tested and working:
 - Install Java 64 Bits. Windows Offline (64-bits) https://www.java.com/nl/download/manual.jsp
 - Start the program.
 - Review the settings on the configuration tab.
-  - Check the Java version matches what you installed. A different, already installed, could be selected
+  - Check that the Java version matches your installed version. A different, already installed, Java could be selected.
   - For more info on a field, click on the label. Context help will be shown. 
 - Click on Check Configuration to recheck the config. If the check is OK, the Project tab will be visible.
 - Now you can create maps.
