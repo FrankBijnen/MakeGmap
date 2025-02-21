@@ -1,0 +1,384 @@
+# Style for Zumo XT. Adapted by TDB from original MotoRoute-Style 
+
+aeroway=runway [0x27 resolution 20]
+aeroway=taxiway [0x27 resolution 24]
+
+# Assign the street name for house number search
+highway=* & name=* { set mkgmap:street='${name}' }
+
+##----------------------------------------------------------------------------------------
+## delete=private
+# (highway=* & (access=private | access=no)) { delete highway }
+((highway=* & highway!=construction) & (access=private | access=no)) { delete highway }
+
+(junction=roundabout & (access=private | access=no)) { delete junction }
+
+## delete=cycleway, bridleway, footway mit name, railway als highway
+# (highway=cycleway | highway=bridleway | highway=path | highway=footway )      { delete highway }
+(highway=cycleway | highway=bridleway | ( highway=footway & name!=* ) | highway=railway )       { delete highway }
+
+##----------------------------------------------------------------------------------------
+## access prohibited for motorcycles
+## (da garmin zumo550 nicht zwischen auto/motorcar und motorrad/motorcycle unterscheidet, auch motorcar=no!)
+
+## einseitige motorrad-strecken-sperrungen beruecksichtigen
+motorcycle:backward=no          {add oneway=yes; }
+motorcycle:forward=no           {add oneway=-1; }
+
+##----------------------------------------------------------------------------------------
+## 10.08.2015 funktioniert weder mit carpool noch mit u-turns
+## flag motorroad roads (autobahnen, 'gelbe autobahnen' und kraftfahrstrassen werden als fahrgemeinschaftsspuren ausgeschlossen)##
+## verboten fuer mopeds mit versicherungskennzeichen, unerwuenscht von motorradfahrern
+# carpool=* { delete carpool }
+# highway=motorway | highway=trunk | (highway=* & motorroad=yes) { set mkgmap:carpool=yes; }
+##----------------------------------------------------------------------------------------
+## flag motorroad roads (autobahnen, 'gelbe autobahnen' und kraftfahrstrassen werden als kehrtwenden ausgeschlossen)
+## verboten fuer mopeds mit versicherungskennzeichen, unerwuenscht von motorradfahrern
+# u-turns=* { delete u-turns }
+# highway=motorway | highway=trunk | (highway=* & motorroad=yes) { set mkgmap:u-turns=yes; }
+
+##----------------------------------------------------------------------------------------
+## motorrad-streckensperrungen an wochenenden und feiertagen
+## (beispiel: germany L 685 (arnsberg - sundern))
+## TDB Weekend closures for motorbikes => ferry
+##highway=* & motorcycle:conditional=* {set motorcycle=no; set moped=no; name '${name} bike=${motorcycle:conditional}' } 
+##[0x0d road_class=2 road_speed=1 resolution 18 continue]
+#highway=* & motorcycle:conditional=* { set mkgmap:ferry=yes; name '${name} bike=${motorcycle:conditional}' }
+highway=* & motorcycle:conditional=* { echotags "motorcycle:conditional"}
+highway=* & motorcycle:conditional=* { set mkgmap:ferry=yes; name '${name} bike=${motorcycle:conditional}'; name '${ref} bike=${motorcycle:conditional}'; name 'bike=${motorcycle:conditional}' }
+[0x0d road_class=3 road_speed=5 resolution 18]
+
+## TDB Different maxspeed for motorbikes => ferry
+highway=* & maxspeed:motorcycle=* & maxspeed:motorcycle<100 & maxspeed!=* { echotags "maxspeed:motorcycle"}
+highway=* & maxspeed:motorcycle=* & maxspeed:motorcycle<100 & maxspeed=* & maxspeed:motorcycle<$maxspeed { echotags "maxspeed:motorcycle"}
+
+highway=* & maxspeed:motorcycle=* & maxspeed:motorcycle<100 & maxspeed!=* { set mkgmap:ferry=yes; name '${name} bike=${maxspeed:motorcycle}'; name '${ref} bike=${maxspeed:motorcycle}'; name 'bike=${maxspeed:motorcycle}' }
+[0x0d road_class=3 road_speed=5 resolution 18]
+highway=* & maxspeed:motorcycle=* & maxspeed:motorcycle<100 & maxspeed=* & maxspeed:motorcycle<$maxspeed { set mkgmap:ferry=yes; name '${name} bike=${maxspeed:motorcycle}'; name '${ref} bike=${maxspeed:motorcycle}'; name 'bike=${maxspeed:motorcycle}' }
+[0x0d road_class=3 road_speed=5 resolution 18]
+
+# forbidden for motorvehicle, motorcycle, motorcar (motorrad-strecken-voll-sperrungen ausschliessen)
+# (da garmin zumo550 nicht zwischen auto/motorcar und motorrad/motorcycle unterscheidet, auch motorcar=no!)
+(highway=motorway | highway=trunk | highway=primary | highway=secondary | highway=tertiary | highway=unclassified | highway=road | highway=minor) 
+& (motorvehicle=no | motorcycle=no | motorcar=no )
+{ set motorcycle=no; set motorcar=no; set moped=no; }   [0x0d road_class=0 road_speed=0 resolution 24]
+##----------------------------------------------------------------------------------------
+
+# Mark highways with the toll flag
+highway=* & (toll=yes|toll=true) { set mkgmap:toll=yes }
+
+# Hide proposed ways
+highway=proposed {delete highway;delete junction}
+# Hide unaccessible tunnels
+highway=* & tunnel=yes & (access=private|access=no)
+& foot!=* & bicycle!=* {delete highway;delete junction}
+# Disable dead-end-checks for unaccessible oneways
+highway=* & oneway=yes & (access=private|access=no)
+{add mkgmap:dead-end-check=false}
+# Validation-like checks (uncomment to enable)
+#highway=motorway_link & oneway!=yes & oneway!=no { echo "motorway_link lacks oneway" }
+highway=motorway|highway=motorway_link { add oneway=yes }
+
+# Set highway names to include the reference if there is one
+highway=motorway { name '${ref|highway-symbol:hbox} ${name}' | '${ref|highway-symbol:hbox}' | '${name}' }
+
+(highway=motorway_link | highway=trunk_link) & mkgmap:exit_hint=true & mkgmap:dest_hint=*
+  { name '${destination:ref|subst: =>} ${destination|subst:;=> |subst:/=> }' | 
+         '${ref|subst: =>} ${destination|subst:;=> |subst:/=> }' | 
+         '${destination|subst:;=> |subst:/=> }' |
+         'Exit ${mkgmap:exit_hint_ref} ${mkgmap:exit_hint_name}' | 
+         'Exit ${mkgmap:exit_hint_ref} ${mkgmap:exit_hint_exit_to}' | 
+         'Exit ${mkgmap:exit_hint_exit_to}' |
+         'Exit ${mkgmap:exit_hint_name}' |
+         'Exit ${mkgmap:exit_hint_ref}'
+       }
+
+(highway=motorway_link | highway=trunk_link) & mkgmap:exit_hint!=* & mkgmap:dest_hint=*
+  { name '${destination:ref|subst: =>} ${destination|subst:;=> |subst:/=> }' |
+         '${ref|subst: =>} ${destination|subst:;=> |subst:/=> }' | 
+         '${destination|subst:;=> |subst:/=> }'
+       }
+
+(highway=motorway_link | highway=trunk_link) & mkgmap:exit_hint=true & mkgmap:dest_hint!=*
+  { name 'Exit ${mkgmap:exit_hint_ref} ${mkgmap:exit_hint_name}' | 
+         'Exit ${mkgmap:exit_hint_ref} ${mkgmap:exit_hint_exit_to}' | 
+         'Exit ${mkgmap:exit_hint_exit_to}' |
+         'Exit ${mkgmap:exit_hint_name}' |
+         'Exit ${mkgmap:exit_hint_ref}'
+       }
+              
+#highway=trunk {name '${ref|highway-symbol:hbox} ${name}' | '${ref|highway-symbol:hbox}' | '${name}'; addlabel '${name} (${ref})' }
+highway=trunk {name '${ref|highway-symbol:hbox} ${name}' | '${ref|highway-symbol:box}' | '${name}'; addlabel '${name} (${ref})' }
+highway=primary {name '${ref|highway-symbol:box} ${name}' | '${ref|highway-symbol:box}' | '${name}'; addlabel '${name} (${ref})' }
+##highway=secondary | highway=tertiary {name '${ref|highway-symbol:oval} ${name}' | '${ref|highway-symbol:oval}' | '${name}'; addlabel '${name} (${ref})' }
+highway=track & name=* { delete name }
+highway=construction { name '(${name})' | '(${ref})' }
+highway=* {name '${name}' | '${ref}' }
+
+# Flag unpaved roads.
+##----------------------------------------------------------------------------------------
+## (wege ab grade 2 werden als unbefestigt ausgeschlossen)
+## track
+
+( highway=primary | highway=secondary | highway=tertiary | highway=minor | highway=road ) & (tracktype~'grade[1-6]') { delete tracktype }
+
+highway=* & (tracktype~'grade[2-6]') { add mkgmap:unpaved=1; add motorcar=no; add motorcycle=yes; add moped=yes; add bicycle=yes }
+
+highway=* & tracktype=grade1    { add motorcar=no; add motorcycle=yes; add moped=yes;}  [0x0e road_class=1 road_speed=1 resolution 24]
+highway=* & tracktype=grade2    { add mkgmap:unpaved=1 }        [0x0f road_class=0 road_speed=0 resolution 24]
+highway=* & tracktype=grade3    { add mkgmap:unpaved=1 }        [0x10 road_class=0 road_speed=0 resolution 24]
+highway=* & tracktype=grade4    { add mkgmap:unpaved=1 }        [0x11 road_class=0 road_speed=0 resolution 24]
+highway=* & tracktype=grade5    { add mkgmap:unpaved=1 }        [0x12 road_class=0 road_speed=0 resolution 24]
+
+highway=track | highway=unsurfaced      { add mkgmap:unpaved=1; }       [0x12 road_class=0 road_speed=0 resolution 24]
+
+##----------------------------------------------------------------------------------------
+
+##highway=*
+##& (surface=cobblestone | surface=compacted | surface=dirt |
+##   surface=earth | surface=grass | surface=grass_paver |
+##   surface=gravel | surface=grit | surface=ground | surface=mud |
+##   surface=pebblestone | surface=sand | surface=unpaved |
+##   mtb:scale=* |
+##   tracktype ~ 'grade[2-6]' |
+##   smoothness ~ '.*(bad|horrible|impassable)' |
+##   sac_scale ~ '.*(mountain|alpine)_hiking' |
+##   sport=via_ferrata)
+
+( highway=path | highway=track | ( highway=footway & motor_vehicle=yes ) )
+& (surface=compacted | surface=dirt |
+   surface=earth | surface=grass | surface=grass_paver |
+   surface=gravel | surface=grit | surface=ground | surface=mud |
+   surface=pebblestone | surface=sand | surface=unpaved | surface=fine_gravel | 
+   tracktype ~ 'grade[2-6]')
+{ add mkgmap:unpaved=1; add motorcar=no; add motorcycle=yes; add moped=yes; add bicycle=yes }
+[0x16 road_class=0 road_speed=0 resolution 24]
+
+( highway=primary | highway=secondary | highway=tertiary | highway=minor | highway=road | highway=unclassified | highway=unsurfaced )
+& (surface=compacted | surface=dirt |
+   surface=earth | surface=grass | surface=grass_paver |
+   surface=gravel | surface=grit | surface=ground | surface=mud |
+   surface=pebblestone | surface=sand | surface=unpaved | surface=fine_gravel )
+[0x0a road_class=0 road_speed=0 resolution 21]
+
+##(highway=bridleway | highway=path | highway=track | highway=unsurfaced)
+##& surface!=* & tracktype!=* & smoothness!=* & sac_scale!=*
+##{ add mkgmap:unpaved=1 }
+
+### Convert generic path to most specific
+##highway=footway & snowplowing!=no
+##& (bicycle=yes|bicycle=designated|bicycle=permissive|bicycle=official)
+##{set highway=cycleway; set bicycle=yes}
+highway=footway & snowplowing!=no
+& (bicycle=yes|bicycle=designated|bicycle=permissive|bicycle=official) 
+{ delete highway }
+##highway=path & snowplowing!=no
+##& (bicycle=designated|bicycle=permissive|bicycle=official)
+##{set highway=cycleway; set bicycle=yes}
+highway=path & snowplowing!=no
+& (bicycle=designated|bicycle=permissive|bicycle=official)
+{ delete highway }
+##highway=path & (horse=designated|horse=permissive|horse=official)
+##{set highway=bridleway; set horse=yes}
+highway=path & (horse=designated|horse=permissive|horse=official)
+{ delete highway }
+##highway=path
+##{set highway=footway}
+highway=path { add mkgmap:unpaved=1; add motorcar=no; add motorcycle=no; add moped=no; add bicycle=yes }
+[0x16 road_class=0 road_speed=0 resolution 24]
+
+##leisure=track & area!=yes
+##{add highway=footway; name '${name} (${sport})' | '${name}'}
+##(man_made=pier | man_made=piste:halfpipe) & area!=yes
+##{add highway=footway; name '${ref} ${name}' | '${ref}' | '${name}' }
+
+# Roundabouts
+#junction=roundabout & highway=trunk [0x0c road_class=3 road_speed=2 resolution 18]
+#junction=roundabout & highway=primary [0x0c road_class=3 road_speed=2 resolution 19]
+#junction=roundabout & highway=secondary [0x0c road_class=2 road_speed=2 resolution 20]
+#junction=roundabout & highway=tertiary [0x0c road_class=1 road_speed=1 resolution 21]
+#junction=roundabout & highway=unclassified [0x0c road_class=1 road_speed=1 resolution 21]
+#junction=roundabout [0x0c road_class=0 road_speed=1 resolution 22]
+junction=roundabout & highway=trunk [0x0c road_class=3 road_speed=2 resolution 18]
+junction=roundabout & highway=primary [0x0c road_class=3 road_speed=2 resolution 19]
+junction=roundabout & highway=secondary [0x0c road_class=2 road_speed=2 resolution 20]
+junction=roundabout & highway=tertiary [0x0c road_class=1 road_speed=1 resolution 21]
+junction=roundabout & highway=unclassified [0x0c road_class=1 road_speed=1 resolution 21]
+junction=roundabout [0x0c road_class=0 road_speed=1 resolution 22]
+
+# Ways that may or may not be useable
+
+# Treat ways under construction almost as highway=path
+highway=construction { add mkgmap:dead-end-check = false; }
+[0x28 resolution 24]
+#[0x16 road_class=0 road_speed=0 resolution 23]
+
+# Lower the road speed of ways under some construction.
+highway=* & construction=* & maxspeed!=* { add mkgmap:road-speed = '-1' }
+# Lower the road speed of disused ways.
+highway=* & disused=yes & maxspeed!=* { add mkgmap:road-speed = '-2' }
+
+# Ways sorted roughly by descending order of class
+
+## motorway (autobahn)
+#highway=motorway & network=e-road [0x01 resolution 14-14 continue]
+#highway=motorway  [0x01 road_class=4 road_speed=7 resolution 15]
+#highway=motorway_link & (mkgmap:exit_hint=true | mkgmap:dest_hint=*) [0x06 road_class=3 road_speed=2 resolution 20]
+#highway=motorway_link [0x09 road_class=3 road_speed=2 resolution 20]
+highway=motorway & network=e-road [0x01 resolution 14-14 continue]
+highway=motorway & tunnel=yes [0x13 road_class=4 road_speed=6 resolution 15]
+highway=motorway [0x01 road_class=4 road_speed=6 resolution 15]
+highway=motorway & motorcycle:conditional=* [0x0d road_class=4 road_speed=6 resolution 15]
+highway=motorway_link & (mkgmap:exit_hint=true | mkgmap:dest_hint=*) [0x09 road_class=4 road_speed=2 resolution 20]
+highway=motorway_link [0x09 road_class=4 road_speed=2 resolution 20]
+
+## motorroad (kraftfahrstrasse)
+motorroad=yes & highway=* & ( network=e-road | int_ref=* ) [0x0b resolution 15-17 continue]
+motorroad=yes & highway=* & tunnel=yes [0x13 road_class=3 road_speed=5 resolution 18]
+motorroad=yes & highway=* & motorcycle:conditional=* [0x0d road_class=4 road_speed=5 resolution 18]
+motorroad=yes & highway=* [0x0b road_class=3 road_speed=5 resolution 18]
+motorroad=yes & (highway=primary_link | highway=trunk_link) & (mkgmap:exit_hint=true | mkgmap:dest_hint=*) [0x08 road_class=3 road_speed=2 resolution 20]
+motorroad=yes & (highway=primary_link | highway=trunk_link) [0x08 road_class=3 road_speed=2 resolution 20]
+motorroad=yes & highway=* & highway!=proposed [0x0b road_class=3 road_speed=5 resolution 18]
+
+## trunk ('gelbe autobahn')
+#highway=trunk & ( network=e-road | int_ref=* ) [0x02 resolution 15-17 continue]
+#highway=trunk [0x02 road_class=4 road_speed=5 resolution 18]
+#highway=trunk_link & (mkgmap:exit_hint=true | mkgmap:dest_hint=*) [0x06 road_class=3 road_speed=2 resolution 20]
+#highway=trunk_link [0x09 road_class=3 road_speed=2 resolution 20]
+#highway=* & highway!=proposed & motorroad=yes [0x02 road_class=4 road_speed=4 resolution 18]
+highway=trunk & tunnel=yes [0x13 road_class=2 road_speed=6 resolution 18]
+highway=trunk & ( network=e-road | int_ref=* ) [0x02 resolution 15-17 continue]
+highway=trunk & motorcycle:conditional=* [0x0d road_class=2 road_speed=6 resolution 18]
+highway=trunk [0x02 road_class=2 road_speed=6 resolution 18]
+highway=trunk_link & (mkgmap:exit_hint=true | mkgmap:dest_hint=*) [0x08 road_class=2 road_speed=2 resolution 20]
+highway=trunk_link [0x08 road_class=2 road_speed=2 resolution 20]
+
+## primary (bundesstrasse)
+## (beispiel: germany B 236 (ergste - iserlohn))
+#highway=primary & ( network=e-road | int_ref=* ) [0x03 resolution 17-18 continue]
+#highway=primary [0x03 road_class=3 road_speed=4 resolution 19]
+#highway=primary_link [0x08 road_class=3 road_speed=1 resolution 21]
+highway=primary & tunnel=yes [0x13 road_class=2 road_speed=4 resolution 19]
+highway=primary & ( network=e-road | int_ref=* ) [0x02 resolution 17-18 continue]
+highway=primary & motorcycle:conditional=* [0x0d road_class=2 road_speed=4 resolution 19]
+highway=primary [0x03 road_class=3 road_speed=4 resolution 19]
+highway=primary_link [0x02 road_class=2 road_speed=1 resolution 21]
+
+## secondary (landstrasse/staatsstrasse)
+#highway=secondary & ( network=e-road | int_ref=* ) [0x04 resolution 18-19 continue]
+#highway=secondary [0x04 road_class=2 road_speed=3 resolution 20]
+#highway=secondary_link [0x08 road_class=2 road_speed=1 resolution 22]
+highway=secondary & tunnel=yes [0x13 road_class=2 road_speed=4 resolution 20]
+highway=secondary & ( network=e-road | int_ref=* ) [0x03 resolution 18-19 continue]
+highway=secondary & highway=* & motorcycle:conditional=* [0x0d  road_class=2 road_speed=4 resolution 20]
+highway=secondary [0x03 road_class=2 road_speed=4 resolution 20]
+highway=secondary & motorcycle:conditional=* [0x0d road_class=2 road_speed=4 resolution 20]
+highway=secondary_link [0x03 road_class=2 road_speed=1 resolution 21]
+
+## tertiary (kreisstrasse)
+#highway=tertiary [0x05 road_class=1 road_speed=3 resolution 20]
+#highway=tertiary_link [0x08 road_class=1 road_speed=1 resolution 22]
+highway=tertiary & tunnel=yes [0x13 road_class=1 road_speed=4 resolution 21]
+highway=tertiary & motorcycle:conditional=* [0x0d road_class=1 road_speed=4 resolution 21]
+highway=tertiary [0x04 road_class=1 road_speed=4 resolution 21]
+highway=tertiary & highway=* & motorcycle:conditional=* [0x0d road_class=1 road_speed=4 resolution 21]
+highway=tertiary_link [0x04 road_class=1 road_speed=1 resolution 21]
+
+## minor
+#highway=minor [0x06 road_class=1 road_speed=3 resolution 21]
+highway=minor & tunnel=yes [0x13 road_class=1 road_speed=3 resolution 21]
+highway=minor & motorcycle:conditional=* [0x0d road_class=1 road_speed=3 resolution 21]
+highway=minor [0x05 road_class=1 road_speed=3 resolution 21]
+
+## road
+#highway=road [0x06 road_class=1 road_speed=3 resolution 21]
+highway=road & tunnel=yes [0x13 road_class=1 road_speed=3 resolution 21]
+highway=road & motorcycle:conditional=* [0x0d road_class=1 road_speed=3 resolution 21]
+highway=road [0x05 road_class=1 road_speed=3 resolution 21]
+
+## unclassified
+#highway=unclassified [0x06 road_class=0 road_speed=3 resolution 21]
+highway=unclassified & tunnel=yes [0x13 road_class=0 road_speed=3 resolution 21]
+highway=unclassified & motorcycle:conditional=* [0x0d road_class=0 road_speed=3 resolution 21]
+highway=unclassified [0x05 road_class=0 road_speed=3 resolution 21]
+
+# Some countries allow, others disallow bicycling on pedestrian streets.
+# To allow bicycling, add 'add bicycle=yes'
+#highway=pedestrian & area!=yes [0x16 road_class=0 road_speed=0 resolution 22]
+(highway=pedestrian & area!=yes) | highway=footway [0x29 resolution 24]
+
+## residential
+highway=living_street [0x06 road_class=0 road_speed=1 resolution 22]
+highway=residential [0x06 road_class=0 road_speed=2 resolution 22]
+
+#highway=bridleway [0x07 road_class=0 road_speed=0 resolution 23]
+#highway=byway [0x16 road_class=0 road_speed=0 resolution 23]
+
+## service
+highway=service & service=parking_aisle
+[0x07 road_class=0 road_speed=1 resolution 24]
+highway=service & (service=alley|service=driveway)
+[0x07 road_class=0 road_speed=0 resolution 23]
+highway=service [0x07 road_class=0 road_speed=2 resolution 22]
+
+#highway=cycleway [0x07 road_class=0 road_speed=1 resolution 23]
+
+#highway=footway|highway=path|highway=steps [0x16 road_class=0 road_speed=0 resolution 23]
+#highway=track [0x0a road_class=0 road_speed=1 resolution 22]
+highway=unsurfaced [0x0a road_class=0 road_speed=1 resolution 22]
+#highway=road { add mkgmap:dead-end-check = false} [0x06 road_class=0 road_speed=1 resolution 22]
+highway=road { add mkgmap:dead-end-check = false} [0x05 road_class=0 road_speed=1 resolution 22]
+
+# Mop up any unrecognised highway types
+highway=* & highway!=proposed & area!=yes [0x17 road_class=0 road_speed=0 resolution 23] 
+
+natural=coastline [0x15 resolution 12]
+#power=line [0x29 resolution 21]
+
+#railway=abandoned [0x0a road_class=0 road_speed=1 resolution 22]
+#railway=platform [0x16 road_class=0 road_speed=0 resolution 23]
+#railway=* & !(tunnel=yes) [0x14 resolution 22]
+#railway=abandoned [0x14 road_class=0 road_speed=1 resolution 24]
+##railway=platform [0x00 road_class=0 road_speed=0 resolution 23]
+
+railway=platform { delete railway }
+railway=* & !(tunnel=yes) [0x14 resolution 22]
+railway=* & (tunnel=yes) [0x00 resolution 22]
+
+aerialway=gondola [0x10106 resolution 24]
+
+##man_made=cable|(man_made=* & man_made ~ '.*pipe.*')
+##{name '${name} (${operator})' | '${name}' | '${operator}' }
+##[0x28 resolution 23]
+
+# The following boundary styles are after the highway rules because ways
+# are frequently tagged with both and we want the highway to take priority.
+##boundary=administrative { name '${mkgmap:boundary_name}' }
+##boundary=administrative & admin_level<3 [0x1e resolution 12]
+boundary=administrative & admin_level<3 [0x10b04 resolution 12]
+##boundary=administrative & admin_level<5 [0x1d resolution 19]
+##boundary=administrative & admin_level<7 [0x1c resolution 21]
+##boundary=administrative & admin_level<9 [0x1c resolution 22]
+##boundary=administrative [0x1c resolution 22]
+##boundary=national [0x1e resolution 17]
+##boundary=political [0x1c resolution 19]
+
+include 'inc/water_lines';
+include 'inc/contour_lines';
+
+<finalize>
+# The finalizer section is executed for each element when a rule with an element type matches
+
+include 'inc/address';
+# calculate the road speed based on maxspeed tag
+include 'inc/roadspeed'; 
+# calculate the access rules
+include 'inc/access';
+
+name=* { name '${name}' }
+
+highway=* & ref=* { addlabel '${ref}' }
+highway=* & int_ref=* { addlabel '${int_ref}' }
+highway=* & nat_ref=* { addlabel '${nat_ref}' }
+highway=* & reg_ref=* { addlabel '${reg_ref}' }

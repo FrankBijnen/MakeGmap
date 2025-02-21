@@ -1,0 +1,59 @@
+# depslib dependency file v1.0
+1665762718 source:c:\osmctools-master\src\osmconvert\osmconvert.c
+	<zlib.h>
+	<inttypes.h>
+	<stdlib.h>
+	<string.h>
+	<stdio.h>
+	<locale.h>
+	<time.h>
+	<ctype.h>
+	"osmconvert.h"
+	<unistd.h>
+	<fcntl.h>
+	<signal.h>
+	<stdio.h>
+	<math.h>
+	<inttypes.h>
+	<stdio.h>
+	<math.h>
+	<inttypes.h>
+
+1484468980 c:\zlib-1.2.11\zlib.h
+	"zconf.h"
+
+1483223830 c:\zlib-1.2.11\zconf.h
+	<stddef.h>
+	<windows.h>
+	<limits.h>
+	<sys/types.h>
+	<stdarg.h>
+	<stddef.h>
+	<unistd.h>
+	<unixio.h>
+
+1665851696 c:\osmctools-master\include\\unistd.h
+	<stdlib.h>
+	<stdio.h>
+	<sys/types.h>
+	<io.h>
+	<process.h>
+	<direct.h>
+
+1665762728 c:\osmctools-master\src\osmconvert\osmconvert.h
+	<tchar.h>
+	"unistd.h"
+
+1484468980 c:\zlib-1.2.11\\zlib.h
+	"zconf.h"
+
+1483223830 c:\zlib-1.2.11\\zconf.h
+	<stddef.h>
+	<windows.h>
+	<limits.h>
+	<sys/types.h>
+	<stdarg.h>
+	<stddef.h>
+	<unistd.h>
+	<unixio.h>
+

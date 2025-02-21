@@ -1,0 +1,17 @@
+﻿pcmd delx maxspeed:motorcycle
+pcmd first  [
+pcmd chng ); // [
+pcmd first way 
+pcmd chng way(
+lcmd 1,r2
+ctrlend
+data [out:json][timeout:25];
+return
+ctrlend
+data (
+ctrlend
++pcmd a +bottom+
+return
+data );
+return
+data out geom;

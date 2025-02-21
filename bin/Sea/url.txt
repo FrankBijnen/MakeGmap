@@ -1,0 +1,4 @@
+https://www.thkukuk.de/osm/data/sea-latest.zip
+
+alternate:
+http://develop.freizeitkarte-osm.de/boundaries/sea.zip

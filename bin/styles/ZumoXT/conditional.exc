@@ -1,0 +1,19 @@
+﻿pcmd delx motorcycle:conditional
+pcmd first  [
+pcmd chng ); // [
+pcmd first way 
+pcmd chng way(
+pcmd first generated from way(
+pcmd chng 
+lcmd 1,r2
+ctrlend
+data [out:json][timeout:25];
+return
+ctrlend
+data (
+ctrlend
++pcmd a +bottom+
+return
+data );
+return
+data out geom;

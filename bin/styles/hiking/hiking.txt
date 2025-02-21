@@ -1,0 +1,3835 @@
+; 10010.TYP
+; Longueur: 14046 octets
+; Fichier TYP compilé     27-03-2010     10:20:58
+; Décompilé le 16-5-2021 à 10:31:43
+
+[_id]
+ProductCode=1
+FID=10010
+CodePage=1252
+ [End]
+
+;=========== COMMENTAIRES ======
+[_comments]
+[End]
+
+
+
+
+;=========== POLYGONES : PRIORITE DANS L'AFFICHAGE ======
+[_drawOrder]
+Type=0x032,1
+Type=0x027,2
+Type=0x10100,2
+Type=0x001,3
+Type=0x002,3
+Type=0x003,3
+Type=0x007,3
+Type=0x014,3
+Type=0x015,3
+Type=0x016,3
+Type=0x020,3
+Type=0x050,3
+Type=0x004,4
+Type=0x00b,4
+Type=0x00c,4
+Type=0x017,4
+Type=0x01e,4
+Type=0x01f,4
+Type=0x046,4
+Type=0x008,5
+Type=0x009,5
+Type=0x00a,5
+Type=0x018,5
+Type=0x019,5
+Type=0x01a,5
+Type=0x03f,5
+Type=0x051,5
+Type=0x053,5
+Type=0x005,6
+Type=0x03c,6
+Type=0x03d,6
+Type=0x04e,6
+Type=0x04f,6
+Type=0x00e,7
+Type=0x013,7
+[End]
+
+
+
+
+
+;===================== POLYGONES ========================
+
+
+[_polygon]
+Type=0x01
+;GRMN_TYPE: Urban Areas/LARGE_CITY/Large urban area, 200 000 or more inhabitants/Non NT
+String1=0x03,stedelijk gebied
+String2=0x04,urban area
+ExtendedLabels=Y
+FontStyle=NormalFont
+CustomColor=Day
+DaycustomColor:#7B3000
+Xpm="32 32 2 1"
+"! c #FFCC99"
+"  c none"
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x02
+;GRMN_TYPE: Urban Areas/SMALL_CITY/Small urban area, less than 200 000 inhabitants/Non NT
+String1=0x03,bebouwde kom
+String2=0x04,residential area
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=Day
+DaycustomColor:#7B3000
+Xpm="32 32 2 1"
+"! c #FFCA8B"
+"  c none"
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x03
+;GRMN_TYPE: Urban Areas/TOWN/Urban area, less than 50 000 inhabitants/Non NT
+String1=0x03,bebouwde kom
+String2=0x04,residential area
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+Xpm="0 0 1 0"
+"1 c #FFCC99"
+[end]
+
+
+[_polygon]
+Type=0x04
+;GRMN_TYPE: Large Manmade Areas/MILITARY_BASE/Military base area/Non NT
+String1=0x03,militair
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+Xpm="32 32 2 1"
+"! c #7B9500"
+"  c none"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x05
+;GRMN_TYPE: Large Manmade Areas/PARKING_LOT/Parking lot area/Non NT
+String1=0x03,Parkeerplaats
+String2=0x04,Parking
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+Xpm="0 0 1 0"
+"1 c #D5D5D5"
+[end]
+
+
+[_polygon]
+Type=0x07
+;GRMN_TYPE: Large Manmade Areas/AIRPORT/Airport area/Non NT
+String1=0x03,vliegveld
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+Xpm="0 0 1 0"
+"1 c #EEEEE0"
+[end]
+
+
+[_polygon]
+Type=0x08
+;GRMN_TYPE: Large Manmade Areas/SHOPPING_AREA/Shopping area/Non NT
+String1=0x03,winkels
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#FF3000
+Xpm="32 32 2 1"
+"! c #FF3000"
+"  c none"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x09
+;GRMN_TYPE: Large Manmade Areas/MARINA/Marina area/Non NT
+String1=0x03,Jachthaven
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#0000B4
+Xpm="32 32 2 1"
+"! c #7BCAD5"
+"  c none"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"                                "
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x0a
+;GRMN_TYPE: Large Manmade Areas/COLLEGE/College or university area/Non NT
+String1=0x03,onderwijs
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#BD0000
+Xpm="0 0 1 0"
+"1 c #FF956A"
+[end]
+
+
+[_polygon]
+Type=0x0b
+;GRMN_TYPE: Large Manmade Areas/HOSPITAL/Hospital area/Non NT
+String1=0x03,ziekenhuis
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#FF0000
+Xpm="32 32 2 1"
+"! c #BDCA8B"
+"# c #FF0000"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!##!!##!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!##!!##!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!######!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!######!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!##!!##!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!##!!##!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x0c
+;GRMN_TYPE: Large Manmade Areas/INDUSTRIAL_COMPLEX/Industrial complex area/Non NT
+String1=0x03,bedrijventerrein
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+Xpm="0 0 1 0"
+"1 c #FFCAB4"
+[end]
+
+
+[_polygon]
+Type=0x0e
+;GRMN_TYPE: Large Manmade Areas/AIRPORT_RUNWAYS/Airport runway area/Non NT
+String1=0x03,plein
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+Xpm="0 0 1 0"
+"1 c #C5C5C5"
+[end]
+
+
+[_polygon]
+Type=0x13
+;GRMN_TYPE: Large Manmade Areas/GENERIC_MANMADE/Other or generic manmade area, such as a building/Non NT
+String1=0x03,Gebouw
+String2=0x04,building
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+Xpm="0 0 1 0"
+"1 c #390000"
+[end]
+
+
+[_polygon]
+Type=0x14
+;GRMN_TYPE: Park Areas/NATIONAL_PARK_MAJOR/Large or major national park/Non NT
+String1=0x03,Bos
+String2=0x04,Forest
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=Day
+DaycustomColor:#7B956A
+Xpm="32 32 4 1"
+"! c #7BCA6A"
+"# c #7B956A"
+"3 c #7B956A"
+"4 c #7B956A"
+"!!!!!!!!!!!!###!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!#!!##!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!#!!##!!!!!!!!!##!!!!!"
+"!!!!!!!!!!!!#######!!!!!!##!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!#!##!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!#!##!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!#!!!##!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!#!!!#####"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!###!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!#!!##!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!#!!##!!!!!!!!!!!##!!!!!!!!!!"
+"!!!!!#######!!!!!!!!##!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!#!##!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!#!##!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!#!!!##!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!#!!!#####!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!##!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!##!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!#!##!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!#!##!!!!!!!!!!!!!!!!###!!!!"
+"!!!!#!!!##!!!!!!!!!!!!!!#!!##!!!"
+"!!!!#!!!#####!!!!!!!!!!!#!!##!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!#######"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x15
+;GRMN_TYPE: Park Areas/NATIONAL_PARK/National park/Non NT
+String1=0x03,Loofbos
+String2=0x04,Deciduous forest
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=Day
+DaycustomColor:#7B956A
+Xpm="32 32 2 1"
+"! c #7BCA6A"
+"# c #7B956A"
+"!!!!!!!!!!!!###!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!#!!##!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!#!!##!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!#######!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!###!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!#!!##!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!#!!##!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!#######!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!###!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!#!!##!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!#!!##!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!#######"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x16
+;GRMN_TYPE: Park Areas/NATIONAL_PARK_OTHER/Small or misc sized national park/Non NT
+String1=0x03,naaldbos
+String2=0x04,coniferous forest
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=Day
+DaycustomColor:#7B956A
+Xpm="32 32 2 1"
+"! c #7BCA6A"
+"# c #7B956A"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!##!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!##!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!#!##!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!#!##!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!#!!!##!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!#!!!#####!!!!!!!!!##!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!##!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!#!##!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!#!##!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!#!!!##!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!#!!!#####!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!##!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!##!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!#!##!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!#!##!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!#!!!##!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!#!!!#####!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!##!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!##!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!#!##!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!#!##!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!#!!!##!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!#!!!#####!!!!!!"
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x17
+;GRMN_TYPE: Park Areas/URBAN_PARK/Small urban park, typically only a few square blocks in size/Non NT
+String1=0x03,Park
+String2=0x04,Park
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#7B956A
+Xpm="32 32 4 1"
+"! c #7BCA8B"
+"# c #009500"
+"3 c #7B956A"
+"4 c #7B956A"
+"!!!##!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!####!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!######!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!######!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!######!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!####!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!##!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!##!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!#!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!###!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!#!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!#####!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!#!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!#######!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!#!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!##!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x18
+;GRMN_TYPE: Large Manmade Areas/GOLF_COURSE/Golf course area/Non NT
+String1=0x03,Golfbaan
+String2=0x04,Golf course
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#BDFF6A
+Xpm="32 32 2 1"
+"! c #BDFF6A"
+"# c #838383"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!#!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!###!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!#####!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!###!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!#!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!#!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!#!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!#!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!#!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!#!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!#!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!#!#!#!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!#!!#!!#!!!!!!!!!!!!!!!!!!!!"
+"!!!!!#!!!!!#!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!#####!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x19
+;GRMN_TYPE: Large Manmade Areas/SPORTS_COMPLEX/Sports arena or stadium/Non NT
+String1=0x03,Sport complex
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#006500
+Xpm="0 0 1 0"
+"1 c #BDFF6A"
+[end]
+
+
+[_polygon]
+Type=0x1a
+;GRMN_TYPE: Large Manmade Areas/CEMETARY/Cemetary/Non NT
+String1=0x03,Begraafplaats
+String2=0x04,Cemetery
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+Xpm="32 32 2 1"
+"! c #7BCA00"
+"# c #626262"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!##!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!##!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!######!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!######!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!##!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!##!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!##!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!##!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!##!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!######!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!######!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!##!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!##!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!##!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x1e
+;GRMN_TYPE: Park Areas/STATE_PARK_MAJOR/Large or major state park/Non NT
+String1=0x03,grasland
+String2=0x04,meadow
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+Xpm="0 0 1 0"
+"1 c #BDFFB4"
+[end]
+
+
+[_polygon]
+Type=0x1f
+;GRMN_TYPE: Park Areas/STATE_PARK/State or provincial park/Non NT
+String1=0x03,landbouw
+String2=0x04,farmland
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+Xpm="0 0 1 0"
+"1 c #FFFFD5"
+[end]
+
+
+[_polygon]
+Type=0x20
+;GRMN_TYPE: Park Areas/STATE_PARK_OTHER/Small or misc sized state park/Non NT
+String1=0x03,heide
+String2=0x04,heather
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=Day
+DaycustomColor:#7B956A
+Xpm="32 32 2 1"
+"! c #FFCAFF"
+"# c #7B956A"
+"!!!!!!!!!!!!###!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!#!!##!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!#!!##!!!!!!!!!##!!!!!"
+"!!!!!!!!!!!!#######!!!!!!##!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!#!##!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!#!##!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!#!!!##!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!#!!!#####"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!###!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!#!!##!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!#!!##!!!!!!!!!!!##!!!!!!!!!!"
+"!!!!!#######!!!!!!!!##!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!#!##!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!#!##!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!#!!!##!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!#!!!#####!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!##!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!##!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!#!##!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!#!##!!!!!!!!!!!!!!!!###!!!!"
+"!!!!#!!!##!!!!!!!!!!!!!!#!!##!!!"
+"!!!!#!!!#####!!!!!!!!!!!#!!##!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!#######"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x27
+;GRMN_TYPE: //
+String1=0x03,gebied
+String2=0x04,area
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+Xpm="0 0 1 0"
+"1 c #D8F7BA"
+[end]
+
+
+[_polygon]
+Type=0x32
+;GRMN_TYPE: Water Areas/SEA/Sea/Non NT
+String1=0x03,Zee
+String2=0x04,Sea
+ExtendedLabels=Y
+FontStyle=NormalFont
+CustomColor=Day
+DaycustomColor:#00006A
+Xpm="0 0 1 0"
+"1 c #7BCAD5"
+[end]
+
+
+[_polygon]
+Type=0x3c
+;GRMN_TYPE: Water Areas/LAKE_100MI/Lake less than 250 sq mi but greater or equal to 100 sq mi in area/Non NT
+String1=0x03,water
+String2=0x04,Lake
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=Day
+DaycustomColor:#0000FF
+Xpm="0 0 1 0"
+"1 c #7BCAD5"
+[end]
+
+
+[_polygon]
+Type=0x3d
+;GRMN_TYPE: Water Areas/LAKE_30MI, LARGE_LAKE/Large lake, typically between 30 and 500 sq mi in area/Non NT
+String1=0x03,water
+String2=0x04,Lake
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#0000FF
+Xpm="0 0 1 0"
+"1 c #7BCAD5"
+[end]
+
+
+[_polygon]
+Type=0x3f
+;GRMN_TYPE: Water Areas/LAKE, LAKE_5MI/Medium sized lake, typically between 5 and 30 sq mi in area/Non NT
+String1=0x03,meer
+String2=0x04,Medium lake
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=Day
+DaycustomColor:#0000B4
+Xpm="0 0 1 0"
+"1 c #7BCAD5"
+[end]
+
+
+[_polygon]
+Type=0x46
+;GRMN_TYPE: Water Areas/LARGE_RIVER/Major river, typically at least 700 ft in width/Non NT
+String1=0x03,Rivier, kanaal
+String2=0x04,Major river
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=Day
+DaycustomColor:#0000FF
+Xpm="0 0 1 0"
+"1 c #7BCAD5"
+[end]
+
+
+[_polygon]
+Type=0x4e
+;GRMN_TYPE: Surface Cover Areas/ORCHARD/Orchard or plantation area/Non NT
+String1=0x03,Boomgaard/kwekerij
+String2=0x04,Orchard
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+Xpm="32 32 2 1"
+"! c #BDFF6A"
+"# c #009500"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!####!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!###!!###!!!!!!!!!!!!!!!!!!!!!"
+"!!!#!!!!!!#!!!!!!!!!!!!!!!!!!!!!"
+"!!##!!!!!!##!!!!!!!!!!!!!!!!!!!!"
+"!!#!!!!!!!!#!!!!!!!!!!!!!!!!!!!!"
+"!!#!!!!!!!!#!!!!!!!!!!!!!!!!!!!!"
+"!!##!!!!!!##!!!!!!!!!!!!!!!!!!!!"
+"!!!#!!!!!!#!!!!!!!!!!!!!!!!!!!!!"
+"!!!###!!###!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!####!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!##!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!##!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!##!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!##!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!####!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!###!!###!!!!!"
+"!!!!!!!!!!!!!!!!!!!#!!!!!!#!!!!!"
+"!!!!!!!!!!!!!!!!!!##!!!!!!##!!!!"
+"!!!!!!!!!!!!!!!!!!#!!!!!!!!#!!!!"
+"!!!!!!!!!!!!!!!!!!#!!!!!!!!#!!!!"
+"!!!!!!!!!!!!!!!!!!##!!!!!!##!!!!"
+"!!!!!!!!!!!!!!!!!!!#!!!!!!#!!!!!"
+"!!!!!!!!!!!!!!!!!!!###!!###!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!####!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!##!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!##!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!##!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!##!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x4f
+;GRMN_TYPE: Surface Cover Areas/SCRUB/Scrub brush area/Non NT
+String1=0x03,Bossage
+String2=0x04,Scrub
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#33FF33
+Xpm="32 32 2 1"
+"! c #BDFF6A"
+"# c #009500"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!##!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!#!!#!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!#!!!!#!!!!!!!!!!!!!!!!!!!!!!"
+"!!###!!!!###!!!!!!!!!!!!!!!!!!!!"
+"!#!!#!!!!#!!#!!!!!!!!!!!!!!!!!!!"
+"!!#!!#!!#!!#!!!!!!!!!!!!!!!!!!!!"
+"!!#!!#!!#!!#!!!!!!!!!!!!!!!!!!!!"
+"!############!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!##!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!#!!#!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!#!!!!#!!!!!!"
+"!!!!!!!!!!!!!!!!!!###!!!!###!!!!"
+"!!!!!!!!!!!!!!!!!#!!#!!!!#!!#!!!"
+"!!!!!!!!!!!!!!!!!!#!!#!!#!!#!!!!"
+"!!!!!!!!!!!!!!!!!!#!!#!!#!!#!!!!"
+"!!!!!!!!!!!!!!!!!############!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x50
+;GRMN_TYPE: Surface Cover Areas/WOODS/Wooded or forested area/Non NT
+String1=0x03,Bos
+String2=0x04,Forest
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+Xpm="0 0 1 0"
+"1 c #7BCA6A"
+[end]
+
+
+[_polygon]
+Type=0x51
+;GRMN_TYPE: Surface Cover Areas/WETLAND/Wetland or swamp area/Non NT
+String1=0x03,Moeras
+String2=0x04,Swamp
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#33FF33
+Xpm="32 32 2 1"
+"! c #BDFF6A"
+"# c #00308B"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!####!!!!!!!!!!!!####!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!###!!!!!!!!!!!!!###!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"####!!!!!!!!!!####!!!!!!!!!!!!##"
+"!!!!!!#!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!#!!!!!!!!!!!!!!!!###!!!!!!"
+"!!#!!!#!!!#!!!!!!!!!!!!!!!!!!!!!"
+"!!!#!!#!!#!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!#!#!#!!!!!!!!####!!!!!!####!"
+"!##!#!#!#!##!!!!!!!!!!!!!!!!!!!!"
+"!!!#!###!#!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!#####!!!!!!!!!!!!!###!!!!!!!"
+"!###########!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!##"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!######!!!!!!!!!!###!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"#!!!!!!!!!####!!!!!!!!!!!!####!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!####!!!!!!!!!!!!!!#####!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!#####!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!####!!!"
+"##!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!#####!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!####!"
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x53
+;GRMN_TYPE: Surface Cover Areas/FLAT/Sand, tidal, mud, etc. flat area/Non NT
+String1=0x03,Strand, duinen
+String2=0x04,Sand
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+Xpm="32 32 2 1"
+"! c #FFFF00"
+"  c none"
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+" ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! !"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+;12345678901234567890123456789012
+[end]
+
+
+[_polygon]
+Type=0x10100
+;GRMN_TYPE: //
+String1=0x03,gebied
+String2=0x04,area
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+Xpm="0 0 2 0"
+"1 c #D8F7BA"
+"2 c #FFFFD5"
+[end]
+
+
+;====================== LINES ===========================
+
+
+[_line]
+Type=0x00
+;GRMN_TYPE: //
+UseOrientation=Y
+LineWidth=2
+Xpm="0 0 1 0"
+"1 c #666600"
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=Day
+DaycustomColor:#626262
+[end]
+
+
+[_line]
+Type=0x01
+;GRMN_TYPE: Roads/INTERSTATE, MAJOR_HWY/Primary, divided, limited-access highway, akin to an interstate in the US/Non NT, NT
+UseOrientation=N
+Xpm="32 5 2  1"
+"! c #626262"
+"  c none"
+"                                "
+"!!!!    !!!!    !!!!    !!!!    "
+"                                "
+"!!!!    !!!!    !!!!    !!!!    "
+"                                "
+;12345678901234567890123456789012
+String1=0x03,fietsverbod
+String2=0x04,no cycling
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x02
+;GRMN_TYPE: Roads/PRINCIPAL_HWY/Principal highway, usually divided and limited access, akin to US highways/Non NT, NT
+UseOrientation=N
+Xpm="32 12 2  1"
+"! c #0000B4"
+"  c none"
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"!!!!    !!!!    !!!!    !!!!    "
+"!!!!    !!!!    !!!!    !!!!    "
+"!!!!    !!!!    !!!!    !!!!    "
+;12345678901234567890123456789012
+String1=0x03,LF-route
+String2=0x04,ncn
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x03
+;GRMN_TYPE: Roads/OTHER_HWY/Other highway road, akin to a state highway in the US/Non NT, NT
+UseOrientation=N
+Xpm="32 5 2  1"
+"! c #B4B4B4"
+"# c #A4A4A4"
+"################################"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"################################"
+;12345678901234567890123456789012
+String1=0x03,auto(snel)weg
+String2=0x04,Principal Highway
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x04
+;GRMN_TYPE: Roads/ARTERIAL/Main city thoroughfare/Non NT, NT
+UseOrientation=N
+Xpm="32 4 2  1"
+"! c #BD9520"
+"# c #A4A4A4"
+"################################"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"################################"
+;12345678901234567890123456789012
+String1=0x03,Provinciale weg
+String2=0x04,Arterial Road
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x05
+;GRMN_TYPE: Roads/COLLECTOR/Secondary city thoroughfare/Non NT, NT
+UseOrientation=N
+Xpm="32 4 2  1"
+"! c #FFFF41"
+"# c #949494"
+"################################"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"################################"
+;12345678901234567890123456789012
+String1=0x03,Regionale weg
+String2=0x04,tertiary road
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x06
+;GRMN_TYPE: Roads/RESIDENTIAL/Residential street, these are typically the most numerous roads in a detailed city map and do not show up until the user is zoomed in quite far/Non NT, NT
+UseOrientation=N
+Xpm="32 4 2  1"
+"! c #FFFFFF"
+"# c #949494"
+"################################"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"################################"
+;12345678901234567890123456789012
+String1=0x03,Straat
+String2=0x04,Residential street
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x07
+;GRMN_TYPE: Roads/ALLEY, DRIVEWAY/Alleyway, private driveway to residence/Non NT, NT
+UseOrientation=N
+Xpm="32 3 2  1"
+"! c #838383"
+"# c #FFFFFF"
+"!!!!!#####!!!!!#####!!!!!#####!!"
+"################################"
+"!!!!!#####!!!!!#####!!!!!#####!!"
+;12345678901234567890123456789012
+String1=0x03,toegangsweg
+String2=0x04,service road
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x08
+;GRMN_TYPE: Roads/LOW_SPEED_RAMP/Highway ramp which is to be driven at low speeds/Non NT, NT
+UseOrientation=N
+Xpm="32 2 4  1"
+"! c #573132"
+"  c none"
+"3 c #000000"
+"4 c #FFFFFF"
+"!!  !!  !!  !!  !!  !!  !!  !!  "
+"!!  !!  !!  !!  !!  !!  !!  !!  "
+;12345678901234567890123456789012
+String1=0x03,voetpad
+String2=0x04,footway
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x09
+;GRMN_TYPE: Roads/HIGH_SPEED_RAMP, RAMP/Highway ramp which is to be driven at high speeds/Non NT, NT
+UseOrientation=N
+Xpm="32 10 2  1"
+"! c #000000"
+"# c #D8F7BA"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"################################"
+"################################"
+"################################"
+"################################"
+"################################"
+"################################"
+"################################"
+"################################"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+;12345678901234567890123456789012
+String1=0x03,brug
+String2=0x04,bridge
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x0a
+;GRMN_TYPE: Roads/UNPAVED_ROAD/Gravel or dirt road/Non NT, NT
+UseOrientation=N
+Xpm="32 2 4  1"
+"! c #573132"
+"  c none"
+"3 c #000000"
+"4 c #FFFFFF"
+" !!!!    !!!!    !!!!    !!!!   "
+" !!!!    !!!!    !!!!    !!!!   "
+;12345678901234567890123456789012
+String1=0x03,onverhard
+String2=0x04,unpaved
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x0b
+;GRMN_TYPE: Roads/MAJOR_CONNECTOR/Major highway connector/Non NT, NT
+UseOrientation=N
+Xpm="32 12 2  1"
+"! c #7B00D5"
+"  c none"
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"!!!!    !!!!    !!!!    !!!!    "
+"!!!!    !!!!    !!!!    !!!!    "
+"!!!!    !!!!    !!!!    !!!!    "
+;12345678901234567890123456789012
+String1=0x03,fietsroute
+String2=0x04,rcn/ncn bike route
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=Day
+DaycustomColor:#7B00D5
+[end]
+
+
+[_line]
+Type=0x0c
+;GRMN_TYPE: Roads/ROUNDABOUT/Roundabout/Non NT, NT
+UseOrientation=N
+Xpm="32 5 2  1"
+"! c #000000"
+"  c none"
+"          !                     "
+"          !!                    "
+"          !!!                   "
+"          !!                    "
+"          !                     "
+;12345678901234567890123456789012
+String1=0x03,1-richting
+String2=0x04,oneway
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x0d
+;GRMN_TYPE: Customizable Line Types/CUSTOMIZABLE_ROUTE_LINE_1/Routable customizable line/Non NT, NT
+UseOrientation=N
+Xpm="32 12 2  1"
+"! c #7B6500"
+"  c none"
+"!       !       !       !       "
+"!   !   !   !   !   !   !   !   "
+"!   !   !   !   !   !   !   !   "
+"!   !   !   !   !   !   !   !   "
+"                                "
+"                                "
+"                                "
+"                                "
+"!   !   !   !   !   !   !   !   "
+"!   !   !   !   !   !   !   !   "
+"!   !   !   !   !   !   !   !   "
+"!       !       !       !       "
+;12345678901234567890123456789012
+String1=0x03,dijk/talud
+String2=0x04,dyke
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x0f
+;GRMN_TYPE: Customizable Line Types/CUSTOMIZABLE_ROUTE_LINE_3/Routable customizable line/Non NT, NT
+UseOrientation=N
+Xpm="32 2 2  1"
+"! c #573132"
+"# c #FFFFFF"
+"!!!!!###!!!!!###!!!!!###!!!!!###"
+"!!!!!###!!!!!###!!!!!###!!!!!###"
+;12345678901234567890123456789012
+String1=0x03,halfverharde weg
+String2=0x04,Track road
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x10
+;GRMN_TYPE: Customizable Line Types/CUSTOMIZABLE_ROUTE_LINE_4/Routable customizable line/Non NT, NT
+UseOrientation=N
+Xpm="32 1 2  1"
+"! c #838383"
+"  c none"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+;12345678901234567890123456789012
+String1=0x03,asfaltweg
+String2=0x04,paved road
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x11
+;GRMN_TYPE: Customizable Line Types/CUSTOMIZABLE_ROUTE_LINE_5/Routable customizable line/Non NT, NT
+UseOrientation=Y
+LineWidth=1
+Xpm="0 0 1 0"
+"1 c #FF0000"
+String1=0x03,Fietspad
+String2=0x04,cycleway
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x12
+;GRMN_TYPE: Customizable Line Types/CUSTOMIZABLE_ROUTE_LINE_6/Routable customizable line/Non NT, NT
+UseOrientation=Y
+LineWidth=2
+Xpm="0 0 1 0"
+"1 c #BD9520"
+String1=0x03,provinciale weg
+String2=0x04,secondary road
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x13
+;GRMN_TYPE: Customizable Line Types/CUSTOMIZABLE_ROUTE_LINE_7/Routable customizable line/Non NT, NT
+UseOrientation=Y
+Xpm="32 5 2  1"
+"! c #000000"
+"# c #D8F7BA"
+"!!##!!##!!##!!##!!##!!##!!##!!##"
+"!###!###!###!###!###!###!###!###"
+"!###!###!###!###!###!###!###!###"
+"!###!###!###!###!###!###!###!###"
+"!!##!!##!!##!!##!!##!!##!!##!!##"
+;12345678901234567890123456789012
+String1=0x03,trap
+String2=0x04,steps
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x14
+;GRMN_TYPE: Misc. Line Types/RAILROAD/Railroad/Non NT
+UseOrientation=N
+Xpm="32 7 2  1"
+"! c #525252"
+"# c #FFFFFF"
+"################################"
+"################################"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"####!!!!!!!!#########!!!!!!!!###"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"################################"
+"################################"
+;12345678901234567890123456789012
+String1=0x03,spoorweg
+String2=0x04,railway
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x15
+;GRMN_TYPE: Misc. Line Types/SHORELINE/Shoreline of water body (typically only used when a water area is not available)/Non NT
+UseOrientation=N
+Xpm="32 1 2  1"
+"! c #000000"
+"  c none"
+"!!!!    !!!!    !!!!    !!!!    "
+;12345678901234567890123456789012
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x16
+;GRMN_TYPE: Roads/TRAIL/Walkway or trail/Non NT, NT
+UseOrientation=N
+Xpm="32 4 2  1"
+"! c #FF0000"
+"# c #FFFFFF"
+"################################"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"################################"
+;12345678901234567890123456789012
+String1=0x03,fietspad
+String2=0x04,bike path
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x18
+;GRMN_TYPE: Water Features/STREAM/Small stream or creek/Non NT
+UseOrientation=N
+LineWidth=1
+Xpm="0 0 1 0"
+"1 c #7BCAD5"
+String1=0x03,Sloot
+String2=0x04,Stream
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x19
+;GRMN_TYPE: Misc. Line Types/TIME_ZONE_BOUNDARY/Indicates the boundary of a time zone/Non NT
+UseOrientation=N
+Xpm="32 12 2  1"
+"! c #BD0000"
+"  c none"
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"!!!!!   !!!!!   !!!!!   !!!!!   "
+"!!!!!   !!!!!   !!!!!   !!!!!   "
+"!!!!!   !!!!!   !!!!!   !!!!!   "
+;12345678901234567890123456789012
+String1=0x03,knooppuntroute
+String2=0x04,rcn route
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x1a
+;GRMN_TYPE: Roads/INTERNATIONAL_FERRY/Major water or rail ferry/Non NT, NT
+UseOrientation=Y
+Xpm="32 4 4  1"
+"! c #FFFF00"
+"  c none"
+"3 c #FFFF00"
+"4 c #FFFF00"
+"                                "
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"                                "
+;12345678901234567890123456789012
+String1=0x03,mtb route
+String2=0x04,mtb route
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x1b
+;GRMN_TYPE: Roads/FERRY/Water or rail ferry/Non NT, NT
+UseOrientation=N
+Xpm="32 1 2  1"
+"! c #0000B4"
+"  c none"
+"!!!!    !!!!    !!!!    !!!!    "
+;12345678901234567890123456789012
+String1=0x03,veerpont
+String2=0x04,ferry
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x1c
+;GRMN_TYPE: Political Borders/MJR_PLTCL_BDRY/Major political boundary (typically used for state, provincial borders)/Non NT
+UseOrientation=N
+Xpm="32 1 2  1"
+"! c #666600"
+"  c none"
+"!  !!!  !       !  !!!  !       "
+;12345678901234567890123456789012
+String1=0x03,gemeentegrens
+String2=0x04,municipal border
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x1d
+;GRMN_TYPE: Political Borders/MNR_PLTCL_BDRY/Minor political boundary (typically used for county/parish borders)
+UseOrientation=N
+Xpm="32 2 2  1"
+"! c #666600"
+"  c none"
+"    !               !           "
+"!  !!!  !!     !!  !!!  !!     !"
+;12345678901234567890123456789012
+String1=0x03,Provinciegrens
+String2=0x04,Provincial border
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x1e
+;GRMN_TYPE: Political Borders/INTRN_PLTCL_BDRY/International boundary/Non NT
+UseOrientation=Y
+Xpm="32 3 2  1"
+"! c #666600"
+"# c #BD95D5"
+"################################"
+"###!#######!#######!#######!####"
+"!#!!!#!!!#!!!#!!!#!!!#!!!#!!!#!!"
+;12345678901234567890123456789012
+String1=0x03,Landsgrens
+String2=0x04,State border
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x1f
+;GRMN_TYPE: Water Features/RIVER/Large stream or river/Non NT
+UseOrientation=N
+LineWidth=2
+Xpm="0 0 1 0"
+"1 c #7BCAD5"
+String1=0x03,Rivier
+String2=0x04,River
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x20
+;GRMN_TYPE: Contour Lines/MINOR_CONTOUR/Minor land-based contour line/Non NT
+UseOrientation=N
+Xpm="32 4 2  1"
+"! c #996633"
+"  c none"
+"!   !   !   !   !   !   !   !   "
+"!   !   !   !   !   !   !   !   "
+"!   !   !   !   !   !   !   !   "
+"!   !   !   !   !   !   !   !   "
+;12345678901234567890123456789012
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#996633
+[end]
+
+
+[_line]
+Type=0x21
+;GRMN_TYPE: Contour Lines/INT_CONTOUR/Intermediate contour (should be used for about every 5th contour line)/Non NT
+UseOrientation=N
+Xpm="32 4 2  1"
+"! c #996633"
+"  c none"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+;12345678901234567890123456789012
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=Day
+DaycustomColor:#996633
+[end]
+
+
+[_line]
+Type=0x22
+;GRMN_TYPE: Contour Lines/MAJOR_CONTOUR/Major contour (should be used for about every 10th contour line)/Non NT
+UseOrientation=N
+Xpm="32 4 2  1"
+"! c #996633"
+"  c none"
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+"! ! ! ! ! ! ! ! ! ! ! ! ! ! ! ! "
+;12345678901234567890123456789012
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=Day
+DaycustomColor:#996633
+[end]
+
+
+[_line]
+Type=0x26
+;GRMN_TYPE: Water Features/INTERMITTENT_STREAM/Intermittent or dry stream, creek, or ditch/Non NT
+UseOrientation=N
+Xpm="32 6 2  1"
+"! c #FF0000"
+"  c none"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"                                "
+"                                "
+"                                "
+"                                "
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+;12345678901234567890123456789012
+String1=0x03,weg met fietsstrook
+String2=0x04,road with bikelane
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x27
+;GRMN_TYPE: Misc. Line Types/AIRPORT_RUNWAY/Airport runway centerline/Non NT
+UseOrientation=N
+Xpm="32 12 2  1"
+"! c #FF308B"
+"  c none"
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"!!!     !!!     !!!     !!!     "
+"!!!     !!!     !!!     !!!     "
+"!!!     !!!     !!!     !!!     "
+"                                "
+;12345678901234567890123456789012
+String1=0x03,lokale fietsroute
+String2=0x04,local bike route
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#FF308B
+[end]
+
+
+[_line]
+Type=0x28
+;GRMN_TYPE: Misc. Line Types/PIPELINE/Oil or water pipeline/Non NT
+UseOrientation=N
+Xpm="32 6 2  1"
+"! c #7B6500"
+"  c none"
+"!   !   !   !   !   !   !   !   "
+"!   !   !   !   !   !   !   !   "
+"!   !   !   !   !   !   !   !   "
+"!   !   !   !   !   !   !   !   "
+"!       !       !       !       "
+"!       !       !       !       "
+;12345678901234567890123456789012
+String1=0x03,klif
+String2=0x04,cliff
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x29
+;GRMN_TYPE: Misc. Line Types/POWERLINE/Powerline/Non NT
+UseOrientation=N
+Xpm="32 1 4  1"
+"! c #626262"
+"  c none"
+"3 c #FFFF00"
+"4 c none"
+"!!  !!  !!  !!  !!  !!  !!  !!  "
+;12345678901234567890123456789012
+String1=0x03,onverharde weg
+String2=0x03,track
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x2a
+;GRMN_TYPE: Misc. Line Types/MARINE_BOUNDARY/Marine Boundary Line/Non NT
+UseOrientation=N
+Xpm="32 3 2  1"
+"! c #000000"
+"  c none"
+"               !                "
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"               !                "
+;12345678901234567890123456789012
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+[end]
+
+
+[_line]
+Type=0x2b
+;GRMN_TYPE: Misc. Line Types/MARINE_HAZARD/Marine Hazard Line/Non NT
+UseOrientation=N
+Xpm="32 10 2  1"
+"! c #626262"
+"  c none"
+"!!!!!!!!        !!!!!!!!        "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"                                "
+"!!!!!!!!        !!!!!!!!        "
+;12345678901234567890123456789012
+String1=0x03,tunnel
+String2=0x04,tunnel
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=No
+[end]
+
+
+;====================== POINTS ==========================
+
+
+[_point]
+Type=0x004
+SubType=0x00
+;GRMN_TYPE: Political Entities/CITY_1M/Large city with a range of (1, 2] million inhabitants/Non NT
+String1=0x03,grote stad
+ExtendedLabels=Y
+FontStyle=LargeFont
+CustomColor=No
+DayXpm="10 9 3 1"   Colormode=16
+"!	c #000000"
+"#	c #FF0000"
+"  	c none"
+"   !!!!!  "
+"  !!###!! "
+" !!#####!!"
+" !##!!!##!"
+" !##!!!##!"
+" !##!!!##!"
+" !!#####!!"
+"  !!###!! "
+"   !!!!!  "
+;1234567890
+[end]
+
+
+[_point]
+Type=0x008
+SubType=0x00
+;GRMN_TYPE: Political Entities/CITY_50K, MEDIUM_CITY/Medium city center, typically 50K-1M inhabitants/Non NT
+String1=0x03,middelgrote stad
+ExtendedLabels=Y
+FontStyle=LargeFont
+CustomColor=No
+DayXpm="9 8 3 1"   Colormode=16
+"!	c #000000"
+"#	c #FF0000"
+"  	c none"
+"         "
+"    !!!  "
+"   !###! "
+"  !#####!"
+"  !##!##!"
+"  !#####!"
+"   !###! "
+"    !!!  "
+;123456789
+[end]
+
+
+[_point]
+Type=0x00a
+SubType=0x00
+;GRMN_TYPE: Political Entities/CITY_10K/City with the range of (10, 20] thousand inhabitants/Non NT
+String1=0x03,stad
+ExtendedLabels=Y
+FontStyle=NormalFont
+CustomColor=No
+DayXpm="9 8 3 1"   Colormode=16
+"!	c #000000"
+"#	c #FF0000"
+"  	c none"
+"         "
+"   !!!!! "
+"  !!###!!"
+"  !#####!"
+"  !#####!"
+"  !#####!"
+"  !!###!!"
+"   !!!!! "
+;123456789
+[end]
+
+
+[_point]
+Type=0x00b
+SubType=0x00
+;GRMN_TYPE: Political Entities/CITY_5K/City with the range of (5, 10] thousand inhabitants/Non NT
+String1=0x03,dorp
+String2=0x04,village
+ExtendedLabels=Y
+FontStyle=NormalFont
+CustomColor=No
+DayXpm="5 5 3 1"   Colormode=16
+"!	c #000000"
+"#	c #FFFFFF"
+"  	c none"
+" !!! "
+"!###!"
+"!###!"
+"!###!"
+" !!! "
+;12345
+[end]
+
+
+[_point]
+Type=0x011
+SubType=0x00
+;GRMN_TYPE: //
+String1=0x03,buurtschap
+String2=0x04,hamlet
+ExtendedLabels=Y
+FontStyle=NormalFont
+CustomColor=No
+DayXpm="4 4 3 1"   Colormode=16
+"!	c #000000"
+"#	c #FFFFFF"
+"  	c none"
+"    "
+" !!!"
+" !#!"
+" !!!"
+;1234
+[end]
+
+
+[_point]
+Type=0x011
+SubType=0x01
+;GRMN_TYPE: //
+String1=0x03,busstation
+String2=0x04,Bus station
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#000041
+DayXpm="20 20 8 1"   Colormode=16
+"!	c #0095FF"
+"#	c #7BCAFF"
+"%	c #FFFFFF"
+"?	c #BDCAFF"
+"$	c #3995FF"
+"*	c #E6E6E6"
+"=	c #BDFFFF"
+"  	c none"
+"!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!#%%#!!!!!!!!"
+"!!!!!!!#%??%#!!!!!!!"
+"!!!!!$?%#$$#%?$!!!!!"
+"!!!!$*=!!!!!!=*$!!!!"
+"!!!#%?!!!!!!!!?%#!!!"
+"!!#%?!!!!!!!!!!?%#!!"
+"!?% !!!!!!!!!!!! %?!"
+"!!!!!!!!!!!!!!!!!!!!"
+"!!!!!%%%%%%%%%%%%!!!"
+"!!!!%!%!!!!%!!!!%%!!"
+"!!!%!!%!!!!%!!!!%%!!"
+"!!%%!!%!!!!%!!!!%%!!"
+"!!%%%%%%%%%%%%%%%%!!"
+"!!%?!?%%%%%%%%?!?%!!"
+"!!%!%!%%%%%%%%!%!%!!"
+"!!!%!%!%%%%%%!%!%!!!"
+"!!!!%!!!!!!!!!!%!!!!"
+"!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!"
+;12345678901234567890
+[end]
+
+
+[_point]
+Type=0x011
+SubType=0x02
+;GRMN_TYPE: //
+String1=0x03,taxi
+ExtendedLabels=N
+DayXpm="5 5 23 2"   Colormode=32
+"!!	c #F5F929"  alpha=0
+"!#	c #F8FC2C"  alpha=0
+"!%	c #F6E87B"  alpha=0
+"!?	c #F8EA7D"  alpha=0
+"!$	c #FAFF00"  alpha=0
+"!*	c #F7FB2B"  alpha=0
+"!=	c #181C00"  alpha=0
+"!1	c #160800"  alpha=0
+"!2	c #FFFF05"  alpha=0
+"!3	c #F9FF0B"  alpha=0
+"!4	c #F6FC08"  alpha=0
+"!5	c #1D1100"  alpha=0
+"!6	c #FCF060"  alpha=0
+"!7	c #FCFF00"  alpha=0
+"!8	c #FDFF0F"  alpha=0
+"!9	c #F8FE0A"  alpha=0
+"#!	c #1A0E00"  alpha=0
+"##	c #FBEF5F"  alpha=0
+"#%	c #FBFE00"  alpha=0
+"#?	c #FFFF01"  alpha=0
+"#$	c #F9F615"  alpha=0
+"#*	c #FEFB1A"  alpha=0
+"#=	c #FFFF04"  alpha=0
+"!!!#!%!?!$"
+"!*!=!1!1!2"
+"!3!4!5!6!7"
+"!8!9#!###%"
+"#?!7#$#*#="
+;12345
+[end]
+
+
+[_point]
+Type=0x011
+SubType=0x03
+;GRMN_TYPE: //
+String1=0x03,bushalte
+String2=0x04,busstop
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#7B0000
+DayXpm="5 5 2 1"   Colormode=32
+"!	c #FFFF00"  alpha=0
+"#	c #000000"  alpha=0
+"!!!!!"
+"!#!#!"
+"!###!"
+"!#!#!"
+"!!!!!"
+;12345
+[end]
+
+
+[_point]
+Type=0x011
+SubType=0x05
+;GRMN_TYPE: //
+String1=0x03,spoorweg
+ExtendedLabels=N
+DayXpm="9 14 3 1"   Colormode=16
+"!	c #FF0000"
+"#	c #FFFFFF"
+"  	c none"
+"!!     !!"
+"!!     !!"
+" !!   !! "
+" !!   !! "
+"  ## ##  "
+"  ## ##  "
+"   ###   "
+"   ###   "
+"  ## ##  "
+"  ## ##  "
+" !!   !! "
+" !!   !! "
+"!!     !!"
+"!!     !!"
+;123456789
+[end]
+
+
+[_point]
+Type=0x011
+SubType=0x06
+;GRMN_TYPE: //
+String1=0x03,hek
+String2=0x04,gate
+ExtendedLabels=N
+DayXpm="12 7 2 1"   Colormode=16
+"!	c #000000"
+"  	c none"
+" !        ! "
+" !      ! ! "
+"!!!!!!!!!!!!"
+" !    !   ! "
+" !   !    ! "
+"!!!!!!!!!!!!"
+" ! !      ! "
+;123456789012
+[end]
+
+
+[_point]
+Type=0x011
+SubType=0x07
+;GRMN_TYPE: //
+String1=0x03,hekje
+ExtendedLabels=N
+DayXpm="7 8 3 1"   Colormode=16
+"!	c #000000"
+"#	c #A4A4A4"
+"  	c none"
+"   !!! "
+"  !   !"
+"  #   !"
+" !!!  !"
+"!!  ! !"
+"!   !  "
+"!   !  "
+"!   !  "
+;1234567
+[end]
+
+
+[_point]
+Type=0x011
+SubType=0x08
+;GRMN_TYPE: //
+String1=0x03,paaltje
+ExtendedLabels=N
+DayXpm="6 6 3 1"   Colormode=16
+"!	c #FFFFFF"
+"#	c #FF0000"
+"  	c none"
+"  !!  "
+" !!!! "
+"!!##!!"
+"!!##!!"
+" !!!! "
+"  !!  "
+;123456
+[end]
+
+
+[_point]
+Type=0x01f
+SubType=0x00
+;GRMN_TYPE: Political Entities/COUNTY/County or parish center/Non NT, NT
+String1=0x03,knooppunt
+String2=0x04,bicycle route node
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=Day
+DaycustomColor:#0000D5
+DayXpm="7 7 4 1"   Colormode=32
+"!	c #000000"  alpha=15
+"#	c #FFFFFF"  alpha=0
+"%	c #00FF00"  alpha=0
+"?	c #004000"  alpha=0
+"!!!!!!!"
+"!!#%#!!"
+"!#%%%#!"
+"!%%?%%!"
+"!#%%%#!"
+"!!#%#!!"
+"!!!!!!!"
+;1234567
+[end]
+
+
+[_point]
+Type=0x028
+SubType=0x02
+;GRMN_TYPE: //
+String1=0x03,monument
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+DayXpm="16 18 10 1"   Colormode=16
+"!	c #E6E6E6"
+"#	c #FFFFFF"
+"%	c #399500"
+"?	c #BDCA8B"
+"$	c #BDFFB4"
+"*	c #00CA00"
+"=	c #39CA20"
+"1	c #39CA00"
+"2	c #7BCA6A"
+"  	c none"
+"                "
+"                "
+"        !##!    "
+"        ####    "
+"        #%%#    "
+"        #%%#    "
+"        #%%#    "
+"       ?#%%#?   "
+"       ?#%%#?   "
+"       ?#%%#?   "
+"       $#%%#$   "
+"       **==**   "
+"      1$#!!#$1  "
+"     =2!####!2= "
+"     2!!!!!!!!2 "
+"     %%%%%%%%%% "
+"    2!!!!!!!!!!2"
+"    111111111111"
+;1234567890123456
+[end]
+
+
+[_point]
+Type=0x028
+SubType=0x03
+;GRMN_TYPE: //
+String1=0x03,museum
+String2=0x04,Landmark
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+DayXpm="19 18 7 1"   Colormode=16
+"!	c #FFFFFF"
+"#	c #399500"
+"%	c #E6E6E6"
+"?	c #BDFF8B"
+"$	c #BDCA8B"
+"*	c #7BCA6A"
+"  	c none"
+"                   "
+"         !!        "
+"        !!!!       "
+"       !!!!!!      "
+"      !!#%%#!!     "
+"     !!!####!!!    "
+"    !!!!#?$#!!!!   "
+"   !!!!!#!!#!!!!!  "
+"  !!!!!!!!!!!!!!!! "
+" !################!"
+" ##!!#*!#!!#!*#!!##"
+" ##!!#*!#!!#!*#!!##"
+" ##!!#*!#!!#!*#!!##"
+" ##!!#*!#!!#!*#!!##"
+" ##!!#*!#!!#!*#!!##"
+" ##!!#*!#!!#!*#!!##"
+" ##################"
+" !!!!!!!!!!!!!!!!!!"
+;1234567890123456789
+[end]
+
+
+[_point]
+Type=0x028
+SubType=0x04
+;GRMN_TYPE: //
+String1=0x03,kerk
+String2=0x04,church
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#390000
+DayXpm="12 20 7 1"   Colormode=32
+"!	c #000000"  alpha=15
+"#	c #8C8B8A"  alpha=0
+"%	c #201D1E"  alpha=0
+"?	c #CDCDCD"  alpha=0
+"$	c #BABABA"  alpha=0
+"*	c #464646"  alpha=0
+"=	c #6B6A69"  alpha=0
+"!!!!#%%?!!!!"
+"!!!!#%%?!!!!"
+"!!!!#%%?!!!!"
+"!$***%%***?!"
+"!#%%%%%%%%?!"
+"!#%%%%%%%%?!"
+"!!!!#%%?!!!!"
+"!!!!#%%?!!!!"
+"!!!!#%%?!!!!"
+"!!!!#%%?!!!!"
+"!!!!#%%?!!!!"
+"####*%%=###$"
+"%%%%%%%%%%%*"
+"%%%%%%%%%%%*"
+"%%%%%%%%%%%*"
+"%%%%%%%%%%%*"
+"%%%%%%%%%%%*"
+"%%%%%%%%%%%*"
+"%%%%%%%%%%%*"
+"%%%%%%%%%%%*"
+;123456789012
+[end]
+
+
+[_point]
+Type=0x028
+SubType=0x05
+;GRMN_TYPE: //
+String1=0x03,moskee
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#7B0000
+DayXpm="9 19 4 1"   Colormode=16
+"!	c #FFFFFF"
+"#	c #000000"
+"%	c #202020"
+"  	c none"
+"!!#!!#!! "
+"!#!!!!#!!"
+"#!!!!!!#!"
+"#!!!!!!%!"
+"##!!!!#%!"
+"###!!###!"
+"!%#####!!"
+"!!####!!!"
+"!!!##!!!!"
+"!!!##!!!!"
+"########!"
+"########!"
+"########!"
+"########!"
+"########!"
+"########!"
+"########!"
+"########!"
+"!!!!!!!!!"
+;123456789
+[end]
+
+
+[_point]
+Type=0x028
+SubType=0x09
+;GRMN_TYPE: //
+String1=0x03,parkeerplaats
+String2=0x04,parking
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+DayXpm="14 14 7 1"   Colormode=16
+"!	c #FFFFFF"
+"#	c #838383"
+"%	c #E6E6E6"
+"?	c #949494"
+"$	c #A4A4A4"
+"*	c #C5C5C5"
+"  	c none"
+"  !!!!!!!!!!  "
+" !!########!! "
+"!!##########!!"
+"!###!!!!%?###!"
+"!###!%$*!%###!"
+"!###!%##%!###!"
+"!###!%?$!%###!"
+"!###!!!!!$###!"
+"!###!%$$#####!"
+"!###!%#######!"
+"!###!%#######!"
+"!!##########!!"
+" !!########!! "
+"  !!!!!!!!!!  "
+;12345678901234
+[end]
+
+
+[_point]
+Type=0x028
+SubType=0x10
+;GRMN_TYPE: //
+String1=0x03,fietsenstalling
+String2=0x04,parking (bicycles)
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+DayXpm="14 14 9 1"   Colormode=16
+"!	c #FFFFFF"
+"#	c #0000B4"
+"%	c #BDCAFF"
+"?	c #3930B4"
+"$	c #E6E6E6"
+"*	c #3965D5"
+"=	c #7B95D5"
+"1	c #3930D5"
+"  	c none"
+"  !!!!!!!!!!  "
+" !!########!! "
+"!!##########!!"
+"!###!!!!%?###!"
+"!###!$*=!%###!"
+"!###!%##%!###!"
+"!###!%#1!%###!"
+"!###!!!!!*###!"
+"!###!%11#####!"
+"!###!%#######!"
+"!###!%#######!"
+"!!##########!!"
+" !!########!! "
+"  !!!!!!!!!!  "
+;12345678901234
+[end]
+
+
+[_point]
+Type=0x028
+SubType=0x11
+;GRMN_TYPE: //
+String1=0x03,school
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+DayXpm="20 20 57 2"   Colormode=32
+"!!	c #0087FF"  alpha=5
+"!#	c #0087FF"  alpha=14
+"!%	c #0087FF"  alpha=1
+"!?	c #0087FF"  alpha=0
+"!$	c #0489FF"  alpha=0
+"!*	c #289AFF"  alpha=0
+"!=	c #0388FF"  alpha=0
+"!1	c #65B6FF"  alpha=0
+"!2	c #FFFFFF"  alpha=0
+"!3	c #1792FF"  alpha=0
+"!4	c #8ECAFF"  alpha=0
+"!5	c #AED9FF"  alpha=0
+"!6	c #2197FF"  alpha=0
+"!7	c #ABD7FF"  alpha=0
+"!8	c #84C5FF"  alpha=0
+"!9	c #49AAFF"  alpha=0
+"#!	c #0589FF"  alpha=0
+"##	c #44A7FF"  alpha=0
+"#%	c #E4F2FF"  alpha=0
+"#?	c #DBEEFF"  alpha=0
+"#$	c #79C0FF"  alpha=0
+"#*	c #E4F3FF"  alpha=0
+"#=	c #0A8CFF"  alpha=0
+"#1	c #6FBBFF"  alpha=0
+"#2	c #C0E1FF"  alpha=0
+"#3	c #96CEFF"  alpha=0
+"#4	c #1691FF"  alpha=0
+"#5	c #9ACFFF"  alpha=0
+"#6	c #A4D4FF"  alpha=0
+"#7	c #BCE0FF"  alpha=0
+"#8	c #1F96FF"  alpha=0
+"#9	c #B9DEFF"  alpha=0
+"%!	c #77BFFF"  alpha=0
+"%#	c #FDFEFF"  alpha=0
+"%%	c #299AFF"  alpha=0
+"%?	c #A6D5FF"  alpha=0
+"%$	c #53AEFF"  alpha=0
+"%*	c #4FACFF"  alpha=0
+"%=	c #51ADFF"  alpha=0
+"%1	c #F4FAFF"  alpha=0
+"%2	c #EEF6FF"  alpha=0
+"%3	c #F7FBFF"  alpha=0
+"%4	c #F0F8FF"  alpha=0
+"%5	c #EFF7FF"  alpha=0
+"%6	c #50ADFF"  alpha=0
+"%7	c #108FFF"  alpha=0
+"%8	c #5DB3FF"  alpha=0
+"%9	c #60B4FF"  alpha=0
+"?!	c #62B5FF"  alpha=0
+"?#	c #67B7FF"  alpha=0
+"?%	c #69B8FF"  alpha=0
+"??	c #6CBAFF"  alpha=0
+"?$	c #6EBBFF"  alpha=0
+"?*	c #70BCFF"  alpha=0
+"?=	c #72BDFF"  alpha=0
+"?1	c #74BEFF"  alpha=0
+"?2	c #1893FF"  alpha=0
+"!!!#!%!?!?!?!?!?!?!?!?!?!?!?!?!?!?!%!#!!"
+"!#!?!?!?!?!?!?!?!$!*!*!$!?!?!?!?!?!?!?!#"
+"!%!?!?!?!?!?!?!=!1!2!2!1!=!?!?!?!?!?!?!%"
+"!?!?!?!?!?!?!3!4!2!5!5!2!4!3!?!?!?!?!?!?"
+"!?!?!?!?!?!6!7!2!8!9!9!8!2!7!6!?!?!?!?!?"
+"!?!?!?#!###%#?!9#$!2!2#$!9#?#*###!!?!?!?"
+"!?!?#=#1!2#2!9#3!2!2!2!2#3!9#2!2#1#=!?!?"
+"!?#4#5!2#6!9#7!2!2!2!2!2!2#7!9#6!2#5#4!?"
+"#8#9!2%!!9!2%#!2!2!2!2!2!2%#!2!9%!!2#9#8"
+"%%%?%$!9!2!2!2!2!2!2!2!2!2!2!2!2!9%$%?%%"
+"!?!?%*!2!2!2!2!2!2!2!2!2!2!2!2!2!2%*!?!?"
+"!?!?%=!2!2!?!2!2!?!?#6%1%#!?!?#6!2%=!?!?"
+"!?!?%=!2!?!?!?!2!?!2!?!2!?#6!2!?!2%=!?!?"
+"!?!?%=!2!?!2!?%#!?!?!?!2!?!2%2%3!2%=!?!?"
+"!?!?%=!2!?!?!?%#!?!2!?!2!?#6!2!?!2%=!?!?"
+"!?!?%=!2!?%4!?%#!?!?#6!2%5!?!?#6!2%=!?!?"
+"!?!?%=!2%#!2!2!2!2!2!2!2!2!2!2!2!2%=!?!?"
+"!%!?%*!2!2!2!2!2!2!2!2!2!2!2!2!2!2%6!?!%"
+"!#!?%7%$%8%9?!!1?#?%???$?*?=?1%!#1?2!?!#"
+"!!!#!%!?!?!?!?!?!?!?!?!?!?!?!?!?!?!%!#!!"
+;12345678901234567890
+[end]
+
+
+[_point]
+Type=0x028
+SubType=0x12
+;GRMN_TYPE: //
+String1=0x03,vuurtoren
+String2=0x04,lighthouse
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+DayXpm="16 16 3 1"   Colormode=32
+"!	c #0087FF"  alpha=0
+"#	c #000000"  alpha=15
+"%	c #FFFFFF"  alpha=0
+"!!####!!!!####!!"
+"!!!!#!#!!#!#!!!!"
+"!!!!!!#!!#!!!!!!"
+"!!!!#!!!!!!#!!!!"
+"!!###%!!!!!###!!"
+"#####!%%!!!#####"
+"#####!!!%%!#####"
+"#####!!!!!%#####"
+"#####%!!!!!#####"
+"####!!%%!!!!####"
+"####!!!!%%!!####"
+"####!!!!!!%%####"
+"####%%!!!!!!####"
+"####!!%%!!!!####"
+"####!!!!%%!!####"
+"####!!!!!!%%####"
+;1234567890123456
+[end]
+
+
+[_point]
+Type=0x028
+SubType=0x13
+;GRMN_TYPE: //
+String1=0x03,cafe
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+DayXpm="16 16 186 2"   Colormode=32
+"!!	c #000000"  alpha=15
+"!#	c #000000"  alpha=7
+"!%	c #000000"  alpha=15
+"!?	c #010100"  alpha=7
+"!$	c #060404"  alpha=7
+"!*	c #060403"  alpha=5
+"!=	c #000000"  alpha=6
+"!1	c #000000"  alpha=3
+"!2	c #1E1D1B"  alpha=6
+"!3	c #3C3A38"  alpha=15
+"!4	c #9D9B9B"  alpha=9
+"!5	c #A7A2A2"  alpha=0
+"!6	c #A59FA0"  alpha=0
+"!7	c #A7A0A2"  alpha=0
+"!8	c #837C7D"  alpha=15
+"!9	c #242224"  alpha=7
+"#!	c #121113"  alpha=3
+"##	c #000000"  alpha=1
+"#%	c #000000"  alpha=7
+"#?	c #9D9D9D"  alpha=8
+"#$	c #000000"  alpha=2
+"#*	c #4E4D4A"  alpha=10
+"#=	c #94918E"  alpha=13
+"#1	c #DCD7D5"  alpha=0
+"#2	c #F5EEEE"  alpha=0
+"#3	c #FFF5F6"  alpha=0
+"#4	c #FDEEF1"  alpha=0
+"#5	c #FEF0F3"  alpha=0
+"#6	c #F0E3E6"  alpha=0
+"#7	c #C7C3C6"  alpha=0
+"#8	c #605F61"  alpha=9
+"#9	c #4B494C"  alpha=11
+"%!	c #4F4D50"  alpha=5
+"%#	c #818082"  alpha=8
+"%%	c #000000"  alpha=7
+"%?	c #A19D9C"  alpha=0
+"%$	c #E3D8D8"  alpha=0
+"%*	c #B7A7A8"  alpha=0
+"%=	c #826D70"  alpha=0
+"%1	c #866C70"  alpha=0
+"%2	c #8C6C72"  alpha=0
+"%3	c #86646B"  alpha=0
+"%4	c #9D878D"  alpha=0
+"%5	c #C8C4C7"  alpha=0
+"%6	c #C6C4C6"  alpha=0
+"%7	c #888789"  alpha=0
+"%8	c #7E7C7F"  alpha=0
+"%9	c #444344"  alpha=0
+"?!	c #A29B9C"  alpha=0
+"?#	c #CCBEBF"  alpha=0
+"?%	c #5C474A"  alpha=0
+"??	c #30161B"  alpha=0
+"?$	c #2D0E14"  alpha=0
+"?*	c #2E0B13"  alpha=0
+"?=	c #300A13"  alpha=0
+"?1	c #4D343B"  alpha=0
+"?2	c #A7A2A5"  alpha=0
+"?3	c #DFDDE0"  alpha=0
+"?4	c #616062"  alpha=0
+"?5	c #858386"  alpha=0
+"?6	c #464446"  alpha=0
+"?7	c #020000"  alpha=7
+"?8	c #A8A2A4"  alpha=0
+"?9	c #F9EFF2"  alpha=0
+"$!	c #CBBEC3"  alpha=0
+"$#	c #B9A8AF"  alpha=0
+"$%	c #B8A4AC"  alpha=0
+"$?	c #B7A2AA"  alpha=0
+"$$	c #B7A3AC"  alpha=0
+"$*	c #C5B5BC"  alpha=0
+"$=	c #F1EEF1"  alpha=0
+"$1	c #BBB9BB"  alpha=0
+"$2	c #424043"  alpha=0
+"$3	c #A19FA2"  alpha=0
+"$4	c #4E4D4F"  alpha=15
+"$5	c #080105"  alpha=7
+"$6	c #7E797C"  alpha=14
+"$7	c #EEE9EC"  alpha=0
+"$8	c #FAF5F9"  alpha=0
+"$9	c #FAF3F8"  alpha=0
+"*!	c #F8F1F6"  alpha=0
+"*#	c #F3E6ED"  alpha=0
+"*%	c #EFE5EB"  alpha=0
+"*?	c #E6DFE4"  alpha=0
+"*$	c #C7C4C8"  alpha=0
+"**	c #6D6C6E"  alpha=0
+"*=	c #5B5A5C"  alpha=0
+"*1	c #7B7A7C"  alpha=15
+"*2	c #121113"  alpha=2
+"*3	c #000000"  alpha=13
+"*4	c #000000"  alpha=13
+"*5	c #29292C"  alpha=1
+"*6	c #D9D8DB"  alpha=0
+"*7	c #F2F1F4"  alpha=0
+"*8	c #DEDDE1"  alpha=0
+"*9	c #D5D3D8"  alpha=0
+"=!	c #CDCBD0"  alpha=0
+"=#	c #C2C0C4"  alpha=0
+"=%	c #B1AEB2"  alpha=0
+"=?	c #B1AFB2"  alpha=0
+"=$	c #69676A"  alpha=0
+"=*	c #030204"  alpha=11
+"==	c #373737"  alpha=10
+"=1	c #000000"  alpha=14
+"=2	c #101010"  alpha=9
+"=3	c #515052"  alpha=6
+"=4	c #78787C"  alpha=8
+"=5	c #C8C9CB"  alpha=0
+"=6	c #EAECEE"  alpha=0
+"=7	c #D9DCDF"  alpha=0
+"=8	c #D4D7D9"  alpha=0
+"=9	c #C3C5C8"  alpha=0
+"1!	c #B8BBBD"  alpha=0
+"1#	c #B0B1B3"  alpha=0
+"1%	c #9B9A9C"  alpha=0
+"1?	c #636264"  alpha=0
+"1$	c #575657"  alpha=1
+"1*	c #7A7879"  alpha=14
+"1=	c #000000"  alpha=15
+"11	c #545355"  alpha=7
+"12	c #A5A3A5"  alpha=0
+"13	c #E4E2E5"  alpha=0
+"14	c #DEDDDF"  alpha=0
+"15	c #828283"  alpha=0
+"16	c #F0EEF0"  alpha=0
+"17	c #E9E8EA"  alpha=0
+"18	c #D2D1D3"  alpha=0
+"19	c #BEBCBF"  alpha=0
+"2!	c #B8B7B9"  alpha=0
+"2#	c #AFAEB0"  alpha=0
+"2%	c #767777"  alpha=0
+"2?	c #6C6C6C"  alpha=0
+"2$	c #C0C0C0"  alpha=0
+"2*	c #9D9D9D"  alpha=0
+"2=	c #4B4B4B"  alpha=7
+"21	c #EEECEF"  alpha=0
+"22	c #F4F2F5"  alpha=0
+"23	c #EDEBEE"  alpha=0
+"24	c #C9C7CA"  alpha=0
+"25	c #9C9A9C"  alpha=0
+"26	c #ACAAAD"  alpha=0
+"27	c #ABA9AC"  alpha=0
+"28	c #8E8C8F"  alpha=0
+"29	c #8D8B8E"  alpha=0
+"3!	c #747375"  alpha=0
+"3#	c #656565"  alpha=0
+"3%	c #B4B4B4"  alpha=0
+"3?	c #E9E9E9"  alpha=0
+"3$	c #F0F0F0"  alpha=0
+"3*	c #545454"  alpha=0
+"3=	c #2E2C2F"  alpha=1
+"31	c #939194"  alpha=8
+"32	c #CBC9CB"  alpha=0
+"33	c #F3F1F4"  alpha=0
+"34	c #C5C4C5"  alpha=0
+"35	c #AFADB0"  alpha=0
+"36	c #BEBCBE"  alpha=0
+"37	c #B4B2B4"  alpha=0
+"38	c #B7B5B8"  alpha=0
+"39	c #B3B2B4"  alpha=0
+"4!	c #D1D1D1"  alpha=0
+"4#	c #989898"  alpha=8
+"4%	c #2C2C2C"  alpha=1
+"4?	c #000000"  alpha=8
+"4$	c #1A181B"  alpha=11
+"4*	c #222021"  alpha=7
+"4=	c #777577"  alpha=0
+"41	c #9D9B9E"  alpha=0
+"42	c #CCCACD"  alpha=0
+"43	c #E8E6E9"  alpha=0
+"44	c #E5E3E6"  alpha=0
+"45	c #E6E4E6"  alpha=0
+"46	c #CCCBCD"  alpha=0
+"47	c #A6A6A6"  alpha=0
+"48	c #7A7A7A"  alpha=0
+"49	c #201D1D"  alpha=7
+"5!	c #171717"  alpha=11
+"5#	c #030104"  alpha=0
+"5%	c #040205"  alpha=13
+"5?	c #3C3A3D"  alpha=7
+"5$	c #4A494B"  alpha=0
+"5*	c #545355"  alpha=0
+"5=	c #4A484B"  alpha=0
+"51	c #4C4A4D"  alpha=0
+"52	c #929292"  alpha=13
+"53	c #2D2D2D"  alpha=1
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!#!%!?!$!*!=!!!!!!!!!!"
+"!!!!!!!1!2!3!4!5!6!7!8!9#!###%#?"
+"!!!!#$#*#=#1#2#3#4#5#6#7#8#9%!%#"
+"!!!!%%%?%$%*%=%1%2%3%4%5%6%7%8%9"
+"!!!!%%?!?#?%???$?*?=?1?2?3?4?5?6"
+"!!!!?7?8?9$!$#$%$?$$$*$=$1$2$3$4"
+"!!!!$5$6$7$8$9*!*#*%*?*$***=*1*2"
+"!!*3*4*5*6*7*8*9=!=#=%=?=$=*==!!"
+"=1=2=3=4=5=6=7=8=91!1#1%1?1$1*1="
+"1112131415161718192!2#2%2?2$2*2="
+"*=2122232425262728293!3#3%3?3$3*"
+"3=313221333435363738394!3$4!4#4%"
+"4?4$4*4=4142434445?3464748495!4?"
+"!!!!!!5#5%5?5$5*5=511?5253!!!!!!"
+;1234567890123456
+[end]
+
+
+[_point]
+Type=0x028
+SubType=0x14
+;GRMN_TYPE: //
+String1=0x04,viewpoint
+String2=0x03,uitzichtspunt
+ExtendedLabels=N
+DayXpm="15 15 5 1"   Colormode=32
+"!	c #000000"  alpha=15
+"#	c #E5BD99"  alpha=0
+"%	c #C15A00"  alpha=0
+"?	c #C17838"  alpha=0
+"$	c #C19064"  alpha=0
+"!!!#%?!!!?%#!!!"
+"!!!!%%!!!%%!!!!"
+"!?$!$%$!$%$!$?!"
+"#%%$!%%!%%!$%%#"
+"#?%%%!%!%!%%%?#"
+"!!!?%%!!!%%$!!!"
+"%??!!!!!!!!#??%"
+"%%%%%%!!!%%%%%%"
+"%??!!!!!!!!#??%"
+"!!!?%%!!!%%$!!!"
+"#?%%%!%!%!%%%?#"
+"#%%$!%%!%%!$%%#"
+"!?$!$%$!$%$!$?!"
+"!!!!%%!!!%%!!!!"
+"!!!#%?!!!?%#!!!"
+;123456789012345
+[end]
+
+
+[_point]
+Type=0x028
+SubType=0x15
+;GRMN_TYPE: //
+String1=0x03,helling
+String2=0x04,incline
+ExtendedLabels=Y
+FontStyle=NormalFont
+CustomColor=No
+DayXpm="16 14 22 2"   Colormode=16
+"!!	c #FFFFFF"
+"!#	c #FFCAB4"
+"!%	c #BD3020"
+"!?	c #BD0020"
+"!$	c #FF656A"
+"!*	c #BD656A"
+"!=	c #FFCAD5"
+"!1	c #E6E6E6"
+"!2	c #BD3041"
+"!3	c #FF958B"
+"!4	c #BD95B4"
+"!5	c #BD0000"
+"!6	c #D5D5D5"
+"!7	c #525252"
+"!8	c #000000"
+"!9	c #7B0000"
+"#!	c #626262"
+"##	c #101010"
+"#%	c #FF95B4"
+"#?	c #390000"
+"#$	c #737373"
+"  	c none"
+"              !!!!              "
+"            !!!#!#!!            "
+"            !!!%!?!!            "
+"          !!!$!*!*!$!!          "
+"        !!!=!?!1!1!?!=!!        "
+"        !!!2!3!!!!!3!2!!        "
+"      !!!3!2!!!!!!!!!2!3!!      "
+"      !1!?!=!!!!!!!!!4!5!1      "
+"    !!!$!$!!!!!!!6!7!8!9!$!!    "
+"    !#!?!!!!!6#!##!8!8!8!5!#    "
+"  !!!%#%!6#!##!8!8!8!8!8#?!%!!  "
+"!!!3!2!!#$!8!8!8!8!8!8!8!8!9!3!!"
+"!!!5!5!5!5!5!5!5!5!5!5!5!5!5!5!!"
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+;1234567890123456
+[end]
+
+
+[_point]
+Type=0x028
+SubType=0x16
+;GRMN_TYPE: //
+String1=0x03,picknick plaats
+String2=0x04,picknick
+ExtendedLabels=N
+DayXpm="15 10 8 1"   Colormode=32
+"!	c #000000"  alpha=15
+"#	c #000000"  alpha=0
+"%	c #010101"  alpha=0
+"?	c #030303"  alpha=0
+"$	c #020202"  alpha=0
+"*	c #060606"  alpha=0
+"=	c #050505"  alpha=0
+"1	c #090909"  alpha=0
+"!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!"
+"!!!#%?#$##*!!!!"
+"!!!!!$!!=!!!!!!"
+"!!!!=!!!!1!!!!!"
+"$#$$###=##%#*?!"
+"!!#!!!!!!!!#!!!"
+"!!#!!!!!!!!#!!!"
+"!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!"
+;123456789012345
+[end]
+
+
+[_point]
+Type=0x028
+SubType=0x17
+;GRMN_TYPE: //
+String1=0x03,fietsknooppunt
+String2=0x04,bikeroute node
+ExtendedLabels=Y
+FontStyle=NormalFont
+CustomColor=Day
+DaycustomColor:#0000D5
+DayXpm="14 14 12 1"   Colormode=32
+"!	c #000000"  alpha=15
+"#	c #FFFFFF"  alpha=0
+"%	c #FFFED6"  alpha=0
+"?	c #E1FFD2"  alpha=0
+"$	c #80FF00"  alpha=0
+"*	c #E5FFE0"  alpha=0
+"=	c #00FF00"  alpha=0
+"1	c #004000"  alpha=0
+"2	c #2EDB2A"  alpha=0
+"3	c #34E12D"  alpha=0
+"4	c #E9FFDC"  alpha=0
+"5	c #D8FFE3"  alpha=0
+"!!!!!!!!!!!!!!"
+"!!!########!!!"
+"!!#%########!!"
+"!##?$$$$$$*##!"
+"!##$$====$$##!"
+"!##$==11==$##!"
+"!##$21111=$##!"
+"!##$31111=$##!"
+"!##$==11==$##!"
+"!##$$====$$##!"
+"!##4$$$$$$5##!"
+"!!##########!!"
+"!!!########!!!"
+"!!!!!!!!!!!!!!"
+;12345678901234
+[end]
+
+
+[_point]
+Type=0x028
+SubType=0x18
+;GRMN_TYPE: //
+String1=0x03,windmolen
+ExtendedLabels=N
+DayXpm="22 22 78 2"   Colormode=16
+"!!	c #B0BABA"
+"!#	c #B0B0B0"
+"!%	c #000C0C"
+"!?	c #616161"
+"!$	c #C0C5C5"
+"!*	c #CCCCCC"
+"!=	c #505F5F"
+"!1	c #080808"
+"!2	c #505555"
+"!3	c #BFBFBF"
+"!4	c #505B5B"
+"!5	c #090909"
+"!6	c #303030"
+"!7	c #949494"
+"!8	c #404242"
+"!9	c #070707"
+"#!	c #505C5C"
+"##	c #CACACA"
+"#%	c #808D8D"
+"#?	c #2A2A2A"
+"#$	c #606262"
+"#*	c #272727"
+"#=	c #101212"
+"#1	c #797979"
+"#2	c #A0ADAD"
+"#3	c #2C2C2C"
+"#4	c #000101"
+"#5	c #595959"
+"#6	c #C0C8C8"
+"#7	c #5A5A5A"
+"#8	c #000606"
+"#9	c #414141"
+"%!	c #A0A5A5"
+"%#	c #2B2B2B"
+"%%	c #C0C6C6"
+"%?	c #ABABAB"
+"%$	c #303D3D"
+"%*	c #515151"
+"%=	c #404C4C"
+"%1	c #575757"
+"%2	c #303131"
+"%3	c #959595"
+"%4	c #808F8F"
+"%5	c #232323"
+"%6	c #101313"
+"%7	c #848484"
+"%8	c #000000"
+"%9	c #A8A8A8"
+"?!	c #808E8E"
+"?#	c #656565"
+"?%	c #303636"
+"??	c #383838"
+"?$	c #C0C1C1"
+"?*	c #878787"
+"?=	c #000202"
+"?1	c #1C1C1C"
+"?2	c #909B9B"
+"?3	c #CFCFCF"
+"?4	c #404F4F"
+"?5	c #8A8A8A"
+"?6	c #000B0B"
+"?7	c #444444"
+"?8	c #B0B1B1"
+"?9	c #1B1B1B"
+"$!	c #606C6C"
+"$#	c #C7C7C7"
+"$%	c #202626"
+"$?	c #7C7C7C"
+"$$	c #D0D9D9"
+"$*	c #BBBBBB"
+"$=	c #B0B9B9"
+"$1	c #B8B8B8"
+"$2	c #B0B7B7"
+"$3	c #B6B6B6"
+"$4	c #B0B5B5"
+"$5	c #B4B4B4"
+"$6	c #B0B3B3"
+"  	c none"
+"                                            "
+"                                    !!      "
+"    !#!%!?!$                  !*!=!1!2      "
+"      !3!4!5!6!7          !#!8!9#!##        "
+"            #%#?!%#$!3!7#*#=#1              "
+"                #2#3#4!1#5                  "
+"            #6#7#8#9%!#%%#!%#$%%            "
+"        %?%$!9%*%=#7#5#5%1!8%1!5%2%3        "
+"    %4%5%6#1  %7%8%8%8%8%8%8%9  ?!%#!%?#    "
+"    ?%%3      ??%8%8%8%8%8%8#$      ?$?*    "
+"              ?=%8%8%8%8%8%8?1              "
+"            ?2%8%8%8%8%8%8%8%8?3            "
+"            ?4%8%8%8%8%8%8%8%8?5            "
+"            ?6%8%8%8%8%8%8%8%8?7            "
+"          ?8%8%8%8%8%8%8%8%8%8!1            "
+"          ?#%8%8%8%8%8%8%8%8%8%8?8          "
+"          ?9%8%8%8%8%8%8%8%8%8%8$!          "
+"        $#%8%8%8%8%8%8%8%8%8%8%8$%          "
+"        $?%8%8%8%8%8%8%8%8%8%8%8%8$$        "
+"        %2%8%8%8%8%8%8%8%8%8%8%8%8!7        "
+"        $*!!$=$1$1$2$2$3$3$4$5$5$6?3        "
+"                                            "
+;1234567890123456789012
+[end]
+
+
+[_point]
+Type=0x028
+SubType=0x19
+;GRMN_TYPE: //
+String1=0x03,wind turbine
+ExtendedLabels=N
+DayXpm="18 20 18 2"   Colormode=16
+"!!	c #A4A4A4"
+"!#	c #D5D5D5"
+"!%	c #396541"
+"!?	c #949494"
+"!$	c #B4B4B4"
+"!*	c #626262"
+"!=	c #000020"
+"!1	c #101010"
+"!2	c #414141"
+"!3	c #000000"
+"!4	c #202020"
+"!5	c #7B958B"
+"!6	c #C5C5C5"
+"!7	c #313131"
+"!8	c #525252"
+"!9	c #838383"
+"#!	c #737373"
+"  	c none"
+"                              !!!#  "
+"        !%!?              !$!*!=!1!$"
+"        !2!3!?        !#!*!3!3!3!2!$"
+"          !4!3!5  !6!7!=!3!3!7!!    "
+"          !!!3!1!8!4!3!3!7!!        "
+"            !9!3!3!3!1              "
+"              !2!3!3!3              "
+"            !6!4!3!3!1              "
+"            !?!3!3!3!1              "
+"            !*!3!3!3!1              "
+"            !3!3!3!3!1              "
+"            !3!4  !3!1              "
+"          !7!3    !3!1              "
+"          !3!4    !3!1              "
+"          #!      !3!1              "
+"                  !3!1              "
+"                  !3!1              "
+"                  !3!1              "
+"                  !3!1              "
+"                !1!3!1              "
+;123456789012345678
+[end]
+
+
+[_point]
+Type=0x02c
+SubType=0x06
+;GRMN_TYPE: Business - Attractions/GARDEN, PARK/Garden, park/Non NT
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+DayXpm="4 4 2 1"   Colormode=32
+"!	c #000000"  alpha=15
+"#	c #303030"  alpha=0
+"!##!"
+"####"
+"####"
+"!##!"
+;1234
+[end]
+
+
+[_point]
+Type=0x02e
+SubType=0x05
+;GRMN_TYPE: Business - Shopping/PHARMACY/Pharmacy/Non NT
+String1=0x03,Apotheek
+ExtendedLabels=N
+DayXpm="16 16 9 1"   Colormode=16
+"!	c #00B403"
+"#	c #00C400"
+"%	c #00CE00"
+"?	c #00D800"
+"$	c #00DF00"
+"*	c #00EC00"
+"=	c #0AF700"
+"1	c #FEFFFC"
+"  	c none"
+"    !!!!!!!!    "
+"    !111111!    "
+"    #1####1#    "
+"    %1%%%%1%    "
+"!!#%?1????1??%#!"
+"!11111$$$$11111#"
+"!1#%?$*****$?%1!"
+"!1#%?$*===*$?%1#"
+"!1#%?$*===*$?%1!"
+"!1#%?$*===*$?%1#"
+"!11111*===11111!"
+"!!#%?1$***1$?%##"
+"    ?1$$$$1$    "
+"    ?1????1?    "
+"    %111111%    "
+"    ########    "
+;1234567890123456
+[end]
+
+
+[_point]
+Type=0x02f
+SubType=0x01
+;GRMN_TYPE: Business - Services/GAS_STATION/Gas, fuel station/Non NT
+String1=0x03,tankstation
+String2=0x04,fuel
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+DayXpm="4 4 2 1"   Colormode=32
+"!	c #000000"  alpha=15
+"#	c #303030"  alpha=0
+"!##!"
+"####"
+"####"
+"!##!"
+;1234
+[end]
+
+
+[_point]
+Type=0x02f
+SubType=0x03
+;GRMN_TYPE: Business - Services/AUTO_REPAIR/Car repair, mechanic/Non NT
+String1=0x03,Fietsenzaak
+String2=0x04,Bicycle shop
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=Day
+DaycustomColor:#00008B
+DayXpm="16 16 5 1"   Colormode=16
+"!	c #7BCAFF"
+"#	c #3995FF"
+"%	c #0095FF"
+"?	c #FFFFFF"
+"  	c none"
+" !#%%%%%%%%%%#! "
+"!%%??%%%%%??%%%!"
+"#%%%%?????%%%%%#"
+"%%%??%%%%%??%%%%"
+"%%%%%%%%%%%%%%%%"
+"%%%%%??%%%%%%%%%"
+"%%%%%?%%%???%%%%"
+"%%%%%??????%%%%%"
+"%%?????%%%????%%"
+"%??%%???%??%%??%"
+"%?%%?%?%??%?%%?%"
+"%?%%%%?%%?%%%%?%"
+"%??%%??%%??%%??%"
+"#%????%%%%????%#"
+"!%%%%%%%%%%%%%%!"
+" !#%%%%%%%%%%#! "
+;1234567890123456
+[end]
+
+
+[_point]
+Type=0x02f
+SubType=0x05
+;GRMN_TYPE: Business - Services/POST_OFFICE/Post office/Non NT
+String1=0x04,Post Office
+String2=0x1D,Postkantoor
+ExtendedLabels=N
+DayXpm="14 14 9 1"   Colormode=16
+"!	c #303333"
+"#	c #1A1A1A"
+"%	c #101717"
+"?	c #484848"
+"$	c #808E8E"
+"*	c #242424"
+"=	c #202323"
+"1	c #949494"
+"  	c none"
+"              "
+"              "
+"  !!!!!!!!!!  "
+" !#        %! "
+" ! !      ! ! "
+" !  !    !  ! "
+" !   !  !   ! "
+" !  ! !! !  ! "
+" ! !      ! ! "
+" !?        ?! "
+" $*!!!!!!!!=1 "
+"              "
+"              "
+"              "
+;12345678901234
+[end]
+
+
+[_point]
+Type=0x02f
+SubType=0x09
+;GRMN_TYPE: Business - Services/MARINA/Marina/Non NT
+String1=0x03,veerpont
+String2=0x04,ferry terminal
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+DayXpm="4 4 2 1"   Colormode=32
+"!	c #000000"  alpha=15
+"#	c #303030"  alpha=0
+"!##!"
+"####"
+"####"
+"!##!"
+;1234
+[end]
+
+
+[_point]
+Type=0x02f
+SubType=0x15
+;GRMN_TYPE: Business - Services/UTILITY/Utility (gas, electric, water) services/Non NT
+String1=0x03,recycling
+String2=0x04,recycling
+ExtendedLabels=N
+DayXpm="15 15 212 2"   Colormode=32
+"!!	c #F4EFF3"  alpha=0
+"!#	c #FFFDFF"  alpha=0
+"!%	c #D5F5DE"  alpha=0
+"!?	c #E2FFEB"  alpha=0
+"!$	c #D0FED0"  alpha=0
+"!*	c #A7D5A7"  alpha=0
+"!=	c #A9CF96"  alpha=0
+"!1	c #98BE85"  alpha=0
+"!2	c #A0CD94"  alpha=0
+"!3	c #83B077"  alpha=0
+"!4	c #8DC89A"  alpha=0
+"!5	c #DBFFE8"  alpha=0
+"!6	c #EEFFFA"  alpha=0
+"!7	c #DAF5E6"  alpha=0
+"!8	c #FFF0FF"  alpha=0
+"!9	c #FFFCFF"  alpha=0
+"#!	c #EBFFF4"  alpha=0
+"##	c #BBDBC4"  alpha=0
+"#%	c #528052"  alpha=0
+"#?	c #396739"  alpha=0
+"#$	c #567C43"  alpha=0
+"#*	c #51773E"  alpha=0
+"#=	c #3F6C33"  alpha=0
+"#1	c #406D34"  alpha=0
+"#2	c #407B4D"  alpha=0
+"#3	c #7BB688"  alpha=0
+"#4	c #D5F0E1"  alpha=0
+"#5	c #FFF4FF"  alpha=0
+"#6	c #F7F9F6"  alpha=0
+"#7	c #FBFDFA"  alpha=0
+"#8	c #D2FFDA"  alpha=0
+"#9	c #73A67B"  alpha=0
+"%!	c #2D8328"  alpha=0
+"%#	c #267C21"  alpha=0
+"%%	c #1E7904"  alpha=0
+"%?	c #47A22D"  alpha=0
+"%$	c #187B06"  alpha=0
+"%*	c #21840F"  alpha=0
+"%=	c #167B1F"  alpha=0
+"%1	c #1E8327"  alpha=0
+"%2	c #8FBE9A"  alpha=0
+"%3	c #C8F7D3"  alpha=0
+"%4	c #FAE4F1"  alpha=0
+"%5	c #FEFFFD"  alpha=0
+"%6	c #B2E5BA"  alpha=0
+"%7	c #3E7146"  alpha=0
+"%8	c #166C11"  alpha=0
+"%9	c #22781D"  alpha=0
+"?!	c #4DA833"  alpha=0
+"?#	c #B1FF97"  alpha=0
+"?%	c #5BBE49"  alpha=0
+"??	c #298C17"  alpha=0
+"?$	c #13781C"  alpha=0
+"?*	c #2A8F33"  alpha=0
+"?=	c #ADDCB8"  alpha=0
+"?1	c #DFFFEA"  alpha=0
+"?2	c #FFF2FF"  alpha=0
+"?3	c #E9FFE8"  alpha=0
+"?4	c #D6F8D5"  alpha=0
+"?5	c #C2FFC9"  alpha=0
+"?6	c #75B67C"  alpha=0
+"?7	c #247025"  alpha=0
+"?8	c #1A661B"  alpha=0
+"?9	c #91D07F"  alpha=0
+"$!	c #DBFFC9"  alpha=0
+"$#	c #559E4C"  alpha=0
+"$%	c #297220"  alpha=0
+"$?	c #348F42"  alpha=0
+"$$	c #5AB568"  alpha=0
+"$*	c #AAE8B5"  alpha=0
+"$=	c #C5FFD0"  alpha=0
+"$1	c #FBFFEF"  alpha=0
+"$2	c #BEE0BD"  alpha=0
+"$3	c #98BA97"  alpha=0
+"$4	c #91D298"  alpha=0
+"$5	c #8CCD93"  alpha=0
+"$6	c #92DE93"  alpha=0
+"$7	c #88D489"  alpha=0
+"$8	c #C5FFB3"  alpha=0
+"$9	c #CFFFBD"  alpha=0
+"*!	c #C9FFC0"  alpha=0
+"*#	c #BBFFB2"  alpha=0
+"*%	c #A9FFB7"  alpha=0
+"*?	c #74CF82"  alpha=0
+"*$	c #64A26F"  alpha=0
+"**	c #62A06D"  alpha=0
+"*=	c #DDE6D1"  alpha=0
+"*1	c #8FDD89"  alpha=0
+"*2	c #368430"  alpha=0
+"*3	c #2B7334"  alpha=0
+"*4	c #2A7233"  alpha=0
+"*5	c #B5D0BF"  alpha=0
+"*6	c #ECFFF6"  alpha=0
+"*7	c #FFF5FF"  alpha=0
+"*8	c #F1E2F5"  alpha=0
+"*9	c #83AC9A"  alpha=0
+"=!	c #355E4C"  alpha=0
+"=#	c #2B6E38"  alpha=0
+"=%	c #377A44"  alpha=0
+"=?	c #B1E6A0"  alpha=0
+"=$	c #90DE8A"  alpha=0
+"=*	c #0E5C08"  alpha=0
+"==	c #3F8748"  alpha=0
+"=1	c #236B2C"  alpha=0
+"=2	c #6C8776"  alpha=0
+"=3	c #CAE5D4"  alpha=0
+"=4	c #FDE5FB"  alpha=0
+"=5	c #FFF8FF"  alpha=0
+"=6	c #92BBA9"  alpha=0
+"=7	c #466F5D"  alpha=0
+"=8	c #3F824C"  alpha=0
+"=9	c #145721"  alpha=0
+"1!	c #70A55F"  alpha=0
+"1#	c #73CF6A"  alpha=0
+"1%	c #197510"  alpha=0
+"1?	c #267A2D"  alpha=0
+"1$	c #499D50"  alpha=0
+"1*	c #A1C5A9"  alpha=0
+"1=	c #CDF1D5"  alpha=0
+"11	c #FFF9FF"  alpha=0
+"12	c #F9E9F6"  alpha=0
+"13	c #FBF3FE"  alpha=0
+"14	c #FDF5FF"  alpha=0
+"15	c #CDFFE2"  alpha=0
+"16	c #609275"  alpha=0
+"17	c #31813C"  alpha=0
+"18	c #1C6C27"  alpha=0
+"19	c #4C9039"  alpha=0
+"2!	c #93EF8A"  alpha=0
+"2#	c #3E9A35"  alpha=0
+"2%	c #43974A"  alpha=0
+"2?	c #7BCF82"  alpha=0
+"2$	c #D6FADE"  alpha=0
+"2*	c #FAEAF7"  alpha=0
+"2=	c #B6AEB9"  alpha=0
+"21	c #BDEFD2"  alpha=0
+"22	c #A0D2B5"  alpha=0
+"23	c #3E8E49"  alpha=0
+"24	c #3B8B46"  alpha=0
+"25	c #9ADE87"  alpha=0
+"26	c #C7FFC1"  alpha=0
+"27	c #67A461"  alpha=0
+"28	c #136A19"  alpha=0
+"29	c #277E2D"  alpha=0
+"3!	c #409B3E"  alpha=0
+"3#	c #348F32"  alpha=0
+"3%	c #458E34"  alpha=0
+"3?	c #9FE88E"  alpha=0
+"3$	c #93E487"  alpha=0
+"3*	c #1B6C0F"  alpha=0
+"3=	c #37A043"  alpha=0
+"31	c #44AD50"  alpha=0
+"32	c #065A0F"  alpha=0
+"33	c #41954A"  alpha=0
+"34	c #DFFFD0"  alpha=0
+"35	c #DCFFD6"  alpha=0
+"36	c #A5E29F"  alpha=0
+"37	c #358C3B"  alpha=0
+"38	c #207726"  alpha=0
+"39	c #247F22"  alpha=0
+"4!	c #1A7518"  alpha=0
+"4#	c #277016"  alpha=0
+"4%	c #62B356"  alpha=0
+"4?	c #17680B"  alpha=0
+"4$	c #167F22"  alpha=0
+"4*	c #1D8629"  alpha=0
+"4=	c #24782D"  alpha=0
+"41	c #7ACE83"  alpha=0
+"42	c #DBFFCC"  alpha=0
+"43	c #ECF8EA"  alpha=0
+"44	c #E3EFE1"  alpha=0
+"45	c #72A779"  alpha=0
+"46	c #356A3C"  alpha=0
+"47	c #216E1E"  alpha=0
+"48	c #297626"  alpha=0
+"49	c #2F7918"  alpha=0
+"5!	c #97E180"  alpha=0
+"5#	c #66BA58"  alpha=0
+"5%	c #2A7E1C"  alpha=0
+"5?	c #217C2C"  alpha=0
+"5$	c #258030"  alpha=0
+"5*	c #6EA178"  alpha=0
+"5=	c #CAFDD4"  alpha=0
+"51	c #FFF5F5"  alpha=0
+"52	c #F3FFF1"  alpha=0
+"53	c #F8FFF6"  alpha=0
+"54	c #B6EBBD"  alpha=0
+"55	c #71A678"  alpha=0
+"56	c #5DAA5A"  alpha=0
+"57	c #6CB969"  alpha=0
+"58	c #73BD5C"  alpha=0
+"59	c #B2FC9B"  alpha=0
+"6!	c #A4F896"  alpha=0
+"6#	c #3E9230"  alpha=0
+"6%	c #49A454"  alpha=0
+"6?	c #5AB565"  alpha=0
+"6$	c #99CCA3"  alpha=0
+"6*	c #DBFFE5"  alpha=0
+"6=	c #FFFBFB"  alpha=0
+"61	c #F4E6F5"  alpha=0
+"62	c #F8FFFF"  alpha=0
+"63	c #EBF5F6"  alpha=0
+"64	c #F7FFFC"  alpha=0
+"65	c #F3FEF8"  alpha=0
+"66	c #F5EEE8"  alpha=0
+"67	c #FFFEF8"  alpha=0
+"68	c #FFFFFA"  alpha=0
+"69	c #B2B3AD"  alpha=0
+"7!	c #DFF8F2"  alpha=0
+"7#	c #EAFFFD"  alpha=0
+"7%	c #F9FFFF"  alpha=0
+"7?	c #FFE5FF"  alpha=0
+"!!!#!%!?!$!*!=!1!2!3!4!5!6!7!8"
+"!#!9#!###%#?#$#*#=#1#2#3#4!6#5"
+"#6#7#8#9%!%#%%%?%$%*%=%1%2%3%4"
+"%5%5%6%7%8%9?!?#?%???$?*?=?1?2"
+"?3?4?5?6?7?8?9$!$#$%$?$$$*$=$1"
+"$2$3$4$5$6$7$8$9*!*#*%*?*$***="
+"*1*2*3*4*5*6*7*7!8*8*9=!=#=%=?"
+"=$=*===1=2=3*7=4?2=5=6=7=8=91!"
+"1#1%1?1$1*1=111213141516171819"
+"2!2#2%2?1=2$2*11112=2122232425"
+"262728293!3#3%3?3$3*3=31323334"
+"35363738394!4#3?4%4?4$4*4=4142"
+"434445464748495!5#5%5?5$5*5=51"
+"52535455565758596!6#6%6?6$6*6="
+"61=562636465666768697!7#7%7%7?"
+;123456789012345
+[end]
+
+
+[_point]
+Type=0x02f
+SubType=0x17
+;GRMN_TYPE: Business - Services/TRANSIT_SERVICES/Mass transit services/Non NT
+String1=0x03,Station
+String2=0x04,Station
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=Day
+DaycustomColor:#000041
+DayXpm="16 16 5 1"   Colormode=16
+"!	c #7BCAFF"
+"#	c #3995FF"
+"%	c #0095FF"
+"?	c #FFFFFF"
+"  	c none"
+" !#%%%%%%%%%%#! "
+"!%%%%??????%%%%!"
+"#%%%?%%??%%?%%%#"
+"%%%%%%?%%?%%%%%%"
+"%%%%%??????%%%%%"
+"%%%%????????%%%%"
+"%%%%?%%%%%%?%%%%"
+"%%%%??%%%%??%%%%"
+"%%%%????????%%%%"
+"%%%%?%????%?%%%%"
+"%%%%????????%%%%"
+"%%%%%??????%%%%%"
+"%%%%%?%%%%?%%%%%"
+"#%%%????????%%%#"
+"!%%?%%%%%%%%?%%!"
+" !#%%%%%%%%%%#! "
+;1234567890123456
+[end]
+
+
+[_point]
+Type=0x030
+SubType=0x02
+;GRMN_TYPE: Business - Emergency and Government/HOSPITAL/Hospital/Non NT
+String1=0x04,Hospital
+String2=0x03,ziekenhuis
+ExtendedLabels=Y
+FontStyle=NoLabel (invisible)
+CustomColor=No
+DayXpm="20 20 13 1"   Colormode=16
+"!	c #FF0000"
+"#	c #F00F00"
+"%	c #FF0808"
+"?	c #F01F10"
+"$	c #FF1111"
+"*	c #FFFFFF"
+"=	c #F00F01"
+"1	c #FF5C5C"
+"2	c #F04F41"
+"3	c #FF4A4A"
+"4	c #F0FFF7"
+"5	c #FFF6F6"
+"  	c none"
+"!#%?$$$$$$$$$$$$?%#!"
+"##****************##"
+"%**##############**%"
+"?*#=####1111####=#*?"
+"$*#####1****1#####*$"
+"$*#####1****1#####*$"
+"$*#####1****1#####*$"
+"$*##1111****1111##*$"
+"$*#1************2#*$"
+"$*#1************3#*$"
+"$*#1************3#*$"
+"$*#1********455* #*$"
+"$*##1111****1111##*$"
+"$*#####1****1#####*$"
+"$*#####1****1#####*$"
+"$*#####1****1#####*$"
+"?*#=####1111####=#*?"
+"%**##############**%"
+"##****************##"
+"!#%?$$$$$$$$$$$$?%#!"
+;12345678901234567890
+[end]
+
+
+[_point]
+Type=0x064
+SubType=0x06
+;GRMN_TYPE: Geographical Named Points of Interest/CROSSING/Crossing/Non NT, NT
+String1=0x04,Ferry
+String2=0x03,veerpont
+ExtendedLabels=N
+DayXpm="16 16 2 1"   Colormode=0
+"!	c #FFFFFF"
+"#	c #0000FF"
+"################"
+"################"
+"################"
+"######!!!!######"
+"######!!!!######"
+"######!!!!######"
+"#!!!!!!!!!!!!!!#"
+"##!!!!!!!!!!!!##"
+"###!!!!!!!!!!###"
+"################"
+"################"
+"!!!!!!!!!!!!!!!!"
+"!!!!!!!!!!!!!!!!"
+"################"
+"################"
+"################"
+;1234567890123456
+[end]
+
+
+[_point]
+Type=0x064
+SubType=0x0c
+;GRMN_TYPE: Geographical Named Points of Interest/MINE/Mine/Non NT, NT
+String1=0x04,Mine
+ExtendedLabels=N
+DayXpm="11 10 2 1"   Colormode=16
+"!	c #000000"
+"  	c none"
+"!!!   !!!  "
+"!!!!    !! "
+"!!!!!   !!!"
+" !!!   !  !"
+"  ! ! !   !"
+"     !     "
+"    ! !    "
+"   !   !   "
+"  !     !  "
+" !       ! "
+;12345678901
+[end]
+
+
+[_point]
+Type=0x064
+SubType=0x11
+;GRMN_TYPE: Geographical Named Points of Interest/TOWER/Tower/Non NT, NT
+String1=0x03,toren
+String2=0x04,tower
+ExtendedLabels=N
+DayXpm="7 16 3 1"   Colormode=32
+"!	c #000000"  alpha=15
+"#	c #303030"  alpha=0
+"%	c #808080"  alpha=0
+"!!!#!!!"
+"#######"
+"!!!#!!!"
+"!#####!"
+"!!#!#!!"
+"!!###!!"
+"!!#!#!!"
+"!!#!#!!"
+"!%%#%%!"
+"!##!##!"
+"!#!!!#!"
+"!##!##!"
+"!#!#!#!"
+"!##!##!"
+"##!!!##"
+"##!!!##"
+;1234567
+[end]
+
+
+[_point]
+Type=0x065
+SubType=0x0f
+;GRMN_TYPE: Geographical Named Points of Interest - Water Related/RESERVOIR/Reservoir/Non NT, NT
+String1=0x03,toiletten
+String2=0x04,WC
+ExtendedLabels=N
+DayXpm="15 16 87 2"   Colormode=32
+"!!	c #FFFFFF"  alpha=0
+"!#	c #D4D4D4"  alpha=0
+"!%	c #6C6C6C"  alpha=0
+"!?	c #D6D6D6"  alpha=0
+"!$	c #464646"  alpha=0
+"!*	c #AEAEAE"  alpha=0
+"!=	c #4F4F4F"  alpha=0
+"!1	c #D8D8D8"  alpha=0
+"!2	c #575757"  alpha=0
+"!3	c #000000"  alpha=0
+"!4	c #5D5D5D"  alpha=0
+"!5	c #232323"  alpha=0
+"!6	c #383838"  alpha=0
+"!7	c #7C7C7C"  alpha=0
+"!8	c #BFBFBF"  alpha=0
+"!9	c #484848"  alpha=0
+"#!	c #C2C2C2"  alpha=0
+"##	c #686868"  alpha=0
+"#%	c #E2E2E2"  alpha=0
+"#?	c #CFCFCF"  alpha=0
+"#$	c #3B3B3B"  alpha=0
+"#*	c #454545"  alpha=0
+"#=	c #4B4B4B"  alpha=0
+"#1	c #E6E6E6"  alpha=0
+"#2	c #FCFCFC"  alpha=0
+"#3	c #6F6F6F"  alpha=0
+"#4	c #303030"  alpha=0
+"#5	c #2E2E2E"  alpha=0
+"#6	c #343434"  alpha=0
+"#7	c #C3C3C3"  alpha=0
+"#8	c #767676"  alpha=0
+"#9	c #030303"  alpha=0
+"%!	c #010101"  alpha=0
+"%#	c #929292"  alpha=0
+"%%	c #D9D9D9"  alpha=0
+"%?	c #060606"  alpha=0
+"%$	c #040404"  alpha=0
+"%*	c #0C0C0C"  alpha=0
+"%=	c #FDFDFD"  alpha=0
+"%1	c #393939"  alpha=0
+"%2	c #3C3C3C"  alpha=0
+"%3	c #DFDFDF"  alpha=0
+"%4	c #373737"  alpha=0
+"%5	c #252525"  alpha=0
+"%6	c #2B2B2B"  alpha=0
+"%7	c #3D3D3D"  alpha=0
+"%8	c #505050"  alpha=0
+"%9	c #080808"  alpha=0
+"?!	c #272727"  alpha=0
+"?#	c #323232"  alpha=0
+"?%	c #E1E1E1"  alpha=0
+"??	c #E4E4E4"  alpha=0
+"?$	c #262626"  alpha=0
+"?*	c #333333"  alpha=0
+"?=	c #6A6A6A"  alpha=0
+"?1	c #5E5E5E"  alpha=0
+"?2	c #E7E7E7"  alpha=0
+"?3	c #2D2D2D"  alpha=0
+"?4	c #282828"  alpha=0
+"?5	c #8B8B8B"  alpha=0
+"?6	c #FBFBFB"  alpha=0
+"?7	c #F9F9F9"  alpha=0
+"?8	c #CACACA"  alpha=0
+"?9	c #BBBBBB"  alpha=0
+"$!	c #7D7D7D"  alpha=0
+"$#	c #121212"  alpha=0
+"$%	c #161616"  alpha=0
+"$?	c #1E1E1E"  alpha=0
+"$$	c #8D8D8D"  alpha=0
+"$*	c #2A2A2A"  alpha=0
+"$=	c #606060"  alpha=0
+"$1	c #414141"  alpha=0
+"$2	c #757575"  alpha=0
+"$3	c #4A4A4A"  alpha=0
+"$4	c #6B6B6B"  alpha=0
+"$5	c #7B7B7B"  alpha=0
+"$6	c #787878"  alpha=0
+"$7	c #535353"  alpha=0
+"$8	c #7A7A7A"  alpha=0
+"$9	c #818181"  alpha=0
+"*!	c #2F2F2F"  alpha=0
+"*#	c #848484"  alpha=0
+"*%	c #9D9D9D"  alpha=0
+"*?	c #B8B8B8"  alpha=0
+"*$	c #B6B6B6"  alpha=0
+"**	c #ADADAD"  alpha=0
+"*=	c #F5F5F5"  alpha=0
+"!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+"!!!!!#!%!?!!!!!$!!!!!*!=!1!!!!"
+"!!!!!2!3!4!!!!!5!!!!!6!3!7!!!!"
+"!!!!!8!9#!!!!!!5!!!!!8###%!!!!"
+"!!#?#$#*#=#1!!!5#2#3#4#5#6#7!!"
+"!!#8#9!3%!%#!!!5%%%?%$!3%*!$!!"
+"%=#5%1!3#=%2!!!5%3%4%5!3%6%7!!"
+"!!%8%9!3?!?#?%!5???#?$!3%6?*!!"
+"!!?=!3!3%!?1!!!5?2?3?!!3%6?4!!"
+"!!#3!3!3!3?5?6!5?7?8?4#6%6?9!!"
+"!!$!$#$%$?$$!!!5!!!!$*$=%6!!!!"
+"!!!!$1$=$2!!!!!5!!!!%6?=%6!!!!"
+"!!!!$3$4$5!!!!!5!!!!?3$6%6!!!!"
+"!!!!$7$8$9!!!!!5!!!!*!*#%6!!!!"
+"!!!!*%*?*?!!!!%5!!!!$6*$**!!!!"
+"!!!!!!!!!!!!!!*=!!!!!!!!!!!!!!"
+;123456789012345
+[end]
+
+
+[_point]
+Type=0x066
+SubType=0x16
+;GRMN_TYPE: Geographical Named Points of Interest - Land Related/SUMMIT/Summit, top of a hill or mountain/Non NT, NT
+String1=0x03,heuveltop
+ExtendedLabels=Y
+FontStyle=SmallFont
+CustomColor=Day
+DaycustomColor:#0000D5
+DayXpm="7 3 2 1"   Colormode=32
+"!	c #000000"  alpha=15
+"#	c #000000"  alpha=0
+"!!!#!!!"
+"!!###!!"
+"!#####!"
+;1234567
+[end]

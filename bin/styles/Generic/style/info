@@ -1,0 +1,13 @@
+﻿#
+# This file contains information about the style.
+# It is completely optional.
+# 
+
+
+# A short one line description of the style
+#
+summary: generic new style for garmin.openstreetmap.nl, based on the default mkgmap style
+
+# Version of the style itself
+#
+version=1.0

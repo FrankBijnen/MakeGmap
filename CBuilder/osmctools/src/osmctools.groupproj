@@ -1,0 +1,98 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{74095CB3-4A4A-4ABA-BA23-92B0F5224A8B}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="..\..\zlib-1.3.1\contrib\C++Builder\zlib.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="osmfilter\osmfilter.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="osmconvert\osmconvert.cbproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="osmupdate\osmupdate.cbproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="zlib">
+        <MSBuild Projects="..\..\zlib-1.3.1\contrib\C++Builder\zlib.cbproj"/>
+    </Target>
+    <Target Name="zlib:Clean">
+        <MSBuild Projects="..\..\zlib-1.3.1\contrib\C++Builder\zlib.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="zlib:Make">
+        <MSBuild Projects="..\..\zlib-1.3.1\contrib\C++Builder\zlib.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="osmfilter">
+        <MSBuild Projects="osmfilter\osmfilter.cbproj"/>
+    </Target>
+    <Target Name="osmfilter:Clean">
+        <MSBuild Projects="osmfilter\osmfilter.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="osmfilter:Make">
+        <MSBuild Projects="osmfilter\osmfilter.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="osmconvert">
+        <MSBuild Projects="osmconvert\osmconvert.cbproj"/>
+    </Target>
+    <Target Name="osmconvert:Clean">
+        <MSBuild Projects="osmconvert\osmconvert.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="osmconvert:Make">
+        <MSBuild Projects="osmconvert\osmconvert.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="osmupdate">
+        <MSBuild Projects="osmupdate\osmupdate.cbproj"/>
+    </Target>
+    <Target Name="osmupdate:Clean">
+        <MSBuild Projects="osmupdate\osmupdate.cbproj" Targets="Clean"/>
+    </Target>
+    <Target Name="osmupdate:Make">
+        <MSBuild Projects="osmupdate\osmupdate.cbproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="zlib;osmfilter;osmconvert;osmupdate"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="zlib:Clean;osmfilter:Clean;osmconvert:Clean;osmupdate:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="zlib:Make;osmfilter:Make;osmconvert:Make;osmupdate:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+    <ItemGroup Condition="'$(BuildGroup)'=='All'">
+        <BuildGroupProject Include="osmupdate\osmupdate.cbproj">
+            <ProjectGuid>{E74E398D-6D09-45B7-B53B-AB2BCB84DAA3}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="osmfilter\osmfilter.cbproj">
+            <ProjectGuid>{58C579A2-C525-4E1E-861F-AE38AB5CAA30}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="osmconvert\osmconvert.cbproj">
+            <ProjectGuid>{0CE75B57-1421-477C-8F37-C21335A4CBC4}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="..\..\zlib-1.3.1\contrib\C++Builder\zlib.cbproj">
+            <ProjectGuid>{9446E9E5-0A07-46FB-BB67-870590B9010B}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+</Project>

@@ -1,0 +1,223 @@
+<Html>
+<head>
+<title></title>
+<script type="text/javascript"  src="http://openlayers.org/api/OpenLayers.js"></script>
+<script src="http://www.openstreetmap.org/openlayers/OpenStreetMap.js"></script>
+<script type="text/javascript">
+
+var map;
+var lineLayer ;
+var points;
+var style;
+
+var lineFeature;
+var po;
+var op;
+
+  function initialize()
+  {
+     map = new OpenLayers.Map ("map_canvas", {
+           controls:         [new OpenLayers.Control.Navigation(),
+                              new OpenLayers.Control.PanZoomBar(),
+                              new OpenLayers.Control.LayerSwitcher(),
+                              new OpenLayers.Control.Attribution()
+                             ],
+           maxExtent:        new OpenLayers.Bounds(-20037508.34,-20037508.34,20037508.34,20037508.34),
+           maxResolution:    156543.0399,
+           numZoomLevels:    10,
+           units:            'm',
+           projection:       new OpenLayers.Projection("EPSG:900913"),
+           displayProjection:new OpenLayers.Projection("EPSG:4326")});
+
+     map.addLayer(new OpenLayers.Layer.OSM.Mapnik("Mapnik"));
+     map.addLayer(new OpenLayers.Layer.OSM("Wikimedia",
+      ["https://maps.wikimedia.org/osm-intl/${z}/${x}/${y}.png"],
+      {
+        attribution: "&copy; <a href='http://www.openstreetmap.org/'>OpenStreetMap</a> and contributors,                     under an <a href='http://www.openstreetmap.org/copyright' title='ODbL'>open license</a>. <a href='https://www.mediawiki.org/wiki/Maps'>Wikimedia's new style (beta)</a>",
+        "tileOptions": { "crossOriginKeyword": null }
+      })
+    );
+    // See https://wiki.openstreetmap.org/wiki/Tile_servers for other OSM-based layers
+     po = map.getProjectionObject();
+     op = new OpenLayers.Projection("EPSG:4326");
+
+     createTrack();
+     createPopups();
+  }
+
+  function createTrack(){
+
+    lineLayer = new OpenLayers.Layer.Vector("Track");
+    style = {strokeColor: '#ff0000', strokeOpacity: 0.6, fillOpacity: 0, strokeWidth: 5};
+    points = new Array();
+
+    addPoints();
+
+    var line_string = new OpenLayers.Geometry.LineString(points);
+    lineFeature = new OpenLayers.Feature.Vector(line_string, null, style);
+    lineLayer.addFeatures([lineFeature]);
+
+    map.addLayer(lineLayer);
+
+    var bounds = new OpenLayers.Bounds();
+    line_string.calculateBounds();
+    bounds.extend(line_string.bounds);
+    map.zoomToExtent(bounds);
+  }
+
+  function addPoints(){
+    points[0] = new OpenLayers.LonLat(6.069560889154673,50.224746102467179).transform(op, po);
+    points[0] = new OpenLayers.Geometry.Point(points[0].lon,points[0].lat);
+    points[1] = new OpenLayers.LonLat(5.926997624337673,50.210373066365719).transform(op, po);
+    points[1] = new OpenLayers.Geometry.Point(points[1].lon,points[1].lat);
+    points[2] = new OpenLayers.LonLat(5.727542024105787,49.94565362110734).transform(op, po);
+    points[2] = new OpenLayers.Geometry.Point(points[2].lon,points[2].lat);
+    points[3] = new OpenLayers.LonLat(5.663803853094578,49.79535142891109).transform(op, po);
+    points[3] = new OpenLayers.Geometry.Point(points[3].lon,points[3].lat);
+    points[4] = new OpenLayers.LonLat(5.795400738716126,49.617485012859106).transform(op, po);
+    points[4] = new OpenLayers.Geometry.Point(points[4].lon,points[4].lat);
+    points[5] = new OpenLayers.LonLat(5.758114932104945,49.54833984375).transform(op, po);
+    points[5] = new OpenLayers.Geometry.Point(points[5].lon,points[5].lat);
+    points[6] = new OpenLayers.LonLat(5.997182568535209,49.391109505668283).transform(op, po);
+    points[6] = new OpenLayers.Geometry.Point(points[6].lon,points[6].lat);
+    points[7] = new OpenLayers.LonLat(6.087107062339783,49.400092726573348).transform(op, po);
+    points[7] = new OpenLayers.Geometry.Point(points[7].lon,points[7].lat);
+    points[8] = new OpenLayers.LonLat(6.240636790171266,49.45758487097919).transform(op, po);
+    points[8] = new OpenLayers.Geometry.Point(points[8].lon,points[8].lat);
+    points[9] = new OpenLayers.LonLat(6.424872362986207,49.396499404683709).transform(op, po);
+    points[9] = new OpenLayers.Geometry.Point(points[9].lon,points[9].lat);
+    points[10] = new OpenLayers.LonLat(6.490670805796981,49.563586106523871).transform(op, po);
+    points[10] = new OpenLayers.Geometry.Point(points[10].lon,points[10].lat);
+    points[11] = new OpenLayers.LonLat(6.574057666584849,49.703628849238157).transform(op, po);
+    points[11] = new OpenLayers.Geometry.Point(points[11].lon,points[11].lat);
+    points[12] = new OpenLayers.LonLat(6.670519793406129,49.840267198160291).transform(op, po);
+    points[12] = new OpenLayers.Geometry.Point(points[12].lon,points[12].lat);
+    points[13] = new OpenLayers.LonLat(6.551478579640389,49.883501809090376).transform(op, po);
+    points[13] = new OpenLayers.Geometry.Point(points[13].lon,points[13].lat);
+    points[14] = new OpenLayers.LonLat(6.286695683375001,49.969624606892467).transform(op, po);
+    points[14] = new OpenLayers.Geometry.Point(points[14].lon,points[14].lat);
+    points[15] = new OpenLayers.LonLat(6.205544276162982,50.088202217593789).transform(op, po);
+    points[15] = new OpenLayers.Geometry.Point(points[15].lon,points[15].lat);
+    points[16] = new OpenLayers.LonLat(6.216510655358434,50.161864059045911).transform(op, po);
+    points[16] = new OpenLayers.Geometry.Point(points[16].lon,points[16].lat);
+    points[17] = new OpenLayers.LonLat(6.069560889154673,50.224746102467179).transform(op, po);
+    points[17] = new OpenLayers.Geometry.Point(points[17].lon,points[17].lat);
+  }
+
+  function createPopups(){
+    var vectorLayer = new OpenLayers.Layer.Vector("Begin LUX", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(6.069560889154673,50.224746102467179 ).transform(op, po),
+            { description: "Distance:  0.0 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("002", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(5.926997624337673,50.210373066365719 ).transform(op, po),
+            { description: "Distance:  0.0 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("LUX_001", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(5.727542024105787,49.94565362110734 ).transform(op, po),
+            { description: "Distance: 39.5 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("003", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(5.663803853094578,49.79535142891109 ).transform(op, po),
+            { description: "Distance: 39.5 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("004", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(5.795400738716126,49.617485012859106 ).transform(op, po),
+            { description: "Distance: 39.5 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("LUX_002", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(5.758114932104945,49.54833984375 ).transform(op, po),
+            { description: "Distance: 83.7 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("005", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(5.997182568535209,49.391109505668283 ).transform(op, po),
+            { description: "Distance: 83.7 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("006", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(6.087107062339783,49.400092726573348 ).transform(op, po),
+            { description: "Distance: 83.7 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("007", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(6.240636790171266,49.45758487097919 ).transform(op, po),
+            { description: "Distance: 83.7 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("008", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(6.424872362986207,49.396499404683709 ).transform(op, po),
+            { description: "Distance: 83.7 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("009", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(6.490670805796981,49.563586106523871 ).transform(op, po),
+            { description: "Distance: 83.7 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("LUX_003", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(6.574057666584849,49.703628849238157 ).transform(op, po),
+            { description: "Distance: 145 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("010", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(6.670519793406129,49.840267198160291 ).transform(op, po),
+            { description: "Distance: 145 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("LUX_004", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(6.551478579640389,49.883501809090376 ).transform(op, po),
+            { description: "Distance: 165 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("011", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(6.286695683375001,49.969624606892467 ).transform(op, po),
+            { description: "Distance: 165 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("012", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(6.205544276162982,50.088202217593789 ).transform(op, po),
+            { description: "Distance: 165 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("013", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(6.216510655358434,50.161864059045911 ).transform(op, po),
+            { description: "Distance: 165 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+    var vectorLayer = new OpenLayers.Layer.Vector("End LUX", { styleMap: new OpenLayers.StyleMap( { pointRadius: 6, fillColor: "red", fillOpacity: 0.5 } ) });
+    var feature = new OpenLayers.Feature.Vector(
+            new OpenLayers.Geometry.Point(6.069560889154673,50.224746102467179 ).transform(op, po),
+            { description: "Distance: 216 Km" } );
+    vectorLayer.addFeatures(feature);
+    map.addLayer(vectorLayer);
+  }
+
+</script>
+</head>
+<body onload="initialize()" >
+  <div id="map_canvas" style="width: 100%; height: 100%"></div>
+</body>
+</html>

@@ -1,0 +1,80 @@
+﻿<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <PropertyGroup>
+        <ProjectGuid>{C7812A11-D973-4478-A1C8-074E38AA2E67}</ProjectGuid>
+    </PropertyGroup>
+    <ItemGroup>
+        <Projects Include="MakeGmap.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="SplitGmapSupp.dproj">
+            <Dependencies/>
+        </Projects>
+        <Projects Include="SendMessage.dproj">
+            <Dependencies/>
+        </Projects>
+    </ItemGroup>
+    <ProjectExtensions>
+        <Borland.Personality>Default.Personality.12</Borland.Personality>
+        <Borland.ProjectType/>
+        <BorlandProject>
+            <Default.Personality/>
+        </BorlandProject>
+    </ProjectExtensions>
+    <Target Name="MakeGmap">
+        <MSBuild Projects="MakeGmap.dproj"/>
+    </Target>
+    <Target Name="MakeGmap:Clean">
+        <MSBuild Projects="MakeGmap.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="MakeGmap:Make">
+        <MSBuild Projects="MakeGmap.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="SplitGmapSupp">
+        <MSBuild Projects="SplitGmapSupp.dproj"/>
+    </Target>
+    <Target Name="SplitGmapSupp:Clean">
+        <MSBuild Projects="SplitGmapSupp.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SplitGmapSupp:Make">
+        <MSBuild Projects="SplitGmapSupp.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="SendMessage">
+        <MSBuild Projects="SendMessage.dproj"/>
+    </Target>
+    <Target Name="SendMessage:Clean">
+        <MSBuild Projects="SendMessage.dproj" Targets="Clean"/>
+    </Target>
+    <Target Name="SendMessage:Make">
+        <MSBuild Projects="SendMessage.dproj" Targets="Make"/>
+    </Target>
+    <Target Name="Build">
+        <CallTarget Targets="MakeGmap;SplitGmapSupp;SendMessage"/>
+    </Target>
+    <Target Name="Clean">
+        <CallTarget Targets="MakeGmap:Clean;SplitGmapSupp:Clean;SendMessage:Clean"/>
+    </Target>
+    <Target Name="Make">
+        <CallTarget Targets="MakeGmap:Make;SplitGmapSupp:Make;SendMessage:Make"/>
+    </Target>
+    <Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+    <ItemGroup Condition="'$(BuildGroup)'=='All'">
+        <BuildGroupProject Include="SplitGmapSupp.dproj">
+            <ProjectGuid>{76CE54BF-B4D5-462C-B026-FC612A2E7552}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="SendMessage.dproj">
+            <ProjectGuid>{451CACB7-8ADD-4DE4-BFA5-F19C44878FD8}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+        <BuildGroupProject Include="MakeGmap.dproj">
+            <ProjectGuid>{CDF41065-805E-455D-BD1A-B08D314BDC5F}</ProjectGuid>
+            <Configurations>Release</Configurations>
+            <Platforms>Win64</Platforms>
+            <Enabled>True</Enabled>
+        </BuildGroupProject>
+    </ItemGroup>
+</Project>

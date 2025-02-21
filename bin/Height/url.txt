@@ -1,0 +1,1 @@
+http://develop.freizeitkarte-osm.de/ele_20_100_500/Hoehendaten_Freizeitkarte_EUROPE.osm.pbf
