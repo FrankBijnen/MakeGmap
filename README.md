@@ -2,7 +2,7 @@
 Build Garmin maps from OSM data.
 
 - The created maps can be used in Garmin BaseCamp and Mapsource.
-- Device files created will be accepted by most Garmin units that allow custom maps.
+- Maps created (.img format) can be loaded onto compatible GPS units.
 
 Units tested and working:
 - Dakota 20
