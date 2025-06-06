@@ -377,8 +377,11 @@ begin
 end;
 
 function NextField(var AString: string; const ADelimiter: string): string;
-var Indx: integer;
+var
+  Indx: integer;
+  L: integer;
 begin
+  L := Length(ADelimiter);
   Indx := Pos(ADelimiter, AString);
   if Indx < 1 then
   begin
@@ -388,7 +391,7 @@ begin
   else
   begin
     result := Copy(AString, 1, Indx - 1);
-    Delete(AString, 1, Indx);
+    Delete(AString, 1, Indx + L - 1);
   end;
 end;
 

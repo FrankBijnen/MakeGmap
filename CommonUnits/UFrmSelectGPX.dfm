@@ -1,9 +1,9 @@
 object FrmSelectGPX: TFrmSelectGPX
   Left = 0
   Top = 0
-  Caption = 'Add GPX to map'
-  ClientHeight = 279
-  ClientWidth = 366
+  Caption = 'Select from GPX'
+  ClientHeight = 307
+  ClientWidth = 489
   Color = clBtnFace
   CustomTitleBar.CaptionAlignment = taCenter
   Font.Charset = DEFAULT_CHARSET
@@ -12,30 +12,33 @@ object FrmSelectGPX: TFrmSelectGPX
   Font.Name = 'Tahoma'
   Font.Style = []
   Position = poOwnerFormCenter
-  Scaled = False
+  OnCreate = FormCreate
+  OnDestroy = FormDestroy
   OnShow = FormShow
   TextHeight = 13
   object LvTracks: TListView
     Left = 0
     Top = 61
-    Width = 366
-    Height = 189
+    Width = 489
+    Height = 217
     Align = alClient
     Checkboxes = True
     Columns = <
       item
-        AutoSize = True
-        Caption = 'TrackName'
+        Caption = 'Route/Track name'
+        Width = 255
+      end
+      item
+        Caption = 'Rte/Trk'
+        Width = 55
       end
       item
         Caption = 'Color'
-        Width = 150
+        Width = 100
       end
       item
-        AutoSize = True
         Caption = 'Points'
-        MaxWidth = 50
-        MinWidth = 50
+        Width = 55
       end>
     GridLines = True
     MultiSelect = True
@@ -45,29 +48,28 @@ object FrmSelectGPX: TFrmSelectGPX
     ShowWorkAreas = True
     TabOrder = 0
     ViewStyle = vsReport
-    OnChange = LvTracksChange
   end
   object PnlTop: TPanel
     Left = 0
     Top = 0
-    Width = 366
+    Width = 489
     Height = 29
     Align = alTop
-    Caption = 'Select Routes/Tracks to show'
+    Caption = 'Select Routes/Tracks'
     TabOrder = 1
   end
   object PnlBot: TPanel
     Left = 0
-    Top = 250
-    Width = 366
+    Top = 278
+    Width = 489
     Height = 29
     Align = alBottom
     TabOrder = 2
     DesignSize = (
-      366
+      489
       29)
     object BitBtnOK: TBitBtn
-      Left = 173
+      Left = 296
       Top = 2
       Width = 75
       Height = 25
@@ -77,7 +79,7 @@ object FrmSelectGPX: TFrmSelectGPX
       TabOrder = 0
     end
     object BitBtnCan: TBitBtn
-      Left = 254
+      Left = 377
       Top = 2
       Width = 75
       Height = 25
@@ -90,7 +92,7 @@ object FrmSelectGPX: TFrmSelectGPX
   object PnlClear: TPanel
     Left = 0
     Top = 29
-    Width = 366
+    Width = 489
     Height = 32
     Align = alTop
     TabOrder = 3
@@ -110,6 +112,7 @@ object FrmSelectGPX: TFrmSelectGPX
       Text = 'CmbOverruleColor'
       OnClick = CmbOverruleColorClick
       Items.Strings = (
+        'No Change'
         'Black'
         'Blue'
         'Cyan'

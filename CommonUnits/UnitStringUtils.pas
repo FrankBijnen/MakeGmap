@@ -3,7 +3,7 @@ unit UnitStringUtils;
 interface
 
 uses
-  System.Sysutils, System.Variants, Winapi.ShellAPI, System.Win.Registry,
+  System.Sysutils, System.Variants, Winapi.ShellAPI, System.Win.Registry, System.Classes,
   Winapi.Windows;
 
 
@@ -25,11 +25,15 @@ function CoordAsDec(const ACoord: string): double;
 function ValidLatLon(const Lat, Lon: string): boolean;
 procedure ParseLatLon(const LatLon: string; var Lat, Lon: string);
 procedure AdjustLatLon(var Lat, Lon: string; No_Decimals: integer);
+procedure CheckHRGuid(HR: Hresult);
+procedure PrepStream(TmpStream: TMemoryStream; const Buffer: array of Cardinal);  overload;
+procedure PrepStream(TmpStream: TMemoryStream; const Count: Cardinal; const Buffer: array of WORD); overload;
 
 procedure DebugMsg(const Msg: array of variant);
 function GetRegistryValue(const ARootKey: HKEY; const KeyName, Name: string; const Default: string = ''): string;
 procedure SetRegistryValue(const ARootKey: HKEY; const KeyName, Name, Value: string);
 function TempFilename(const Prefix: string): string;
+function GetAppData: string;
 function EscapeHtml(const HTML: string): string;
 function EscapeDQuote(const HTML: string): string;
 function EscapeFileName(InFile: string): string;
@@ -50,7 +54,9 @@ var
 implementation
 
 uses
-  System.Math, System.StrUtils, Vcl.Forms, Vcl.Dialogs;
+  System.Math, System.StrUtils, Winapi.ShlObj, Winapi.KnownFolders, Winapi.ActiveX,
+  Vcl.Forms, Vcl.Dialogs,
+  MsgLoop;
 
 var
   FloatFormatSettings: TFormatSettings; // for FormatFloat -see Initialization
@@ -96,8 +102,11 @@ begin
 end;
 
 function NextField(var AString: string; const ADelimiter: string): string;
-var Indx: integer;
+var
+  Indx: integer;
+  L: integer;
 begin
+  L := Length(ADelimiter);
   Indx := Pos(ADelimiter, AString);
   if Indx < 1 then
   begin
@@ -107,7 +116,7 @@ begin
   else
   begin
     result := Copy(AString, 1, Indx - 1);
-    Delete(AString, 1, Indx);
+    Delete(AString, 1, Indx + L - 1);
   end;
 end;
 
@@ -177,6 +186,29 @@ begin
   end;
 end;
 
+procedure PrepStream(TmpStream: TMemoryStream; const Buffer: array of Cardinal);
+begin
+  TmpStream.Clear;
+  TmpStream.Write(Buffer, SizeOf(Buffer));
+  TmpStream.Position := 0;
+end;
+
+procedure PrepStream(TmpStream: TMemoryStream; const Count: Cardinal; const Buffer: array of WORD);
+var
+  SwapCount: Cardinal;
+begin
+  SwapCount := Swap32(Count);
+  TmpStream.Clear;
+  TmpStream.Write(SwapCount, SizeOf(SwapCount));
+  TmpStream.Write(Buffer, SizeOf(Buffer));
+  TmpStream.Position := 0;
+end;
+
+procedure CheckHRGuid(HR: Hresult);
+begin
+  Assert(HR = S_OK, 'Error creating GUID');
+end;
+
 procedure AdjustLatLon(var Lat, Lon: string; No_Decimals: integer);
 begin
   Lat := AdjustUsingRound(Lat, No_Decimals);
@@ -242,6 +274,20 @@ begin
   GetTempPath(MAX_PATH, ADir);
   GetTempFilename(ADir, PChar(Prefix), 0, AName);
   result := StrPas(AName);
+end;
+
+function GetAppData: string;
+var
+  NameBuffer: PChar;
+begin
+  result := '';
+  if SUCCEEDED(SHGetKnownFolderPath(FOLDERID_RoamingAppData, 0, 0, NameBuffer)) then
+  begin
+    result := IncludeTrailingPathDelimiter(StrPas(NameBuffer)) + IncludeTrailingPathDelimiter(Application.Title);
+    CoTaskMemFree(NameBuffer);
+    if not DirectoryExists(result) then
+      CreateDir(result);
+  end;
 end;
 
 function CreateTempPath(const Prefix: string): string;
@@ -336,7 +382,7 @@ begin
 
     Dec(CurrentTry);
     Sleep(100);
-    Application.ProcessMessages;
+    ProcessMessages;
   until (CurrentTry < 1);
 
   if (ShResult <> 0) and (ShOp.fAnyOperationsAborted = false) then

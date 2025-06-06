@@ -129,7 +129,7 @@ var
 
 implementation
 
-uses UDmSettings, MakeGmapUtils, UnitStringUtils, UnitRedirect, DownloadTask, UnitGpx, UnitMapUtils,
+uses UDmSettings, MakeGmapUtils, UnitStringUtils, UnitRedirect, DownloadTask, UnitGpxObjects, UnitMapUtils,
      System.StrUtils,
      Winapi.RichEdit, Winapi.ShellAPI, vcl.Imaging.jpeg;
 
@@ -564,20 +564,19 @@ begin
 end;
 
 procedure TFrmMain.BtnImportPolyClick(Sender: TObject);
-var NewPoly: string;
+var
+  NewPolyDir, NewPoly: string;
 begin
   if not OpenDialogGpx.Execute then
     exit;
-  NewPoly := DirFromExe + 'Poly\' + ExtractFileName(OpenDialogGpx.FileName);
+  NewPolyDir := IncludeTrailingPathDelimiter(DirFromExe + 'Poly');
+  NewPoly := NewPolyDir + ExtractFileName(OpenDialogGpx.FileName);
   if not SameText(OpenDialogGpx.FileName, NewPoly) then // GPX needs to be copied first.
   begin
     if not CopyFileWithDates(OpenDialogGpx.FileName, NewPoly) then
       raise Exception.Create('Could not copy GPX to: ' + NewPoly);
   end;
-
-  CreateSubDir := false;
-  EnableBalloon := false;
-  DoFunction([TGPXFunc.CreatePoly, TGPXFunc.CreateOSM], NewPoly);
+  TGPXFile.PerformFunctions([TGPXFunc.CreatePoly, TGPXFunc.CreateOSM], NewPoly, nil, nil, NewPolyDir);
   DmSettings.CreatePolys;
   NavigatePoly(NewPoly);
 end;
