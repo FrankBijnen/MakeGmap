@@ -64,7 +64,7 @@ object FrmMain: TFrmMain
         end
         object BtnImportPoly: TButton
           Left = 201
-          Top = 1
+          Top = 5
           Width = 185
           Height = 30
           Caption = 'Import poly from GPX'

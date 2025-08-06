@@ -1,11 +1,11 @@
 unit UnitStringUtils;
+{$WARN SYMBOL_PLATFORM OFF}
 
 interface
 
 uses
-  System.Sysutils, System.Variants, Winapi.ShellAPI, System.Win.Registry, System.Classes,
-  Winapi.Windows;
-
+  System.Sysutils, System.Variants, System.Classes,
+  Winapi.ShellAPI, Winapi.Windows;
 
 type
   T4Bytes = array[0..3] of byte;
@@ -30,8 +30,6 @@ procedure PrepStream(TmpStream: TMemoryStream; const Buffer: array of Cardinal);
 procedure PrepStream(TmpStream: TMemoryStream; const Count: Cardinal; const Buffer: array of WORD); overload;
 
 procedure DebugMsg(const Msg: array of variant);
-function GetRegistryValue(const ARootKey: HKEY; const KeyName, Name: string; const Default: string = ''): string;
-procedure SetRegistryValue(const ARootKey: HKEY; const KeyName, Name, Value: string);
 function TempFilename(const Prefix: string): string;
 function GetAppData: string;
 function EscapeHtml(const HTML: string): string;
@@ -44,7 +42,8 @@ function GetTracksMask: string;
 function GetTracksTmp: string;
 function GetOSMTemp: string;
 function GetRoutesTmp: string;
-
+function GPX2HTMLColor(GPXColor: string): string;
+function GetLocaleSetting: TFormatSettings;
 function VerInfo(IncludeCompany: boolean = false): string;
 
 var
@@ -61,18 +60,20 @@ uses
 var
   FloatFormatSettings: TFormatSettings; // for FormatFloat -see Initialization
 
-const LenFileSize = 11;
-      B  = ' B';
-      Kb = ' Kb';
-      Mb = ' Mb';
-      HtmlTempFileName  = '.html';
-      TrackFileExt    = '.track';
-      OSMDir            = 'OSM\';
-      RoutesDir         = 'Routes\';
+const
+  LenFileSize = 11;
+  B  = ' B';
+  Kb = ' Kb';
+  Mb = ' Mb';
+  HtmlTempFileName  = '.html';
+  TrackFileExt    = '.track';
+  OSMDir            = 'OSM\';
+  RoutesDir         = 'Routes\';
 
 function SenSize(const S: int64): string;
-var H: string;
-    I: int64;
+var
+  H: string;
+  I: int64;
 begin
   H := Spc(LenFileSize);
   if S < (1000000) then
@@ -81,12 +82,13 @@ begin
     result := H + FormatFloat('#,##0', S / 1024) + Kb
   else
     result := H + FormatFloat('#,##0', S / (1024 * 1024)) + Mb;
-  I := length(result);
-  result := copy(result, I - LenFileSize + 1, LenFileSize);
+  I := Length(result);
+  result := Copy(result, I - LenFileSize + 1, LenFileSize);
 end;
 
 function Intd(const N: Integer; const D: Integer): string;
-var L: integer;
+var
+  L: integer;
 begin
   result := IntToStr(N);
   L := D - Length(result);
@@ -170,9 +172,9 @@ var
   ADouble: Double;
 begin
   result := TryStrToFloat(Lat, ADouble, FloatFormatSettings);
-  result := result and (Abs(ADouble) <= 90);
+  result := result and (Abs(ADouble) <= 90) and (Abs(ADouble) > 0);
   result := result and TryStrToFloat(Lon, ADouble, FloatFormatSettings);
-  result := result and (Abs(ADouble) <= 180);
+  result := result and (Abs(ADouble) <= 180) and (Abs(ADouble) > 0);
 end;
 
 function AdjustUsingRound(const ADecimal: string; No_Decimals: integer): string;
@@ -227,38 +229,9 @@ var I: integer;
     FMsg: string;
 begin
   Fmsg := Format('%s %s %s', ['MTP_Helper', Paramstr(0), IntToStr(GetCurrentThreadId)]);
-  for I := 0 to high(Msg) do
+  for I := 0 to High(Msg) do
     FMsg := Format('%s,%s', [FMsg, VarToStr(Msg[I])]);
   OutputDebugString(PChar(FMsg));
-end;
-
-function GetRegistryValue(const ARootKey: HKEY; const KeyName, Name: string; const Default: string=''): string;
-var Registry: TRegistry;
-begin
-  Registry := TRegistry.Create(KEY_READ);
-  try
-    Registry.RootKey := ARootKey;
-    // False because we do not want to create it if it doesn't exist
-    if (Registry.OpenKey(KeyName, False)) then
-      result := Registry.ReadString(Name);
-  finally
-    Registry.Free;
-  end;
-  if (result = '') then
-    result := Default;
-end;
-
-procedure SetRegistryValue(const ARootKey: HKEY; const KeyName, Name, Value: string);
-var Registry: TRegistry;
-begin
-  Registry := TRegistry.Create(KEY_WRITE);
-  try
-    Registry.RootKey := ARootKey;
-    Registry.OpenKey(KeyName, True);
-    Registry.WriteString(Name, Value);
-  finally
-    Registry.Free;
-  end;
 end;
 
 function TempPath: string;
@@ -269,7 +242,8 @@ begin
 end;
 
 function TempFilename(const Prefix: string): string;
-var AName, ADir: array [0 .. MAX_PATH] of char;
+var
+  AName, ADir: array [0 .. MAX_PATH] of char;
 begin
   GetTempPath(MAX_PATH, ADir);
   GetTempFilename(ADir, PChar(Prefix), 0, AName);
@@ -346,8 +320,10 @@ begin
 end;
 
 function EscapeFileName(InFile: string): string;
-const InvalidChars = ['<', '>', ':', '"', '/', '\', '|', '?', '*'];
-var Indx: integer;
+const
+  InvalidChars = ['<', '>', ':', '"', '/', '\', '|', '?', '*'];
+var
+  Indx: integer;
 begin
   result := InFile;
 
@@ -390,11 +366,44 @@ begin
   result := (ShResult = 0);
 end;
 
+function GPX2HTMLColor(GPXColor: string): string;
+begin
+  result := 'ff00ff';
+  if (GPXColor = 'Black')       then exit('000000');
+  if (GPXColor = 'DarkRed')     then exit('8b0000');
+  if (GPXColor = 'DarkGreen')   then exit('006400');
+  if (GPXColor = 'DarkYellow')  then exit('b5b820');
+  if (GPXColor = 'DarkBlue')    then exit('00008b');
+  if (GPXColor = 'DarkMagenta') then exit('8b008b');
+  if (GPXColor = 'DarkCyan')    then exit('008b8b');
+  if (GPXColor = 'LightGray')   then exit('cccccc');
+  if (GPXColor = 'DarkGray')    then exit('444444');
+  if (GPXColor = 'Red')         then exit('ff0000');
+  if (GPXColor = 'Green')       then exit('00ff00');
+  if (GPXColor = 'Yellow')      then exit('ffff00');
+  if (GPXColor = 'Blue')        then exit('0000ff');
+  if (GPXColor = 'Magenta')     then exit('ff00ff');
+  if (GPXColor = 'Cyan')        then exit('00ffff');
+  if (GPXColor = 'White')       then exit('ffffff');
+  if (GPXColor = 'Transparent') then exit('ffffff');
+end;
+
+function GetLocaleSetting: TFormatSettings;
+begin
+  // Get Windows settings, and modify decimal separator and negcurr
+  Result := TFormatSettings.Create(GetThreadLocale);
+  with Result do
+  begin
+    DecimalSeparator := '.'; // The decimal separator is a . PERIOD!
+    NegCurrFormat := 11;
+  end;
+end;
+
 function VerInfo(IncludeCompany: boolean = false): string;
 var
   S: string;
   Buf, Value: PChar;
-   N, Len: DWORD;
+  N, Len: DWORD;
 
   function QueryItem(Item: string): string;
   begin
@@ -414,7 +423,11 @@ begin
       GetFileVersionInfo(PChar(S), 0, N, Buf);
       S := 'ProductName';
       result := QueryItem(S);
-      result := S + ': ' + #9 + result + #10;
+{$IFDEF WIN64}
+      result := S + ': ' + #9 + result + ' (Win64)' + #10;
+{$ELSE}
+      result := S + ': ' + #9 + result + ' (Win32)' + #10;
+{$ENDIF}
       S := 'FileDescription';
       result := result + S + ': ' + #9 + QueryItem(S) + #10;
       S := 'FileVersion';
@@ -433,11 +446,10 @@ begin
     end;
   end
   else
-    result := ('No FileVersionInfo found');
+    result := 'No FileVersionInfo found';
 end;
 
 initialization
-
 begin
   FloatFormatSettings.ThousandSeparator := ',';
   FloatFormatSettings.DecimalSeparator := '.';

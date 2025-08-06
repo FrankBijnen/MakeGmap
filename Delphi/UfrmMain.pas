@@ -129,7 +129,7 @@ var
 
 implementation
 
-uses UDmSettings, MakeGmapUtils, UnitStringUtils, UnitRedirect, DownloadTask, UnitGpxObjects, UnitMapUtils,
+uses UDmSettings, MakeGmapUtils, UnitStringUtils, UnitRedirect, DownloadTask, UnitGpxDefs, UnitGpxObjects, UnitMapUtils,
      System.StrUtils,
      Winapi.RichEdit, Winapi.ShellAPI, vcl.Imaging.jpeg;
 
@@ -576,7 +576,7 @@ begin
     if not CopyFileWithDates(OpenDialogGpx.FileName, NewPoly) then
       raise Exception.Create('Could not copy GPX to: ' + NewPoly);
   end;
-  TGPXFile.PerformFunctions([TGPXFunc.CreatePoly, TGPXFunc.CreateOSM], NewPoly, nil, nil, NewPolyDir);
+  TGPXFile.PerformFunctions([TGPXFunc.CreatePoly, TGPXFunc.CreateHTML], NewPoly, nil, nil, NewPolyDir);
   DmSettings.CreatePolys;
   NavigatePoly(NewPoly);
 end;

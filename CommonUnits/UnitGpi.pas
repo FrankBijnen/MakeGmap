@@ -1,6 +1,6 @@
 unit UnitGpi;
 {$WARN SYMBOL_PLATFORM OFF}
-{$J+}
+
 interface
 
 uses
@@ -10,10 +10,14 @@ uses
 type
   TGPXString = UTF8String;
 
-const GpiName: TGPXString = 'my.gpi';
-      GpiVersion: Word = 0;
-      GpiSymbolsDir: TGPXString = 'Symbols\24x24\';
-      DefTransparentColor: DWORD = $00ff00ff;
+const
+  GpiName: TGPXString         = 'my.gpi';
+  GpiVersion: Word            = 0;
+  DefTransparentColor: DWORD  = $00ff00ff;
+  DefGpiSymbolsDir            = 'Symbols\24x24\';
+  Reg_GPISymbolSize           = 'GPISymbolsSize';
+  Reg_GPIProximity            = 'GPIProximity';
+
 type
 
   TGPXWayPoint = class
@@ -52,7 +56,8 @@ type
   TGPXBitmap = class
     Bitmap: TGPXString;
     BitmapId: Word;
-    constructor Create;
+    GpiSymbolsDir: TGPXString;
+    constructor Create(SymbolsDir: TGPXString = DefGpiSymbolsDir);
     destructor Destroy; override;
   end;
 
@@ -334,8 +339,9 @@ implementation
 uses
   System.Math,
   System.WideStrUtils,
+  Winapi.Windows,
   Vcl.Imaging.pngimage,
-  Winapi.Windows;
+  UnitStringUtils;
 
 const
   Coord_Decimals = '%1.6f';
@@ -369,9 +375,10 @@ begin
   inherited;
 end;
 
-constructor TGPXBitmap.Create;
+constructor TGPXBitmap.Create(SymbolsDir: TGPXString = DefGpiSymbolsDir);
 begin
-  inherited;
+  GpiSymbolsDir := SymbolsDir;
+  inherited Create;
 end;
 
 destructor TGPXBitmap.Destroy;
@@ -840,12 +847,13 @@ begin
   Id := GPXBitMap.BitmapId;
   MainRec.Create(AVersion, $0005);
 
+  BitMapRd := TBitMapReader.Create;
   try
     try
-      BitMapRd := TBitMapReader.Create(TGPXString(
-                      string(GpiSymbolsDir) +
+      BitMapRd.Load(TGPXString(
+                      string(GPXBitMap.GpiSymbolsDir) +
                       ChangeFileExt(
-                        StringReplace(String(GPXBitMap.Bitmap), '/', '_', [rfReplaceAll]),
+                        StringReplace(string(GPXBitMap.Bitmap), '/', '_', [rfReplaceAll]),
                         '.bmp')));
     except on E:Exception do
       begin
@@ -872,7 +880,7 @@ begin
     SetLength(ScanLines, length(BitMapRd.ScanLines));
     Move(BitMapRd.ScanLines[0], ScanLines[0], length(BitMapRd.ScanLines));
   finally
-    BitMapRd.Free;
+    FreeAndNil(BitMapRd);
   end;
 end;
 
@@ -1624,17 +1632,6 @@ begin
   finally
     CategoryList.Free;
     BitMapList.Free;
-  end;
-end;
-
-function GetLocaleSetting: TFormatSettings;
-begin
-  // Get Windows settings, and modify decimal separator and negcurr
-  Result := TFormatSettings.Create(GetThreadLocale);
-  with Result do
-  begin
-    DecimalSeparator := '.'; // The decimal separator is a . PERIOD!
-    NegCurrFormat := 11;
   end;
 end;
 

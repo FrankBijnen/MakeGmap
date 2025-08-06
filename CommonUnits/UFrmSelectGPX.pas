@@ -9,6 +9,8 @@ uses
   Vcl.StdCtrls, Vcl.Buttons, Vcl.Menus;
 
 type
+  TTagsToShow = (WptRte = 1, RteTrk = 10, Rte = 20, Trk = 30);
+
   TFrmSelectGPX = class(TForm)
     LvTracks: TListView;
     PnlTop: TPanel;
@@ -18,7 +20,7 @@ type
     PopupMenu1: TPopupMenu;
     CheckAll1: TMenuItem;
     CheckNone1: TMenuItem;
-    PnlClear: TPanel;
+    PnlColor: TPanel;
     CmbOverruleColor: TComboBox;
     lblChangeColor: TLabel;
     procedure CheckAll1Click(Sender: TObject);
@@ -29,39 +31,53 @@ type
     procedure FormDestroy(Sender: TObject);
   private
     { Private declarations }
+    FTagsToShow: TTagsToShow;
+    FCheckMask: string;
   public
     { Public declarations }
     AllTracks: TStringList;
-    procedure LoadTracks(DisplayColor: string);
-    function TrackSelectedColor(const TrackName: string): string;
+    procedure LoadTracks(DisplayColor: string; TagsToShow: TTagsToShow; CheckMask: string);
+    function TrackSelectedColor(const TrackName, RteTrk: string): string;
   end;
 
-var FrmSelectGPX: TFrmSelectGPX;
+//var FrmSelectGPX: TFrmSelectGPX;
 
 implementation
 
 {$R *.dfm}
 
-uses UnitStringUtils;
+uses
+  System.Masks,
+  UnitStringUtils;
 
 const
   TypeColumn = 1;
-  ColorColumn = 1;
+  TypeSubItem = 0;
+  ColorSubItem = 1;
 
-procedure TFrmSelectGPX.LoadTracks(DisplayColor: string);
+procedure TFrmSelectGPX.LoadTracks(DisplayColor: string; TagsToShow: TTagsToShow; CheckMask: string);
 var
   Indx: integer;
+  CanCheck: boolean;
   Name, Color, Points, FromRoute: string;
   LVItem: TListItem;
 begin
-
-  if (DisplayColor = '-') then
-  begin
-    PnlClear.Visible := false;
-    PnlTop.Caption := 'Select Waypoints/Route';
-    LvTracks.Columns[TypeColumn].Caption := 'Wpt/Rte';
+  FCheckMask := CheckMask;
+  FTagsToShow := TagsToShow;
+  case FTagsToShow of
+    TTagsToShow.WptRte:
+      begin
+        PnlColor.Visible := false;
+        LvTracks.Columns[TypeColumn].Caption := 'Wpt/Rte';
+      end;
+    TTagsToShow.RteTrk:
+      begin
+        PnlColor.Visible := true;
+        LvTracks.Columns[TypeColumn].Caption := 'Rte/Trk';
+      end;
   end;
 
+  CanCheck := true;
   LvTracks.Items.Clear;
   for Indx := 0 to AllTracks.Count - 1 do
   begin
@@ -71,7 +87,12 @@ begin
     Name := NextField(FromRoute, Chr(9));
     LVItem := LvTracks.Items.Add;
     LVItem.Caption := Name;
-    LVItem.Checked := (DisplayColor <> '-');
+    if (CanCheck) then
+    begin
+      LVItem.Checked := MatchesMask(Name, CheckMask);
+      if (LVItem.Checked) then
+        CanCheck := SameText(CheckMask, '*');
+    end;
     LVItem.SubItems.Add(FromRoute);
     if (DisplayColor = '') then
       LVItem.SubItems.Add(Color)
@@ -104,13 +125,13 @@ var
   AnItem: TlistItem;
 begin
   if (CmbOverruleColor.ItemIndex = 0) then
-    LoadTracks('')
+    LoadTracks('', FTagsToShow, FCheckMask)
   else
   begin
     for AnItem in LvTracks.Items do
     begin
       if (AnItem.Checked) then
-        AnItem.SubItems[ColorColumn] := CmbOverruleColor.Text;
+        AnItem.SubItems[ColorSubItem] := CmbOverruleColor.Text;
     end;
   end;
 end;
@@ -131,15 +152,16 @@ begin
     LvTracks.Items[0].Selected := true;
 end;
 
-function TFrmSelectGPX.TrackSelectedColor(const TrackName: string): string;
+function TFrmSelectGPX.TrackSelectedColor(const TrackName, RteTrk: string): string;
 var LVItem: TListItem;
 begin
   result := '';
   for LVItem in LvTracks.Items do
   begin
-    if (LVItem.Caption = TrackName) and
+    if (SameText(LVItem.Caption, TrackName)) and
+       (SameText(LVItem.SubItems[TypeSubItem], RteTrk)) and
        (LVItem.Checked) then
-      exit(LVItem.SubItems[ColorColumn]);
+      exit(LVItem.SubItems[ColorSubItem]);
   end;
 end;
 
