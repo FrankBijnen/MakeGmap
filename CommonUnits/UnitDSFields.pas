@@ -2,7 +2,11 @@ unit UnitDSFields;
 
 interface
 
-uses System.Classes, Vcl.DBCtrls, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.ComCtrls, Data.DB, hotspot;
+uses
+  System.Classes,
+  Winapi.Messages,
+  Vcl.DBCtrls, Vcl.Controls, Vcl.StdCtrls, Vcl.ExtCtrls, Vcl.Graphics,
+  Data.DB;
 
 type
 
@@ -43,10 +47,14 @@ type
 
 implementation
 
-const ControlHeight   = 25;
-      ControlMargin   = 10;
-      NonStringWidth  = 80;
-      ControlSpace    = 5;
+uses
+  UnitHotLabel;
+
+const
+  ControlHeight   = 25;
+  ControlMargin   = 10;
+  NonStringWidth  = 80;
+  ControlSpace    = 5;
 
 constructor TDSFields.Create(AOwner: TPanel; ADataSource: TDataSource; ATag: integer = -1);
 begin
@@ -82,7 +90,7 @@ begin
     Height := ControlHeight;
     Width := Parent.Width - ControlMargin;
     Caption := AField.DisplayLabel;
-    Tag := Afield.Index;
+    Tag := AField.Index;
     OnClick := LabelClick;
   end;
 end;
@@ -145,7 +153,8 @@ begin
 end;
 
 procedure TDSFields.AddTableFields;
-var AField: TField;
+var
+  AField: TField;
 begin
   AddPanels;
 
@@ -155,16 +164,19 @@ begin
     if (FTag <> -1) and
        (AField.Tag <> FTag) then
       continue;
+
     if (AField.Visible = false) then
       continue;
-    if (Afield.FieldKind = TFieldKind.fkLookup) then
+
+    if (AField.FieldKind = TFieldKind.fkLookup) then
     begin
       AddLabel(AField);
       AddLookupCombo(AField);
       FNewTop := FNewTop + ControlHeight + ControlSpace;
       continue;
     end;
-    if (Afield.FieldKind = TFieldKind.fkData) then
+
+    if (AField.FieldKind = TFieldKind.fkData) then
     begin
       AddLabel(AField);
       if (AField is TBooleanField) then
@@ -174,19 +186,22 @@ begin
       FNewTop := FNewTop + ControlHeight + ControlSpace;
       continue;
     end;
+
   end;
   FieldsPanel.Constraints.MinHeight := FNewTop + ControlHeight;
 end;
 
 function TDSFields.MinLabelWidth: integer;
-var AField: TField;
-    FieldWidth: integer;
+var
+  AField: TField;
+  FieldWidth: integer;
 begin
   Result := ControlMargin;
   for AField in FDataSource.DataSet.Fields do
   begin
     if (AField.Visible = false) then
       continue;
+
     FieldWidth := LabelPanel.Canvas.TextWidth(AField.DisplayLabel);
     if (result < FieldWidth + (ControlMargin * 2)) then
       Result := FieldWidth + (ControlMargin * 2);
@@ -194,9 +209,10 @@ begin
 end;
 
 procedure TDSFields.FieldsResize(Sender: Tobject);
-var Indx: integer;
-    AControl : TControl;
-    AField : TField;
+var
+  Indx: integer;
+  AControl: TControl;
+  AField: TField;
 begin
   for Indx := 0 to FieldsPanel.ControlCount -1 do
   begin
@@ -205,7 +221,7 @@ begin
        (AControl is TDBLookupComboBox) then
     begin
       AField := FDataSource.DataSet.Fields[AControl.Tag];
-      if (Afield is TStringField) then
+      if (AField is TStringField) then
          AControl.Width := FieldsPanel.Width - (ControlMargin * 2);
     end;
   end;

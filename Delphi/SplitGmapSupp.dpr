@@ -107,6 +107,8 @@ var MkgMapOptions: string;
       end;
     end;
 
+{$R *.res}
+
 begin
   ExitCode := 1;
   if (ParamCount<5) then

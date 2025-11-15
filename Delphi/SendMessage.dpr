@@ -10,6 +10,9 @@ var Handle: Hwnd;
     Msg: Cardinal;
     WParm: WPARAM;
     LParm: LPARAM;
+
+{$R *.res}
+
 begin
   ExitCode := 1;
 
@@ -22,6 +25,7 @@ begin
   LParm := 0;
   if (ParamCount > 3) then
     LParm := StrToInt(ParamStr(4));
+
   // If the Window Handle is invalid we still get Exitcode 0!
   ExitCode := Winapi.Windows.SendMessage(Handle, Msg, WParm, LParm);
 

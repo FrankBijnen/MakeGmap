@@ -17,11 +17,11 @@ function NextField(var AString: string; const ADelimiter: string): string;
 function ReplaceAll(const AString: string;
                     const OldPatterns, NewPatterns: array of string;
                     Flags: TReplaceFlags = [rfReplaceAll]): string;
-function Swap32(I: T4Bytes): T4Bytes; overload;
-function Swap32(I: Cardinal): Cardinal; overload;
-function Swap32(I: integer): integer; overload;
-function Swap32(I: single): single; overload;
-function CoordAsDec(const ACoord: string): double;
+procedure SetSubString(var AString: string; const Pos: integer; SubString: string);
+function Swap32(I: T4Bytes): T4Bytes; overload; inline;
+function Swap32(I: Cardinal): Cardinal; overload; inline;
+function Swap32(I: integer): integer; overload; inline;
+function Swap32(I: single): single; overload; inline;
 function ValidLatLon(const Lat, Lon: string): boolean;
 procedure ParseLatLon(const LatLon: string; var Lat, Lon: string);
 procedure AdjustLatLon(var Lat, Lon: string; No_Decimals: integer);
@@ -42,9 +42,20 @@ function GetTracksMask: string;
 function GetTracksTmp: string;
 function GetOSMTemp: string;
 function GetRoutesTmp: string;
+function GetDeviceTmp: string;
 function GPX2HTMLColor(GPXColor: string): string;
 function GetLocaleSetting: TFormatSettings;
 function VerInfo(IncludeCompany: boolean = false): string;
+function UserAgent: string;
+
+function Sto_RedirectedExecute(CmdLine: string;
+                               CurrentDir: string;
+                               var Output: string;
+                               var Error: string;
+                               var ExitCode: DWord;
+                               const Input: string = '';
+                               const Wait: DWord = 3600000;
+                               const ShowWindow: boolean = false): boolean;
 
 var
   CreatedTempPath: string;
@@ -69,6 +80,7 @@ const
   TrackFileExt    = '.track';
   OSMDir            = 'OSM\';
   RoutesDir         = 'Routes\';
+  DeviceDir         = 'Device\';
 
 function SenSize(const S: int64): string;
 var
@@ -138,6 +150,15 @@ begin
     result := StringReplace(result, OldPatterns[Index], NewPatterns[Index], Flags);
 end;
 
+procedure SetSubString(var AString: string; const Pos: integer; SubString: string);
+var
+  ActPos: integer;
+begin
+  ActPos := Min(Length(AString), Pos);
+  Delete(Astring, ActPos, Length(SubString));
+  Insert(SubString, AString, ActPos);
+end;
+
 function Swap32(I: T4Bytes): T4Bytes;
 begin
   result[0] := I[3];
@@ -161,20 +182,14 @@ begin
   result := Single(Swap32(T4BYtes(I)));
 end;
 
-function CoordAsDec(const ACoord: string): double;
-begin
-  if not TryStrToFloat(ACoord, result, FloatFormatSettings) then
-    result := 0;
-end;
-
 function ValidLatLon(const Lat, Lon: string): boolean;
 var
   ADouble: Double;
 begin
   result := TryStrToFloat(Lat, ADouble, FloatFormatSettings);
-  result := result and (Abs(ADouble) <= 90) and (Abs(ADouble) > 0);
+  result := result and (Abs(ADouble) <= 90);
   result := result and TryStrToFloat(Lon, ADouble, FloatFormatSettings);
-  result := result and (Abs(ADouble) <= 180) and (Abs(ADouble) > 0);
+  result := result and (Abs(ADouble) <= 180);
 end;
 
 function AdjustUsingRound(const ADecimal: string; No_Decimals: integer): string;
@@ -306,6 +321,11 @@ begin
   result := CreatedTempPath + RoutesDir;
 end;
 
+function GetDeviceTmp: string;
+begin
+  result := CreatedTempPath + DeviceDir;
+end;
+
 function EscapeDQuote(const HTML: string): string;
 begin
   result := ReplaceAll(HTML, ['"'], ['\"']);
@@ -399,54 +419,285 @@ begin
   end;
 end;
 
+function QueryItem(Buf: PByte; Item: string): PChar;
+var
+  Len: DWORD;
+begin
+  if not VerQueryValue(Buf, PChar('stringFileInfo\040904E4\' + Item), Pointer(result), Len) then
+     result := '';
+end;
+
 function VerInfo(IncludeCompany: boolean = false): string;
 var
   S: string;
-  Buf, Value: PChar;
-  N, Len: DWORD;
-
-  function QueryItem(Item: string): string;
-  begin
-    if VerQueryValue(Buf, PChar('stringFileInfo\040904E4\' + Item), Pointer(Value), Len) then
-       result := value
-    else
-       result:= '';
-  end;
-
+  Buf: PByte;
+  Len: DWORD;
 begin
   S := Application.ExeName;
-  N := GetFileVersionInfoSize(PChar(S), N);
-  if (N > 0) then
+  Len := GetFileVersionInfoSize(PChar(S), Len);
+  if (Len > 0) then
   begin
-    Buf := AllocMem(N);
+    Buf := AllocMem(Len);
     try
-      GetFileVersionInfo(PChar(S), 0, N, Buf);
+      GetFileVersionInfo(PChar(S), 0, Len, Buf);
       S := 'ProductName';
-      result := QueryItem(S);
+      result := QueryItem(Buf, S);
 {$IFDEF WIN64}
       result := S + ': ' + #9 + result + ' (Win64)' + #10;
 {$ELSE}
       result := S + ': ' + #9 + result + ' (Win32)' + #10;
 {$ENDIF}
       S := 'FileDescription';
-      result := result + S + ': ' + #9 + QueryItem(S) + #10;
+      result := result + S + ': ' + #9 + QueryItem(Buf, S) + #10;
       S := 'FileVersion';
-      result := result + S + ': ' + #9 + QueryItem(S) +#10;
+      result := result + S + ': ' + #9 + QueryItem(Buf, S) + #10;
       S := 'CompilerVersion';
       result := result + S + ': ' + #9 + FormatFloat('#0.0', CompilerVersion, FormatSettings) +#10;
       S := 'LegalCopyRight';
-      result := result + S + ': ' + #9 + QueryItem(S) +#10;
+      result := result + S + ': ' + #9 + QueryItem(Buf, S) +#10;
       if (IncludeCompany) then
       begin
         S := 'CompanyName';
-        result := result + S + ': ' + #9 + QueryItem(S) + #10;
+        result := result + S + ': ' + #9 + QueryItem(Buf, S) + #10;
       end;
     finally
-      FreeMem(Buf, N);
+      FreeMem(Buf, Len);
     end;
   end
   else
     result := 'No FileVersionInfo found';
+end;
+
+function UserAgent: string;
+var
+  Buf: PByte;
+  Len: DWORD;
+begin
+  result := '';
+  Len := GetFileVersionInfoSize(PChar(Application.ExeName), Len);
+  if (Len > 0) then
+  begin
+    Buf := AllocMem(Len);
+    try
+      GetFileVersionInfo(PChar(Application.ExeName), 0, Len, Buf);
+      result := QueryItem(Buf, 'ProductName') + '/' + QueryItem(Buf, 'ProductVersion') + ' (https://github.com/)';
+    finally
+      FreeMem(Buf, Len);
+    end;
+  end
+end;
+
+function GetCreationFlags(ShowWindow: boolean): DWord;
+begin
+  result := 0;
+  if not (ShowWindow) then
+    result := result or CREATE_NO_WINDOW;
+end;
+
+function GetStartupInfo(ShowWindow: boolean): TStartupInfo;
+begin
+  FillChar(Result, SizeOf(result), 0);
+  result.cb := SizeOf(result);
+  result.dwFlags := STARTF_USESHOWWINDOW;
+  if (ShowWindow) then
+    result.wShowWindow := SW_NORMAL
+  else
+    result.wShowWindow := SW_HIDE;
+end;
+
+type
+  TStoReadPipeThread = class(TThread)
+  protected
+    FPipe: THandle;
+    FContent: TStringStream;
+    function Get_Content: String;
+    procedure Execute; override;
+  public
+    constructor Create(const Pipe: THandle);
+    destructor Destroy; override;
+    property Content: String read Get_Content;
+  end;
+
+  TStoWritePipeThread = class(TThread)
+  protected
+    FPipe: THandle;
+    FContent: TStringStream;
+    procedure Execute; override;
+  public
+    constructor Create(const Pipe: THandle; const Content: String);
+    destructor Destroy; override;
+  end;
+
+  { TStoReadPipeThread }
+
+constructor TStoReadPipeThread.Create(const Pipe: THandle);
+begin
+  FPipe := Pipe;
+  FContent := TStringStream.Create('');
+  inherited Create(false); // start running
+end;
+
+destructor TStoReadPipeThread.Destroy;
+begin
+  FContent.Free;
+  inherited Destroy;
+end;
+
+procedure TStoReadPipeThread.Execute;
+const BLOCK_SIZE = 4096;
+var iBytesRead: DWord;
+    myBuffer: array [0 .. BLOCK_SIZE - 1] of Byte;
+begin
+  repeat
+    // try to read from pipe
+    if ReadFile(FPipe, myBuffer, BLOCK_SIZE, iBytesRead, nil) then
+      FContent.Write(myBuffer, iBytesRead);
+    // a process may write less than BLOCK_SIZE, even if not at the end
+    // of the output, so checking for < BLOCK_SIZE would block the pipe.
+  until (iBytesRead = 0);
+end;
+
+function TStoReadPipeThread.Get_Content: String;
+begin
+  Result := FContent.DataString;
+end;
+
+{ TStoWritePipeThread }
+
+constructor TStoWritePipeThread.Create(const Pipe: THandle;
+  const Content: String);
+begin
+  FPipe := Pipe;
+  FContent := TStringStream.Create(Content);
+  inherited Create(false); // start running
+end;
+
+destructor TStoWritePipeThread.Destroy;
+begin
+  FContent.Free;
+  if (FPipe <> 0) then
+    CloseHandle(FPipe);
+  inherited Destroy;
+end;
+
+procedure TStoWritePipeThread.Execute;
+const BLOCK_SIZE = 4096;
+var myBuffer: array [0 .. BLOCK_SIZE - 1] of Byte;
+    iBytesToWrite: DWord;
+    iBytesWritten: DWord;
+begin
+  iBytesToWrite := FContent.Read(myBuffer, BLOCK_SIZE);
+  while (iBytesToWrite > 0) do
+  begin
+    WriteFile(FPipe, myBuffer, iBytesToWrite, iBytesWritten, nil);
+    iBytesToWrite := FContent.Read(myBuffer, BLOCK_SIZE);
+  end;
+  // close our handle to let the other process know, that
+  // there won't be any more data.
+  CloseHandle(FPipe);
+  FPipe := 0;
+end;
+
+function Sto_RedirectedExecute(CmdLine: string;
+                               CurrentDir: string;
+                               var Output: string;
+                               var Error: string;
+                               var ExitCode: DWord;
+                               const Input: string = '';
+                               const Wait: DWord = 3600000;
+                               const ShowWindow: boolean = false): boolean;
+
+var mySecurityAttributes: SECURITY_ATTRIBUTES;
+    myStartupInfo: STARTUPINFO;
+    myProcessInfo: PROCESS_INFORMATION;
+    hPipeInputRead, hPipeInputWrite: THandle;
+    hPipeOutputRead, hPipeOutputWrite: THandle;
+    hPipeErrorRead, hPipeErrorWrite: THandle;
+    myWriteInputThread: TStoWritePipeThread;
+    myReadOutputThread: TStoReadPipeThread;
+    myReadErrorThread: TStoReadPipeThread;
+    iWaitRes: integer;
+
+begin
+  // prepare security structure
+  ZeroMemory(@mySecurityAttributes, SizeOf(SECURITY_ATTRIBUTES));
+  mySecurityAttributes.nLength := SizeOf(SECURITY_ATTRIBUTES);
+  mySecurityAttributes.bInheritHandle := true;
+
+  // create pipe to set stdinput
+  hPipeInputRead := 0;
+  hPipeInputWrite := 0;
+  if (Input <> '') then
+    CreatePipe(hPipeInputRead, hPipeInputWrite, @mySecurityAttributes, 0);
+
+  // create pipes to get stdoutput and stderror
+  CreatePipe(hPipeOutputRead, hPipeOutputWrite, @mySecurityAttributes, 0);
+  CreatePipe(hPipeErrorRead, hPipeErrorWrite, @mySecurityAttributes, 0);
+
+  // prepare startupinfo structure
+  myStartupInfo := GetStartupInfo(ShowWindow);
+
+  // assign pipes
+  myStartupInfo.dwFlags := myStartupInfo.dwFlags or STARTF_USESTDHANDLES;
+  myStartupInfo.hStdInput := hPipeInputRead;
+  myStartupInfo.hStdOutput := hPipeOutputWrite;
+  myStartupInfo.hStdError := hPipeErrorWrite;
+
+  // since Delphi calls CreateProcessW, literal strings cannot be used anymore
+  UniqueString(CmdLine);
+  UniqueString(CurrentDir);
+
+  // start the process
+  result := CreateProcess(nil,                // lpApplicationName
+                          PChar(CmdLine),     // CmdLine
+                          nil,                // lpProcessAttributes
+                          nil,                // lpThreadAttributes
+                          true,               // bInheritHandles
+                          GetCreationFlags(ShowWindow),
+                          nil,                // lpEnvironment
+                          PChar(CurrentDir),  // lpCurrentDirectory
+                          myStartupInfo,
+                          myProcessInfo);
+
+  // close the ends of the pipes, now used by the process
+  CloseHandle(hPipeInputRead);
+  CloseHandle(hPipeOutputWrite);
+  CloseHandle(hPipeErrorWrite);
+
+  // could process be started ?
+  if result then
+  begin
+    myWriteInputThread := nil;
+    if (hPipeInputWrite <> 0) then
+      myWriteInputThread := TStoWritePipeThread.Create(hPipeInputWrite, Input);
+    myReadOutputThread := TStoReadPipeThread.Create(hPipeOutputRead);
+    myReadErrorThread := TStoReadPipeThread.Create(hPipeErrorRead);
+    try
+      // wait unitl there is no more data to receive, or the timeout is reached
+      iWaitRes := WaitForSingleObject(myProcessInfo.hProcess, Wait);
+      // timeout reached ?
+      if (iWaitRes = WAIT_TIMEOUT) then
+      begin
+        Result := false;
+        TerminateProcess(myProcessInfo.hProcess, UINT(ERROR_CANCELLED));
+      end;
+      // return output
+      myReadOutputThread.waitfor;
+      Output := myReadOutputThread.Content;
+      myReadErrorThread.waitfor;
+      Error := myReadErrorThread.Content;
+      GetExitCodeProcess(myProcessInfo.hProcess, ExitCode);
+    finally
+      myWriteInputThread.Free;
+      myReadOutputThread.Free;
+      myReadErrorThread.Free;
+      CloseHandle(myProcessInfo.hThread);
+      CloseHandle(myProcessInfo.hProcess);
+    end;
+  end;
+  // close our ends of the pipes
+  CloseHandle(hPipeOutputRead);
+  CloseHandle(hPipeErrorRead);
 end;
 
 initialization

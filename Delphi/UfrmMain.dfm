@@ -293,28 +293,11 @@ object FrmMain: TFrmMain
     object TabPreview: TTabSheet
       Caption = 'Preview map style'
       ImageIndex = 3
-      object HotStylePreview: THotLabel
+      object ScPreview: TScrollBox
         Left = 0
         Top = 0
         Width = 713
-        Height = 48
-        Align = alTop
-        Alignment = taCenter
-        AutoSize = False
-        Caption = 'HotStylePreview'
-        Font.Charset = DEFAULT_CHARSET
-        Font.Color = clWindowText
-        Font.Height = -27
-        Font.Name = 'Tahoma'
-        Font.Style = []
-        ParentFont = False
-        ExplicitWidth = 699
-      end
-      object ScPreview: TScrollBox
-        Left = 0
-        Top = 48
-        Width = 713
-        Height = 528
+        Height = 576
         HorzScrollBar.Tracking = True
         VertScrollBar.Tracking = True
         Align = alClient
@@ -460,12 +443,13 @@ object FrmMain: TFrmMain
     Align = alRight
     TabOrder = 2
     OnResize = Resized
-    object MemoLog: TOleRichEdit
+    object MemoLog: TRichEdit
       Left = 1
       Top = 68
       Width = 398
       Height = 535
       Align = alClient
+      EnableURLs = True
       Font.Charset = ANSI_CHARSET
       Font.Color = clWindowText
       Font.Height = -11
@@ -477,7 +461,9 @@ object FrmMain: TFrmMain
       ReadOnly = True
       ScrollBars = ssVertical
       TabOrder = 0
-      EnableUrl = True
+      OnLinkClick = MemoLogLinkClick
+      ExplicitLeft = -1
+      ExplicitTop = 63
     end
     object BtnLoadLog: TButton
       Left = 1

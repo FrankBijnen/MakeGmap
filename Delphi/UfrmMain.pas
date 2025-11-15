@@ -3,14 +3,23 @@ unit UfrmMain;
 interface
 
 uses
-  Winapi.Windows, Winapi.Messages, System.SysUtils, System.Variants, System.Classes, Vcl.Graphics,
+  Winapi.Windows, Winapi.Messages,  Winapi.ActiveX, Vcl.Graphics,
+  System.SysUtils, System.Variants, System.Classes,
   Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, Tdbgrids, Vcl.ExtCtrls,
-  Vcl.DBCtrls, Vcl.Mask, Datasnap.DBClient,
-  UnitDSFields, Vcl.Menus, OleRich, hotspot, Winapi.ActiveX, Vcl.Buttons;
+  Vcl.DBCtrls, Vcl.Mask, Vcl.Menus, Vcl.Buttons, Datasnap.DBClient,
+  UnitDSFields, UnitRichEditCallBack;
 
 const CM_ProgressMessage = WM_User + 50;
 
 type
+  TRichEdit = class(Vcl.ComCtrls.TRichEdit)
+  private
+    FRichEditOle: IRichEditOle;
+    FRichEditOleCallback: TMyRichEditOleCallback;
+  protected
+    procedure CreateWindowHandle(const Params: TCreateParams); override;
+  end;
+
   TAppState = (taNormal, taDownloading, taExecuting);
 
   TFrmMain = class(TForm)
@@ -33,7 +42,7 @@ type
     DBNavProjectsUrl: TDBNavigator;
     DBProjectsUrl: TDBWGrid;
     PnlLog: TPanel;
-    MemoLog: TOleRichEdit;
+    MemoLog: TRichEdit;
     BtnLoadLog: TButton;
     PnlProjectsGrid: TPanel;
     DBNavProjects: TDBNavigator;
@@ -45,7 +54,6 @@ type
     General1: TMenuItem;
     Gettingstarted1: TMenuItem;
     TabPreview: TTabSheet;
-    HotStylePreview: THotLabel;
     OpenDialogGpx: TOpenDialog;
     BtnPreviewPoly: TButton;
     BtnImportPoly: TButton;
@@ -90,6 +98,7 @@ type
     procedure BrnClearTileCacheClick(Sender: TObject);
     procedure PctMainChange(Sender: TObject);
     procedure Resized(Sender: TObject);
+    procedure MemoLogLinkClick(Sender: TCustomRichEdit; const URL: string; Button: TMouseButton);
   private
     { Private declarations }
     Aborted: boolean;
@@ -144,6 +153,19 @@ const ProgressLog     = 'makegmap_progress.log';
       GettingStarted  = 'getting started.rtf';
       General         = 'general.rtf';
 
+procedure TRichEdit.CreateWindowHandle(const Params: TCreateParams);
+begin
+  inherited CreateWindowHandle(Params);
+
+  if Handle <> 0 then
+  begin
+    FRichEditOleCallback := TMyRichEditOleCallBack.Create(Self);
+    if not RichEdit_GetOleInterface(Handle, FRichEditOle) then
+       raise Exception.Create('Unable to get interface');
+    if not RichEdit_SetOleCallback(Handle, FRichEditOlecallback) then
+       raise Exception.Create('Unable to set callback');
+  end;
+end;
 
 function TFrmMain.CheckConfig: boolean;
 var Output, Error: string;
@@ -322,6 +344,11 @@ begin
     exit;
   end;
   MemoLog.Lines.LoadFromFile(HelpFile);
+end;
+
+procedure TFrmMain.MemoLogLinkClick(Sender: TCustomRichEdit; const URL: string; Button: TMouseButton);
+begin
+  ShellExecute(Handle, 'open', PChar(URL), nil, nil, SW_SHOWNORMAL);
 end;
 
 procedure TFrmMain.HelpField(Sender: TField);
@@ -637,7 +664,6 @@ begin
     PreviewStyle := Field.Value
   else
     PreviewStyle := DmSettings.TabProjectsStyle.AsString;
-  HotStylePreview.Caption := PreviewStyle;
 
   PreviewStyle := DirFromExe + 'styles\' + PreviewStyle + '\preview.jpg';
   if (FileExists(PreviewStyle)) then
