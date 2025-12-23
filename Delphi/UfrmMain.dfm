@@ -462,8 +462,6 @@ object FrmMain: TFrmMain
       ScrollBars = ssVertical
       TabOrder = 0
       OnLinkClick = MemoLogLinkClick
-      ExplicitLeft = -1
-      ExplicitTop = 63
     end
     object BtnLoadLog: TButton
       Left = 1

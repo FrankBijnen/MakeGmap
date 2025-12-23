@@ -176,6 +176,7 @@ begin
     MemoLog.Lines.Clear;
     result := Sto_RedirectedExecute('java -showversion -jar "' +
                                     DirFromExe + '\CheckJava\CheckJava.jar"',
+                                    '',
                                     Output, Error, ExitCode, '');
     if not result then
     begin

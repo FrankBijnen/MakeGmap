@@ -1,6 +1,6 @@
 unit DownloadTask;
 // Download Sea and bounds
-//http://develop.freizeitkarte-osm.de/boundaries/
+// http://develop.freizeitkarte-osm.de/boundaries/
 interface
 
 uses
@@ -62,10 +62,8 @@ type
     procedure Cancel; reintroduce;
   end;
 
-//procedure ResetPool(const Threads: integer = -1);
-//procedure StartAndWaitForAllTasks(const TaskCnt: integer; const DoMsgLoop: boolean = true);
-
-threadvar Tasks: array of ITask;
+threadvar
+  Tasks: array of ITask;
 
 implementation
 
@@ -104,10 +102,11 @@ begin
                 Copy(FUrl, System.SysUtils.LastDelimiter('/', FUrl) + 1, Length(FUrl));
   ComputeChunks(TDownloadTask.GetSize(FUrl));
 end;
-//
+
 // Task helpers
 procedure ResetPool(const Threads: integer = -1);
-var MinThreads, MaxThreads: integer;
+var
+  MinThreads, MaxThreads: integer;
 begin
   if (Assigned(MyThreadPool)) then
     FreeAndNil(MyThreadPool);
@@ -126,7 +125,8 @@ begin
 end;
 
 procedure StartAndWaitForAllTasks(const TaskCnt: integer; const DoMsgLoop: boolean = true);
-var Indx: integer;
+var
+  Indx: integer;
 begin
   if (TaskCnt > 0) then
   begin
@@ -153,7 +153,8 @@ begin
 end;
 
 class procedure TDownloadTask.CancelAllTasks;
-var Indx: integer;
+var
+  Indx: integer;
 begin
   for Indx := 0 to High(Tasks) do
     TDownloadTask(Tasks[Indx]).Cancel;
@@ -179,8 +180,9 @@ begin
 end;
 
 class function TDownloadTask.GetSize(Url: string):int64;
-var IOHandler: TIdSSLIOHandlerSocketOpenSSL;
-    IdHTTP: TIdHTTP;
+var
+  IOHandler: TIdSSLIOHandlerSocketOpenSSL;
+  IdHTTP: TIdHTTP;
 begin
   IOHandler := GetIO;
   IdHTTP := GetIdHttp(IOHandler);
@@ -195,9 +197,10 @@ begin
 end;
 
 class procedure TDownloadTask.GetChunk(Url, Ofile: string; Chunk, RStart, REnd: int64);
-var IOHandler: TIdSSLIOHandlerSocketOpenSSL;
-    IdHTTP: TIdHTTP;
-    AFileStream: TFileStream;
+var
+  IOHandler: TIdSSLIOHandlerSocketOpenSSL;
+  IdHTTP: TIdHTTP;
+  AFileStream: TFileStream;
 begin
   AFileStream := TFileStream.Create(OFile + IntToStr(Chunk), fmCreate);
   IOHandler := GetIO;
@@ -250,7 +253,8 @@ begin
 end;
 
 procedure TDownloadTask.DoDownload;
-var Rc: LRESULT;
+var
+  Rc: LRESULT;
 begin
   Rc := SendMessage(FHandle, CM_StartChunk, FChunk, LPARAM(FDownLoadInfo));
   try
@@ -290,12 +294,12 @@ end;
 class procedure TDownloadTask.DownLoad(const AHandle: THandle;
                                        const ADownLoadInfo: TDownloadInfo);
 
-var InStream, OutStream: TFileStream;
-    Chunk: int64;
-    Rc: LRESULT;
-var Output: string;
-var Error: string;
-var ExitCode: DWord;
+var
+  InStream, OutStream: TFileStream;
+  Chunk: int64;
+  Rc: LRESULT;
+  Output, Error: string;
+  ExitCode: DWord;
 begin
   PostMessage(AHandle, CM_StartDownload, 0, LPARAM(ADownLoadInfo));
   try
@@ -349,6 +353,7 @@ begin
                             ' --drop-version' +
                             ' "' + ADownLoadInfo.FLocalFile + '"' +
                             ' -o="' + ADownLoadInfo.FLocalFile + '.o5m"',
+                            '',
                             Output, Error, ExitCode);
       if (ExitCode <> 0) then
         raise Exception.Create(Error);
