@@ -55,7 +55,7 @@ object FrmMain: TFrmMain
         TabOrder = 0
         object BtnCheckConfig: TButton
           Left = 0
-          Top = 1
+          Top = 2
           Width = 195
           Height = 30
           Caption = 'Check configuration'
@@ -64,7 +64,7 @@ object FrmMain: TFrmMain
         end
         object BtnImportPoly: TButton
           Left = 201
-          Top = 5
+          Top = 2
           Width = 185
           Height = 30
           Caption = 'Import poly from GPX'

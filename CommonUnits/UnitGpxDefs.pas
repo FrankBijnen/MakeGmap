@@ -29,7 +29,7 @@ type
   TGPXFuncArray = Array of TGPXFunc;
   TSubClassType = set of (scCompare, scFirst, ScLast);
   // Note: See TModelConv for mapping to TripModel
-  TGarminModel  = (XT, XT2, Tread2, Zumo59x, Drive51, Zumo3x0, GarminEdge, GarminGeneric, Unknown);
+  TGarminModel  = (XT, XT2, Tread2, Zumo595, Zumo590, Zumo3x0, Drive51, Nuvi2595, GarminEdge, GarminGeneric, Unknown);
 
   // Trip Info to CSV
   TTripInfo = class(TObject)
@@ -45,7 +45,7 @@ type
     Time: double;
   end;
   TTripInfoList = TObjectDictionary<string, TTripInfo>;
-  TTagsToShow = (WptRteTrk = 1, RteTrk = 10, Rte = 20, Trk = 30);
+  TTagsToShow = (WptRte = 1, WptTrk = 2, WptRteTrk = 3, RteTrk = 10, Rte = 20, Trk = 30);
 
 function Coord2Float(ACoord: LongInt): string;
 function Float2Coord(ACoord: Double): LongInt;
