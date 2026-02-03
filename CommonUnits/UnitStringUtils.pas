@@ -33,6 +33,7 @@ procedure DebugMsg(const Msg: array of variant);
 function TempFilename(const Prefix: string): string;
 function GetAppData: string;
 function EscapeHtml(const HTML: string): string;
+function EscapeUrl(const URL: string): string;
 function EscapeDQuote(const HTML: string): string;
 function EscapeFileName(InFile: string): string;
 function CreateTempPath(const Prefix: string): string;
@@ -273,13 +274,25 @@ end;
 function CreateTempPath(const Prefix: string): string;
 begin
   App_Prefix := Prefix;
+
+  // Get a temp file name to use for temp path
   result := TempFilename(App_Prefix);
   if FileExists(result) then
     System.Sysutils.DeleteFile(result);
-  MkDir(result);
+
+  // Strip .tmp from directory name, and create
+  result := ChangeFileExt(result, '');
+  if not ForceDirectories(result) then
+    raise Exception.Create(Format('Error creating: %s', [result]));
+
+  // Save path name
   CreatedTempPath := IncludeTrailingPathDelimiter(result);
-  MkDir(GetOSMTemp);
-  MKDir(GetRoutesTmp);
+
+  if not ForceDirectories(GetOSMTemp) then
+    raise Exception.Create(Format('Error creating: %s', [GetOSMTemp]));
+
+  if not ForceDirectories(GetRoutesTmp) then
+    raise Exception.Create(Format('Error creating: %s', [GetRoutesTmp]));
 end;
 
 function GetHtmlTmp: string;
@@ -327,6 +340,14 @@ begin
   result := ReplaceAll(HTML,
                        ['&',     '<',    '>',    '"',      '''',    ' ',      '-'],
                        ['&amp;', '&lt;', '&gt;', '&quot;', '&#39;', '&nbsp;', '&#8209;']
+                      );
+end;
+
+function EscapeURL(const URL: string): string;
+begin
+  result := ReplaceAll(URL,
+                       ['&',   '<',   '>',   ':',   '"',   '''',  ' ',   '-'],
+                       ['%26', '%3C', '%3E', '%3A', '%22', '%27', '%20', '%2D']
                       );
 end;
 

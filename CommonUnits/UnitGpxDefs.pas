@@ -24,9 +24,9 @@ type
     procedure FromAttributes(Attributes: TObject);
   end;
   TGPXFunc = (PostProcess, CreateTracks, CreateWayPoints, CreatePOI, CreateKML,
-              CreateHTML, CreatePoly, CreateRoutes, CreateTrips, CreateOSMPoints, CreateFITPoints,
+              CreateHTML, CreateKurviger, CreatePoly, CreateRoutes, CreateTrips, CreateOSMPoints, CreateFITPoints,
               CreateCompleteRoutes);
-  TGPXFuncArray = Array of TGPXFunc;
+  TGPXFuncArray = array of TGPXFunc;
   TSubClassType = set of (scCompare, scFirst, ScLast);
   // Note: See TModelConv for mapping to TripModel
   TGarminModel  = (XT, XT2, Tread2, Zumo595, Zumo590, Zumo3x0, Drive51, Nuvi2595, GarminEdge, GarminGeneric, Unknown);
@@ -46,6 +46,7 @@ type
   end;
   TTripInfoList = TObjectDictionary<string, TTripInfo>;
   TTagsToShow = (WptRte = 1, WptTrk = 2, WptRteTrk = 3, RteTrk = 10, Rte = 20, Trk = 30);
+  THtmlOutput = (OSM, Kurviger, Both);
 
 function Coord2Float(ACoord: LongInt): string;
 function Float2Coord(ACoord: Double): LongInt;

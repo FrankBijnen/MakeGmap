@@ -129,6 +129,16 @@ type
     CatSymbol: string;                        // Symbol:, used in created Waypoints/GPI
     CatGPX: string;                           // GPX:, used in created Waypoints/GPI from Original Way points
     CatRoute: string;                         // ROUTE:, used in created Waypoints/GPI from Via/Shaping points
+    KurvigerUrl: string;
+    HtmlOutput: THtmlOutput;                  // OSM, Kurviger, Both
+    KurvigerCurvature: integer;               // Curvy level Kurviger
+    KurvigerAvoidSame: boolean;               // Curvy Avoidances
+    KurvigerAvoidToll: boolean;
+    KurvigerAvoidFerries: boolean;
+    KurvigerAvoidMotorWays: boolean;
+    KurvigerAvoidMain: boolean;
+    KurvigerAvoidNarrow: boolean;
+    KurvigerAvoidUnpaved: boolean;
 
     {$IFDEF TRIPOBJECTS}
     TripModel: TTripModel;                    // XT1 and XT2
@@ -145,6 +155,7 @@ type
     DefAdvLevel: TAdvlevel;                   // XT2
     DefRoadSpeed: integer;                    // XT1 and XT2
     RoadSpeedMap: array[0..11] of TIdentMapEntry;
+    ExploreUUIDList: TStrings;                // XT2
     {$ENDIF}
 
     FOnSetFuncPrefs: TNotifyEvent;
@@ -158,6 +169,7 @@ type
     function GetDistOKKms: double;
     function GetMinShapeDistKms: double;
     function GetMinTrackDistKms: double;
+    class function GetCatSymbol: string;
     {$IFDEF TRIPOBJECTS}
     function TripTrackColor: string;
     function SpeedFromRoadClass(const RoadClass: string): integer;
@@ -171,6 +183,7 @@ type
     class function UnsafeModels: boolean;
     class function SafeModel2Write(ATripModel: TTripModel): boolean;
     class function MaxViaPoints: integer;
+    function GetKurvigerUrl(Rte: TObject): string;
     {$ENDIF}
 
     property DistOKKms: double read GetDistOKKms;
@@ -184,7 +197,9 @@ uses
 {$IFDEF REGISTRYKEYS}
   UnitRegistry,
   UnitRegistryKeys,
+  UnitModelConv,
 {$ENDIF}
+  UnitVerySimpleXml,
   UnitStringUtils;
 
 var
@@ -255,7 +270,7 @@ begin
   TrackColor := '';
 
   DefWaypointSymbol := 'Flag, Green';
-  CatSymbol := 'Symbol:';
+  CatSymbol := TProcessOptions.GetCatSymbol + ':';
   CatGPX := 'GPX:';
   CatRoute := 'Route:';
 
@@ -263,6 +278,16 @@ begin
   SkipTrackDialog := false;
   LookUpWindow := 0;
   LookUpMessage := 0;
+  KurvigerUrl := '';
+  HtmlOutput := THtmlOutput.Both;
+  KurvigerCurvature := 3;
+  KurvigerAvoidSame := false;
+  KurvigerAvoidToll := false;
+  KurvigerAvoidFerries := false;
+  KurvigerAvoidMotorWays := false;
+  KurvigerAvoidMain := false;
+  KurvigerAvoidNarrow := false;
+  KurvigerAvoidUnpaved := false;
 
 {$IFDEF TRIPOBJECTS}
   TripModel := TTripModel.XT;
@@ -291,6 +316,7 @@ begin
   RoadSpeedMap[11].Value := 15;  RoadSpeedMap[11].Name := '0C';
   DefRoadSpeed := 25;
   DefAdvLevel := TAdvlevel.advLevel1;
+  ExploreUUIDList := nil;
 {$ENDIF}
 
 {$IFDEF REGISTRYKEYS}
@@ -361,6 +387,11 @@ end;
 function TProcessOptions.GetMinTrackDistKms: double;
 begin
   result := MinDistTrackPoint / 1000;
+end;
+
+class function TProcessOptions.GetCatSymbol: string;
+begin
+  result := 'Symbol';
 end;
 
 {$IFDEF TRIPOBJECTS}
@@ -444,6 +475,85 @@ class function TProcessOptions.MaxViaPoints: integer;
 begin
   result := GetRegistry(Reg_MaxViaPoints_Key, Reg_MaxViaPoints_Val);
 end;
+
+function TProcessOptions.GetKurvigerUrl(Rte: TObject): string;
+var
+  RtePt, RtePtExtensions: TXmlVSNode;
+  RouteName: string;
+  Coords: TCoords;
+  Cnt: integer;
+  Lat, Lon: string;
+  IsVia: boolean;
+begin
+  // Set Id. What's it for?
+  // So we can be sure the other parameters start with an &
+  if (Pos('?', KurvigerUrl) = 0) then
+    result := KurvigerUrl + '?id=1'
+  else
+    result := KurvigerUrl + '&id=1';
+
+  // Curvy level
+  case KurvigerCurvature of
+    1:
+      result := result + '&weighting=fastest';
+    2:
+      result := result + '&weighting=curvaturefastest';
+    3:// Nothing, is default
+      ;
+    4:
+      result := result + '&weighting=curvaturebooster';
+  end;
+
+  // Avoidances
+  if (KurvigerAvoidSame) then
+    result := result + '&additional_weighting=avoid_edges';
+  if (KurvigerAvoidToll) then
+    result := result + '&avoid_toll_roads=true';
+  if (KurvigerAvoidFerries) then
+    result := result + '&avoid_ferries=true';
+  if (KurvigerAvoidMotorWays) then
+    result := result + '&avoid_motorways=true';
+  if (KurvigerAvoidMain) then
+    result := result + '&avoid_main_roads=true';
+  if (KurvigerAvoidNarrow) then
+    result := result + '&avoid_small_roads=true';
+  if (KurvigerAvoidUnpaved) then
+    result := result + '&avoid_unpaved_roads=true';
+
+  Cnt := 0;
+  RouteName := TXmlVSNode(Rte).NodeName;
+  for RtePt in TXmlVSNode(Rte).ChildNodes do
+  begin
+    if (RtePt.Name = 'name') then
+    begin
+      RouteName := RtePt.NodeValue;
+      continue;
+    end;
+    Coords.FromAttributes(RtePt.AttributeList);
+    Coords.FormatLatLon(Lat, Lon);
+
+    // Start and End always Via
+    IsVia := (Cnt = 0) or
+             (Cnt = TXmlVSNode(Rte).ChildNodes.Count -1);
+
+    // Look in the extensions
+    if (IsVia = false) then
+    begin
+      RtePtExtensions := RtePt.Find('extensions');
+      if (RtePtExtensions <> nil) and
+         (RtePtExtensions.Find('trp:ViaPoint') <> nil) then
+        IsVia := true;
+    end;
+
+    result := result + Format('&point=%s%%2C%s', [lat, lon]);
+    result := result + Format('&pname.%d=%s', [Cnt, EscapeUrl(FindSubNodeValue(rtept, 'name'))]);
+    if (IsVia = false) then
+      result := result + Format('&shaping.%d=true', [Cnt]);
+    Inc(Cnt);
+  end;
+  result := result + Format('&document_title=%s', [EscapeUrl(RouteName)]);
+end;
+
 {$ENDIF}
 
 initialization

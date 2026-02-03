@@ -151,6 +151,9 @@ type
     procedure CloneAttributes(FromNode, ToNode: TXmlVsNode);
     procedure CloneSubNodes(FromNodes, ToNodes: TXmlVsNodeList);
     procedure CloneNode(FromNode, ToNode: TXmlVsNode);
+    function GetSelected(const Preferred: string): TXmlVSNodeList;
+    function GetSelectedTracks: TXmlVSNodeList;
+    function GetSelectedRoutes: TXmlVSNodeList;
     procedure Track2OSMTrackPoints(Track: TXmlVSNode;
                                    var TrackId: integer;
                                    TrackStringList: TStringList);
@@ -180,6 +183,7 @@ type
     procedure DoCreatePOI;
     procedure DoCreateKML;
     procedure DoCreateHTML;
+    procedure DoCreateKurviger;
     procedure DoCreateOSMPoints;
     procedure DoCreatePOLY;
     procedure DoCreateFITPoints;
@@ -216,6 +220,7 @@ uses
 {$IFDEF REGISTRYKEYS}
   UnitRegistryKeys,
   UnitRegistry,
+  UnitModelConv,
 {$ENDIF}
   UnitRedirect,
   UnitStringUtils;
@@ -228,6 +233,8 @@ const
   DeleteTracksInRoute: boolean = true;    // Remove Tracks from stripped routes
   DirectRoutingClass = '000000000000FFFFFFFFFFFFFFFFFFFFFFFF';
   UnglitchTreshold: double = 0.0005;      // In Km. ==> 50 Cm
+  TrkOrigin = 'Trk';
+  RteOrigin = 'Rte';
 
 var
   FormatSettings: TFormatSettings;
@@ -1055,18 +1062,7 @@ begin
       ComputeDistance(RtePtNode);
     inc(ShapingPointCnt);
 
-    case ProcessOptions.ShapingPointName of
-      TShapingPointName.Unchanged:
-        ShapePtName := FindSubNodeValue(RtePtNode, 'name');
-      TShapingPointName.Route_Sequence:
-        ShapePtName := Format('%s_%3.3d', [RouteName, ShapingPointCnt]);
-      TShapingPointName.Route_Distance:
-        ShapePtName := Format('%s_%3.3d %s', [RouteName, Round(TotalDistance), Processoptions.DistanceStr]);
-      TShapingPointName.Sequence_Route:
-        ShapePtName := Format('%3.3d_%s', [ShapingPointCnt, RouteName]);
-      TShapingPointName.Distance_Route:
-        ShapePtName := Format('%3.3d %s_%s', [Round(TotalDistance), Processoptions.DistanceStr, RouteName]);
-    end;
+    ShapePtName := FindSubNodeValue(RtePtNode, 'name');
 
     if (Symbol = '') or
        (Symbol = ProcessOptions.DefShapePtSymbol) then
@@ -1077,7 +1073,18 @@ begin
 
     if (ProcessOptions.ProcessShape) then
     begin
-      Symbol := ProcessOptions.DefShapePtSymbol;
+
+      case ProcessOptions.ShapingPointName of
+        TShapingPointName.Route_Sequence:
+          ShapePtName := Format('%s_%3.3d', [RouteName, ShapingPointCnt]);
+        TShapingPointName.Route_Distance:
+          ShapePtName := Format('%s_%3.3d %s', [RouteName, Round(TotalDistance), Processoptions.DistanceStr]);
+        TShapingPointName.Sequence_Route:
+          ShapePtName := Format('%3.3d_%s', [ShapingPointCnt, RouteName]);
+        TShapingPointName.Distance_Route:
+          ShapePtName := Format('%3.3d %s_%s', [Round(TotalDistance), Processoptions.DistanceStr, RouteName]);
+      end;
+
       UnglitchNode(RtePtNode, ExtensionNode, UTF8String(ShapePtName));
 
       RenameNode(RtePtNode, ShapePtName);
@@ -1085,6 +1092,7 @@ begin
       if (ProcessOptions.ProcessAddrShape) then
         LookUpAddrRtePt(RtePtNode);
 
+      Symbol := ProcessOptions.DefShapePtSymbol;
       if (ProcessOptions.ProcessFlags) then
         RenameSubNode(RtePtNode, 'sym', Symbol); // Symbol for shaping and via points.
 
@@ -1176,7 +1184,8 @@ begin
     FillChar(PrevTrackCoords, SizeOf(PrevTrackCoords), 0);
     CurrentTrack := FTrackList.Add(CurrentRouteTrackName);
     CurrentTrack.NodeValue := CurrentRouteTrackName;
-    CurrentTrack.AddChild('desc').NodeValue := 'Rte';
+    CurrentTrack.AddChild('desc').NodeValue := RteOrigin;
+
     NumberNode := CurrentTrack.AddChild('number');
     if (ExtensionsNode <> nil) then
     begin
@@ -1238,7 +1247,7 @@ begin
     FillChar(PrevTrackCoords, SizeOf(PrevTrackCoords), 0);
     CurrentTrack := FTrackList.Add(CurrentRouteTrackName);
     CurrentTrack.NodeValue := CurrentRouteTrackName;
-    CurrentTrack.AddChild('desc').NodeValue := 'Trk';
+    CurrentTrack.AddChild('desc').NodeValue := TrkOrigin;
     if (ExtensionsNode <> nil) then
     begin
       TrackExtension := ExtensionsNode.Find('gpxx:TrackExtension');
@@ -1699,26 +1708,16 @@ var
   TracksRoot: TXmlVSNode;
   Track : TXmlVSNode;
   OutFile, DisplayColor: string;
-  TracksProcessed: TStringList;
+  TracksProcessed: TXmlVSNodeList;
 begin
-  TracksProcessed := TStringList.Create;
+  TracksProcessed := GetSelectedTracks;
   TracksXml := TXmlVSDocument.Create;
   try
     TracksRoot := InitGarminGpx(TracksXml);
 
-    for Track in FTrackList do
+    for Track in TracksProcessed do
     begin
       DisplayColor := FrmSelectGPX.TrackSelectedColor(Track.Name, FindSubNodeValue(Track, 'desc'));
-      if (DisplayColor = '') then
-        continue;
-
-      if (UniqueTracks) then
-      begin
-        if (TracksProcessed.IndexOf(Track.NodeValue) > -1) then
-          continue;
-        TracksProcessed.Add(Track.NodeValue);
-      end;
-
       WriteTrack2XML(TracksRoot, Track, DisplayColor);
     end;
 
@@ -1878,6 +1877,7 @@ procedure TGPXFile.DoCreateKML;
 {$IFDEF KML}
 var
   OutFile, Lat, Lon, DisplayColor, Description: string;
+  TracksProcessed: TXmlVSNodeList;
   RouteWayPoint, WayPoint: TXmlVSNode;
   Track : TXmlVSNode;
   Folder: IXMLNode;
@@ -1897,58 +1897,106 @@ begin
     if (ProcessOptions.ProcessTracks) then
     begin
       Helper.UseFolder := (FrmSelectGpx.CheckedCount > 1); // Trk2RT compatibility
-
-      for Track in FTrackList do
-      begin
-        DisplayColor := FrmSelectGPX.TrackSelectedColor(Track.Name, FindSubNodeValue(Track, 'desc'));
-        if (DisplayColor = '') then
-          continue;
-
-        Helper.WritePointsStart(Track.NodeValue, DisplayColor);
-        for TrackPoint in Track.ChildNodes do
+      TracksProcessed := GetSelectedTracks;
+      try
+        for Track in TracksProcessed do
         begin
-          if (TrackPoint.Name <> 'trkpt') then
-            continue;
-
-          TrackCoords.FromAttributes(TrackPoint.AttributeList);
-          TrackCoords.FormatLatLon(Lat, Lon);
-          Helper.WritePoint(Lon, Lat, '0');
-        end;
-        Folder := Helper.WritePointsEnd;
-
-        if (ProcessOptions.ProcessCreateRoutePoints) then
-        begin
-          for RouteWayPoint in FRouteViaPointList do
+          DisplayColor := FrmSelectGPX.TrackSelectedColor(Track.Name, FindSubNodeValue(Track, 'desc'));
+          Helper.WritePointsStart(Track.NodeValue, DisplayColor);
+          for TrackPoint in Track.ChildNodes do
           begin
-            if (RouteWayPoint.NodeValue <> Track.NodeValue) then
+            if (TrackPoint.Name <> 'trkpt') then
               continue;
-            for WayPoint in RouteWayPoint.ChildNodes do
-            begin
-              TrackCoords.FromAttributes(WayPoint.AttributeList);
-              TrackCoords.FormatLatLon(Lat, Lon);
 
-              Description := ReplaceAll(FindSubNodeValue(WayPoint, 'cmt'), [#13#10, #13, #10], [', ', ', ', ', ']);
-              if (Description <> '') then
-                Description := Description + ', ';
-              Description := Description + FindSubNodeValue(WayPoint, 'desc');
-
-              Helper.WritePlace( Folder,
-                                 Format('%s,%s,%s ', [lon, lat, '0']),
-                                 FindSubNodeValue(WayPoint, 'name'),
-                                 Description);
-            end;
+            TrackCoords.FromAttributes(TrackPoint.AttributeList);
+            TrackCoords.FormatLatLon(Lat, Lon);
+            Helper.WritePoint(Lon, Lat, '0');
           end;
-          Helper.WritePlacesEnd;
+          Folder := Helper.WritePointsEnd;
+
+          if (ProcessOptions.ProcessCreateRoutePoints) then
+          begin
+            for RouteWayPoint in FRouteViaPointList do
+            begin
+              if (RouteWayPoint.NodeValue <> Track.NodeValue) then
+                continue;
+              for WayPoint in RouteWayPoint.ChildNodes do
+              begin
+                TrackCoords.FromAttributes(WayPoint.AttributeList);
+                TrackCoords.FormatLatLon(Lat, Lon);
+
+                Description := ReplaceAll(FindSubNodeValue(WayPoint, 'cmt'), [#13#10, #13, #10], [', ', ', ', ', ']);
+                if (Description <> '') then
+                  Description := Description + ', ';
+                Description := Description + FindSubNodeValue(WayPoint, 'desc');
+
+                Helper.WritePlace( Folder,
+                                   Format('%s,%s,%s ', [lon, lat, '0']),
+                                   FindSubNodeValue(WayPoint, 'name'),
+                                   Description);
+              end;
+            end;
+            Helper.WritePlacesEnd;
+          end;
         end;
+      finally
+        TracksProcessed.Free;
       end;
     end;
     Helper.WriteFooter;
     Helper.WriteKml;
-
   finally
     Helper.Free;
   end;
 {$ENDIF}
+end;
+
+function TGPXFile.GetSelected(const Preferred: string): TXmlVSNodeList;
+var
+  Track: TXmlVSNode;
+  DisplayColor: string;
+begin
+  result := TXmlVSNodeList.Create(false);
+
+  // First add the rreferred (trk, or rte)
+  for Track in FTrackList do
+  begin
+    DisplayColor := FrmSelectGPX.TrackSelectedColor(Track.Name, FindSubNodeValue(Track, 'desc'));
+    if (DisplayColor = '') then
+      continue;
+    if (FindSubNodeValue(Track, 'desc') <> Preferred) then
+      continue;
+
+    result.Add(Track);
+  end;
+
+  // Now add not preferred only if not exists
+  for Track in FTrackList do
+  begin
+    DisplayColor := FrmSelectGPX.TrackSelectedColor(Track.Name, FindSubNodeValue(Track, 'desc'));
+    if (DisplayColor = '') then
+      continue;
+
+    if (UniqueTracks) and
+       (result.FindPos(Track.NodeValue, Track.NodeValue) > -1) then
+        continue;
+
+     result.Add(Track);
+  end;
+
+end;
+
+// Get unique list of selected tracks.
+// Prefer origin <trk>
+function TGPXFile.GetSelectedTracks: TXmlVSNodeList;
+begin
+  result := GetSelected(TrkOrigin);
+end;
+
+// Prefer origin <trk>
+function TGPXFile.GetSelectedRoutes: TXmlVSNodeList;
+begin
+  result := GetSelected(RteOrigin);
 end;
 
 procedure TGPXFile.Track2OSMTrackPoints(Track: TXmlVSNode;
@@ -2117,19 +2165,22 @@ end;
 procedure TGPXFile.DoCreateHTML;
 {$IFDEF OSMMAP}
 var
+  TracksProcessed: TXmlVSNodeList;
   OutFile: string;
-  Track : TXmlVSNode;
+  Track: TXmlVSNode;
   TrackId: integer;
   TrackPointList: TStringList;
 {$ENDIF}
 begin
 {$IFDEF OSMMAP}
+  if (ProcessOptions.HtmlOutput = THtmlOutput.Kurviger) then
+    exit;
+
   TrackPointList := TStringList.Create;
+  TracksProcessed := GetSelectedTracks;
   try
-    for Track in FTrackList do
+    for Track in TracksProcessed do
     begin
-      if (FrmSelectGPX.TrackSelectedColor(Track.Name, FindSubNodeValue(Track, 'desc')) = '') then
-        continue;
       TrackId := 0; // We get a new HTML file for every track/route
       Track2OSMTrackPoints(Track, TrackId, TrackPointList);
       OutFile := FOutDir + ChangeFileExt(EscapeFileName(Track.NodeValue), '.html');
@@ -2137,27 +2188,83 @@ begin
     end;
   finally
     TrackPointList.Free;
+    TracksProcessed.Free;
+  end;
+{$ENDIF}
+end;
+
+procedure TGPXFile.DoCreateKurviger;
+{$IFDEF OSMMAP}
+var
+  RoutesProcessed: TXmlVSNodeList;
+  Route, Rte, Track: TXmlVSNode;
+  KurvUrl, HTML: string;
+  OutFile: string;
+{$ENDIF}
+begin
+{$IFDEF OSMMAP}
+  if (ProcessOptions.KurvigerUrl = '') then
+    exit;
+
+  RoutesProcessed := GetSelectedRoutes;
+  try
+    for Route in RoutesProcessed do
+    begin
+      for Rte in RouteViaPointList do
+      begin
+        // Get Route Via points of this route
+        if (Rte.NodeName <> Route.Name) then
+          continue;
+
+        // Dont want Dummy route points from tracks
+        Track := FTrackList.Find(Rte.NodeName);
+        if (Track = nil) then
+          continue;
+        if (FindSubNodeValue(Track, 'desc') <> RteOrigin) then
+          continue;
+
+        KurvUrl := ProcessOptions.GetKurvigerUrl(Rte);
+        if (Assigned(FOutStringList)) then
+          FOutStringList.Add(KurvUrl)
+        else
+        begin
+          if (ProcessOptions.HtmlOutput <> THtmlOutput.OSM) then
+          begin
+            OutFile := FOutDir + ChangeFileExt(EscapeFileName(Route.Name), '_kurviger.html');
+            HTML := Format('<html><head><meta http-equiv="refresh" content="3;url=%s" /></head><body>', [KurvUrl]);
+            HTML := HTML + '<h1>If not redirected in 3 Seconds.<br><br>';
+            HTML := HTML + Format('<a href="%s">Click here to open %s in <b>Kurviger</b></a></h1></body></html>', [KurvUrl, Route.Name]);
+            TFile.WriteAllText(OutFile, HTML);
+          end;
+        end;
+      end;
+    end;
+  finally
+    RoutesProcessed.Free;
   end;
 {$ENDIF}
 end;
 
 procedure TGPXFile.DoCreateOSMPoints;
 var
+  TracksProcessed: TXmlVSNodeList;
   Track : TXmlVSNode;
   TrackId: integer;
   TrackPointList: TStringList;
 begin
   FOutStringList.Clear;
+  TracksProcessed := GetSelectedTracks;
   TrackPointList := TStringList.Create;
   try
     TrackId := 0;
-    for Track in FTrackList do
+    for Track in TracksProcessed do
     begin
       Track2OSMTrackPoints(Track, TrackId, TrackPointList);
       FOutStringList.AddStrings(TrackPointList);
     end;
   finally
     TrackPointList.Free;
+    TracksProcessed.Free;
   end;
 end;
 
@@ -2194,22 +2301,19 @@ end;
 
 procedure TGPXFile.DoCreateFITPoints;
 var
+  TracksProcessed: TXmlVSNodeList;
   Track : TXmlVSNode;
   TrackId: integer;
   TrackPointList: TStringList;
-  DisplayColor: string;
   ResOut, ResErr: string;
   ResExit: DWord;
 begin
+  TracksProcessed := GetSelectedTracks;
   TrackPointList := TStringList.Create;
   try
     TrackId := 0;
-    for Track in FTrackList do
+    for Track in TracksProcessed do
     begin
-      DisplayColor := FrmSelectGPX.TrackSelectedColor(Track.Name, FindSubNodeValue(Track, 'desc'));
-      if (DisplayColor = '') then
-        continue;
-
       Track2FITTrackPoints(Track, TrackId, TrackPointList);
       Inc(TrackId);
       Sto_RedirectedExecute('trk2fit.exe', FOutDir, ResOut, ResErr, ResExit, TrackPointList.Text);
@@ -2218,6 +2322,7 @@ begin
     end;
   finally
     TrackPointList.Free;
+    TracksProcessed.Free;
   end;
 end;
 
@@ -2444,6 +2549,8 @@ var
   mParentTripName:  TmParentTripName;
   RouteNode:        TXmlVSNode;
   GpxDistance:      double;
+  mExploreUuid:     TmExploreUuid;
+  KnownExploreUuid: string;
 begin
   if (ProcessOptions.AllowGrouping) and
      (ProcessOptions.TripModel = TTripModel.XT) then
@@ -2455,6 +2562,18 @@ begin
 
   Locations := FTripList.GetItem('mLocations') as TmLocations;
   ViaPointCount := CreateLocations(Locations, RtePts);
+
+  if (Assigned(ProcessOptions.ExploreUUIDList)) and
+     (ProcessOptions.ExploreUUIDList.Count > 0) then
+  begin
+    KnownExploreUuid := ProcessOptions.ExploreUUIDList.Values[TripName];
+    if (KnownExploreUuid <> '') then
+    begin
+      mExploreUuid := FTripList.GetItem('mExploreUuid') as TmExploreUuid;
+      if (Assigned(mExploreUuid)) then
+        mExploreUuid.AsString := KnownExploreUuid;
+    end;
+  end;
 
   HasSubClasses := BuildSubClassesList(RtePts);
 
@@ -2469,7 +2588,7 @@ begin
     // Create TripTrack from BC calculation
     FTripList.TripTrack(FTripList.TripModel, RtePts, SubClassList, GpxDistance);
   end
-  else if ((ViaPointCount >= 2)and HasSubClasses) then
+  else if ((ViaPointCount >= 2) and HasSubClasses) then
     // Create AllRoutes from BC calculation
     FTripList.SaveCalculated(FTripList.TripModel, RtePts)
   else
@@ -2605,6 +2724,7 @@ begin
         CreatePOI,
         CreateKML,
         CreateHTML,
+        CreateKurviger,
         CreatePOLY,
         CreateRoutes,
         CreateCompleteRoutes,
@@ -2631,6 +2751,8 @@ begin
           SubCaption := AddSubCaption(SubCaption, 'Kml');
         CreateHTML:
           SubCaption := AddSubCaption(SubCaption, 'Html');
+        CreateKurviger:
+          SubCaption := AddSubCaption(SubCaption, 'Kurviger');
         CreateOSMPoints:
           SubCaption := AddSubCaption(SubCaption, 'Map');
         CreateFITPoints:
@@ -2666,6 +2788,8 @@ begin
           GpxFileObj.DoCreateKML;
         CreateHTML:
           GpxFileObj.DoCreateHTML;
+        CreateKurviger:
+          GpxFileObj.DoCreateKurviger;
         CreateOSMPoints:
           GpxFileObj.DoCreateOSMPoints;
         CreateFITPoints:
@@ -2721,6 +2845,7 @@ var
       Writeln(#9, '/Poi or /Gpi        = Create Points Of Interest');
       Writeln(#9, '/Kml                = Create KML Google Earth');
       Writeln(#9, '/Html               = Create HTML');
+      Writeln(#9, '/Kurviger           = Create Kurviger');
       Writeln(#9, '/Poly               = Create POLY');
       Writeln;
       Writeln('Example: ', paramstr(0), ' /PP /Tracks /Trips *.gpx');
@@ -2754,6 +2879,8 @@ begin
       Funcs := Funcs + [TGPXFunc.CreateKML];
     if FindCmdLineSwitch('HTML', true) then
       Funcs := Funcs + [TGPXFunc.CreateHTML];
+    if FindCmdLineSwitch('KURVIGER', true) then
+      Funcs := Funcs + [TGPXFunc.CreateKurviger];
     if FindCmdLineSwitch('POLY', true) then
       Funcs := Funcs + [TGPXFunc.CreatePoly];
     if FindCmdLineSwitch('ROUTES', true) then
