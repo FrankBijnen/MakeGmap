@@ -1,4 +1,7 @@
-﻿# Make Gmap
+﻿# Version 1.9.9 released on April 7, 2026
+ This is a maintenance release. No functional changes.
+
+# Make Gmap
 Build Garmin maps from OSM data.
 
 - The created maps can be used in Garmin BaseCamp and Mapsource.
