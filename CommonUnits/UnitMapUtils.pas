@@ -19,8 +19,8 @@ procedure ClearTileCache;
 implementation
 
 uses Winapi.Windows, Winapi.ShlObj, Winapi.ActiveX, Winapi.ShellAPI, System.Win.ComObj, Winapi.KnownFolders,
-     Registry, UnitVerySimpleXml,
-     System.SysUtils, System.StrUtils;
+     System.Win.Registry, System.SysUtils, System.StrUtils,
+     UnitVerySimpleXml;
 
 var InstalledMaps: TStringList;
 

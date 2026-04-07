@@ -66,12 +66,13 @@ type
 
     ProcessWpt: boolean;                      // False, Process Way points, add categories
 
+    DefRtePtSymbol: string;                   // Default Route Point Symbol ==> https://www.javawa.nl/bc_waypointsymbool.html.
+
     ProcessShape: boolean;                    // True, Allow Unglitch,
                                               //       ClearSubClass(ProcessSubClass)
                                               //       Change Symbol(ProcessFlags),
                                               //       RenameNode(ShapingPointName),
                                               //       Lookup Address(ProcessAddrShape)
-      DefShapePtSymbol: string;               // Waypoint ==> https://www.javawa.nl/bc_waypointsymbool.html.
                                               // Used in: Unglitch
       ProcessAddrShape: boolean;              // False
       ShapingPointName: TShapingPointName;    // Route_Distance, Rename Shaping points automatically
@@ -224,12 +225,13 @@ begin
     EndStr := 'End';
     EndSymbol := 'Flag, Blue';
 
+  DefRtePtSymbol := 'Waypoint';
+
   ProcessShape := true;
     ProcessAddrShape := false;
     ShapingPointName := TShapingPointName.Route_Distance;
     DefShapingPointSymbol := 'Navaid, Blue';
     ShapingPointCategory := 'Shape';
-    DefShapePtSymbol := 'Waypoint';
 
   ProcessWpt := false;
 
@@ -522,6 +524,7 @@ begin
 
   Cnt := 0;
   RouteName := TXmlVSNode(Rte).NodeName;
+
   for RtePt in TXmlVSNode(Rte).ChildNodes do
   begin
     if (RtePt.Name = 'name') then
@@ -529,12 +532,17 @@ begin
       RouteName := RtePt.NodeValue;
       continue;
     end;
+
+    // Only want route points and way points. No Extensions
+    if (RtePt.Name = 'extensions') then
+      continue;
+
     Coords.FromAttributes(RtePt.AttributeList);
     Coords.FormatLatLon(Lat, Lon);
 
     // Start and End always Via
     IsVia := (Cnt = 0) or
-             (Cnt = TXmlVSNode(Rte).ChildNodes.Count -1);
+             (RtePt.NextSibling = nil);
 
     // Look in the extensions
     if (IsVia = false) then

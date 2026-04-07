@@ -34,7 +34,7 @@ REM MkgMap parameters
 REM ***************************************************
 
 REM mkgmap version, should be a subdir of the progdir
-set MKGM_mkgmap=mkgmap-r4923
+set MKGM_mkgmap=mkgmap-r4924
 
 REM Specifies the draw priority when multiple maps cover the same area. 30 is highest
 if ["%MKGM_drawprio%"] equ [""] set MKGM_drawprio=25

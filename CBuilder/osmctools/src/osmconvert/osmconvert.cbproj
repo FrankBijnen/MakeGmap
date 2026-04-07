@@ -160,6 +160,7 @@
         <Manifest_File>(None)</Manifest_File>
         <AppDPIAwarenessMode>none</AppDPIAwarenessMode>
         <ILINK_LibraryPath>C:\zlib-1.2.11\contrib\C++Builder\Win64\Release;$(ILINK_LibraryPath)</ILINK_LibraryPath>
+        <VerInfo_Keys>CompanyName=;FileDescription=$(MSBuildProjectName);FileVersion=0.8.11.0;InternalName=;LegalCopyright=;LegalTrademarks=;OriginalFilename=;ProgramID=com.embarcadero.$(MSBuildProjectName);ProductName=$(MSBuildProjectName);ProductVersion=1.9.9;Comments=</VerInfo_Keys>
     </PropertyGroup>
     <ItemGroup>
         <None Include="ext_vars.h">

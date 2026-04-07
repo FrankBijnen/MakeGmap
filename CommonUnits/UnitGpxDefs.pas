@@ -10,7 +10,17 @@ const
   EarthRadiusMi: Double       = 3958.761;
   ProcessCategoryPick: string = 'None' + #10 + 'Symbol' + #10 + 'GPX filename' + #10 + 'Symbol + GPX filename';
   LatLonFormat                = '%1.5f';
-  RecalcMapSegAndRoad         = 'FFFFFFFFFFFFFFFF';  // Mapseg and RoadId forcing a recalc
+  RecalcMapSeg                = 'FFFFFFFF';          // Mapseg and RoadId forcing a recalc
+  RecalcRoad                  = 'FFFFFFFF';          // Mapseg and RoadId forcing a recalc
+  RecalcMapSegAndRoad         = RecalcMapSeg + RecalcRoad ;
+  MapSegRoadMask              = $ffff7f8d;           // Mask out flag bits in road id.
+  LeaveRoutePoint             = '2116';
+  ApproachRoutePoint          = '2117';
+  TrkOrigin                   = 'Trk';
+  RteOrigin                   = 'Rte';
+  GpxExtension                = '.gpx';
+  GpxMask                     = '*' + GpxExtension;
+  NotApplicable               = 'N/A';
 
 type
   TDistanceUnit = (duKm, duMi);
@@ -29,7 +39,7 @@ type
   TGPXFuncArray = array of TGPXFunc;
   TSubClassType = set of (scCompare, scFirst, ScLast);
   // Note: See TModelConv for mapping to TripModel
-  TGarminModel  = (XT, XT2, Tread2, Zumo595, Zumo590, Zumo3x0, Drive51, Nuvi2595, GarminEdge, GarminGeneric, Unknown);
+  TGarminModel  = (XT, XT2, XT3, Tread2, Zumo595, Zumo590, Zumo3x0, Drive51, Drive66, Nuvi2595, GarminEdge, GarminGeneric, Unknown);
 
   // Trip Info to CSV
   TTripInfo = class(TObject)
@@ -171,7 +181,7 @@ begin
   result := ASubClass;
   if (Length(result) < Length(RecalcMapSegAndRoad)) then
     result := RecalcMapSegAndRoad +   // Unknown MapSeg and Road
-              '2116' +                // Leave Route point
+              LeaveRoutePoint +       // Leave Route point
               '000000000000'
   else
   begin

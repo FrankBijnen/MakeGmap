@@ -76,7 +76,7 @@ Source: "..\bin\\Help\*"; DestDir: "{app}\Help"; Flags: recursesubdirs
 ; Height;
 Source: "..\bin\Height\url.txt"; DestDir: "{app}\Height";
 ; mkgmap-r4923;
-Source: "..\bin\mkgmap-r4923\*"; DestDir: "{app}\mkgmap-r4923"; Flags: recursesubdirs
+Source: "..\bin\mkgmap-r4924\*"; DestDir: "{app}\mkgmap-r4924"; Flags: recursesubdirs
 ; splitter-r653;
 Source: "..\bin\splitter-r654\*"; DestDir: "{app}\splitter-r654"; Flags: recursesubdirs
 ; OpenSSL;
