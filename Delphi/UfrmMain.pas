@@ -5,7 +5,7 @@ interface
 uses
   Winapi.Windows, Winapi.Messages,  Winapi.ActiveX, Vcl.Graphics,
   System.SysUtils, System.Variants, System.Classes,
-  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, Tdbgrids, Vcl.ExtCtrls,
+  Vcl.Controls, Vcl.Forms, Vcl.Dialogs, Vcl.StdCtrls, Vcl.ComCtrls, Data.DB, Vcl.Grids, Vcl.DBGrids, Vcl.ExtCtrls,
   Vcl.DBCtrls, Vcl.Mask, Vcl.Menus, Vcl.Buttons, Datasnap.DBClient,
   UnitDSFields, UnitRichEditCallBack;
 
@@ -40,13 +40,13 @@ type
     Splitter2: TSplitter;
     PnlProjectsUrl: TPanel;
     DBNavProjectsUrl: TDBNavigator;
-    DBProjectsUrl: TDBWGrid;
+    DBProjectsUrl: TDBGrid;
     PnlLog: TPanel;
     MemoLog: TRichEdit;
     BtnLoadLog: TButton;
     PnlProjectsGrid: TPanel;
     DBNavProjects: TDBNavigator;
-    DBWPrrojects: TDBWGrid;
+    DBWPrrojects: TDBGrid;
     CmbLogType: TComboBox;
     PnlGeneralFields: TPanel;
     MainMenu: TMainMenu;

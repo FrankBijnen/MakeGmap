@@ -179,7 +179,7 @@ object FrmMain: TFrmMain
             Align = alTop
             TabOrder = 0
           end
-          object DBWPrrojects: TDBWGrid
+          object DBWPrrojects: TDBGrid
             Left = 1
             Top = 26
             Width = 317
@@ -187,7 +187,7 @@ object FrmMain: TFrmMain
             Align = alClient
             BiDiMode = bdLeftToRight
             DataSource = DmSettings.DsProjects
-            Options = [dgEditing, dgAlwaysShowEditor, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit, dgMultiSelect]
+            Options = [dgEditing, dgAlwaysShowEditor, dgTitles, dgIndicator, dgColumnResize, dgColLines, dgRowLines, dgTabs, dgConfirmDelete, dgCancelOnExit]
             ParentBiDiMode = False
             ReadOnly = True
             TabOrder = 1
@@ -196,11 +196,6 @@ object FrmMain: TFrmMain
             TitleFont.Height = -11
             TitleFont.Name = 'Tahoma'
             TitleFont.Style = []
-            BooleanObjects.Strings = (
-              'GMAPSUPP'
-              'GMAPI'
-              'UNICODE')
-            RealScrollBar = True
             Columns = <
               item
                 Expanded = False
@@ -267,7 +262,7 @@ object FrmMain: TFrmMain
           Align = alTop
           TabOrder = 0
         end
-        object DBProjectsUrl: TDBWGrid
+        object DBProjectsUrl: TDBGrid
           Left = 1
           Top = 26
           Width = 711
