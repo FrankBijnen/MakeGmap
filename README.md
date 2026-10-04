@@ -1,11 +1,11 @@
 ﻿# Version 1.9.10 released on October 4, 2026
  
 Fixes for creating and viewing poly files. 
-- OpenStreetMap no longer supports local files. Changed to Open Topo map
-- The sample poly files were no longer valid for splitter
+- OpenStreetMap no longer supports local files. Changed to Open Topo map.
+- The sample poly files were no longer valid for the splitter.
 
-Update Compiler to Delphi/C++Builder 13 Community Edition.
-Update InnoSetup to V7.1.0 
+Update Compiler to Delphi/C++Builder 13 Community Edition.<br>
+Update InnoSetup to V7.1.0. 
 
 # Make Gmap
 Build Garmin maps from OSM data.
