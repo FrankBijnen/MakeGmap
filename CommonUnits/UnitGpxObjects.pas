@@ -4,10 +4,9 @@ unit UnitGPXObjects;
 interface
 
 uses
-  System.Classes, System.SysUtils,
-  WinApi.Windows, System.Math,
-  Xml.XMLIntf, UnitVerySimpleXml,
+  System.Classes,
   Vcl.ComCtrls,
+  UnitVerySimpleXml,
 {$IFDEF KML}
   kml_helper,
 {$ENDIF}
@@ -19,13 +18,14 @@ uses
   UnitGeoCode,
 {$ENDIF}
 {$IFDEF GPI}
-  UnitGPI, UnitBMP,
+  UnitGPI,
 {$ENDIF}
   UnitGpxDefs,
   UnitProcessOptions,
-  UfrmSelectGpx;
+  UFrmSelectGpx;
 
 type
+  TGPXFiles = array of string;
 
   TGPXFile = class
   private
@@ -41,6 +41,7 @@ type
     CurrentWayPointFromRoute: TXmlVSNode;
     CurrentRouteTrackName: string;
     ShapingPointCnt: integer;               // Counter of all <trp:ShapingPoint>. Seqnr of name
+    LegCnt: integer;
 
     CurrentCoord: TCoords;
     TotalDistance: double;
@@ -68,7 +69,7 @@ type
     function MapSegFromSubClass(const CalculatedSubclass: string): integer;
     function WayPointNotProcessed(WayPoint: TXmlVSNode): boolean;
 {$IFDEF GPI}
-    function GPXWayPoint(CatId, BmpId: integer; WayPoint: TXmlVSNode): TGPXWayPoint;
+    function GPXWayPoint(ACatId, ABmpId, AMediaId, AMp3Id: integer; AWayPoint: TXmlVSNode): TGPXWayPoint;
     function GetSpeedFromName(WptName: string): integer;
     function GPXBitMap(WayPoint: TXmlVSNode): TGPXBitmap;
     function GPXCategory(Category: string): TGPXCategory;
@@ -76,12 +77,11 @@ type
     procedure FreeGlobals;
     procedure CreateGlobals;
     procedure ClearGlobals;
-
-    procedure ProcessGPX;
+    procedure ProcessGPX(GPXFiles: TGPXFiles);
 
     procedure ComputeDistance(RptNode: TXmlVSNode);
     procedure ClearSubClass(ANode: TXmlVSNode);
-    procedure UnglitchNode(RtePtNode, ExtensionNode: TXmlVSNode; ViaPtName: UTF8String);
+    procedure UnglitchNode(RtePtNode, ExtensionNode: TXmlVSNode; ViaPtName: string);
     procedure EnsureSubNodeAfter(ANode: TXmlVSNode; ChildNode: string; const AfterNodes: array of string);
     procedure RenameSubNode(RtePtNode: TXmlVSNode; const NodeName:string; const NewName: string);
     procedure LookUpAddrRtePt(RtePtNode: TXmlVSNode);
@@ -97,10 +97,12 @@ type
                           const ProcessPointType: TProcessPointType;
                           const Symbol: string = '';
                           const Description: string = '');
+    procedure AddRouteExtensions(const RtePtNode, ExtensionsNode: TXmlVsNode;
+                                 const ProcessPointType: TProcessPointType);
 
     procedure AddWayPointFromRoute(const RtePtNode: TXmlVsNode;
                                    const WayPointName: string;
-                                   const ViaPt: boolean;
+                                   const ProcessPointType: TProcessPointType;
                                    const Symbol: string;
                                    const Category: string;
                                    const Route: string);
@@ -132,9 +134,11 @@ type
     procedure ProcessTrk(const TrkNode: TXmlVSNode);
     procedure ProcessWpt(const WptNode: TXmlVSNode);
     procedure ProcessGPXNode(GpxNode: TXmlVSNode);
+    procedure ProcessRootNode(RootNode: TXmlVSNode);
     procedure StripRtePt(const RtePtNode: TXmlVSNode);
     procedure StripRte(const RteNode: TXmlVSNode);
 {$IFDEF TRIPOBJECTS}
+    procedure ProcessGeometry(const GeometryNode: TXmlVSNode);
     function BuildSubClassesList(const RtePts: TXmlVSNodeList): boolean;
     procedure CreateLocations(Locations: TmLocations; RtePts: TXmlVSNodeList);
     procedure UpdateTemplate(const TripName: string; RouteCnt, ParentTripId: cardinal; RtePts: TXmlVSNodeList);
@@ -150,6 +154,7 @@ type
     function GetSelected(const Preferred: string): TXmlVSNodeList;
     function GetSelectedTracks: TXmlVSNodeList;
     function GetSelectedRoutes: TXmlVSNodeList;
+    function GetSelectedWayPts: boolean;
     procedure Track2OSMTrackPoints(Track: TXmlVSNode;
                                    var TrackId: integer;
                                    TrackStringList: TStringList);
@@ -178,6 +183,9 @@ type
     procedure DoCreateWayPoints;
     procedure DoCreatePOI;
     procedure DoCreateKML;
+    procedure DoCreateCalc(const RouteName, TransportMode, CalculationMode, OutFile: string;
+                           const IncludeRoute: boolean;
+                           const GeoApifyRecords: TGeoApifyRecords);
     procedure DoCreateHTML;
     procedure DoCreateKurviger;
     procedure DoCreateOSMPoints;
@@ -190,7 +198,10 @@ type
     procedure ProcessTrip(const RteNode: TXmlVSNode; RouteCnt, ParentTripId: Cardinal);
 {$ENDIF}
     procedure FixCurrentGPX;
-    procedure AnalyzeGpx;
+    procedure AnalyzeGpx(AllGPXFiles: TGPXFiles = []);
+    procedure ProcessTrackLogs(const TempFiles: TGPXFiles;
+                               const OutDir: string;
+                               const AStatusBar: TStatusBar = nil);
     property SubClassList: TStringList read FSubClassList;
     property WayPointList: TXmlVSNodeList read FWayPointList;
     property RouteViaPointList: TXmlVSNodeList read FRouteViaPointList;
@@ -209,18 +220,31 @@ end;
 implementation
 
 uses
-  System.TypInfo, System.DateUtils, System.StrUtils, System.IOUtils, System.UITypes,
+  System.SysUtils, System.TypInfo, System.DateUtils, System.StrUtils, System.IOUtils, System.UITypes,
+  System.Math,
+  System.Generics.Defaults, System.Generics.Collections,
+  Xml.XMLIntf,
+
+  Winapi.Windows,
+
   Vcl.Dialogs,
 {$IFDEF OSMMAP}
   UnitOSMMap,
 {$ENDIF}
-{$IFDEF REGISTRYKEYS}
-  UnitRegistryKeys,
-  UnitRegistry,
+{$IFDEF TRIPOBJECTS}
   UnitModelConv,
 {$ENDIF}
   UnitRedirect,
   UnitStringUtils;
+
+type
+  TTimedXmlVSNode = class(TObject)
+    FDateTime: string;
+    FXmlNode: TXmlVSNode;
+    constructor Create(AnXmlNode: TXmlVSNode);
+  end;
+  TDayList = TObjectList<TTimedXmlVSNode>;
+
 
 // Not configurable
 const
@@ -228,11 +252,16 @@ const
   UniqueTracks: boolean = true;
   DeleteWayPtsInRoute: boolean = true;    // Remove Waypoints from stripped routes
   DeleteTracksInRoute: boolean = true;    // Remove Tracks from stripped routes
-  DirectRoutingClass = '000000000000FFFFFFFFFFFFFFFFFFFFFFFF';
   UnglitchTreshold: double = 0.0005;      // In Km. ==> 50 Cm
 
 var
   FormatSettings: TFormatSettings;
+
+constructor TTimedXmlVSNode.Create(AnXmlNode: TXmlVSNode);
+begin
+  FXmlNode := AnXmlNode;
+  FDateTime := FindSubNodeValue(AnXmlNode, 'time');
+end;
 
 function TGPXfile.DistanceFormat(Distance: double): string;
 begin
@@ -246,16 +275,17 @@ begin
 end;
 
 function TGPXfile.DebugCoords(Coords: TXmlVSAttributeList): string;
-var LastSub, Hex, LatLon: string;
-    Coord: TCoords;
+var
+  LastSub, Hex, LatLon: string;
+  Coord: TCoords;
 begin
   Coord.FromAttributes(Coords);
   Hex := IntToHex(Float2Coord(Coord.Lat), 8);
-  LatLon := Hex + ' = ' + Coord2Float(Float2Coord(Coord.Lat));
+  LatLon := Hex + ' = ' + Debug_Coord2Float(Float2Coord(Coord.Lat));
   LastSub := Copy(Hex, 5, 2) + Copy(Hex, 3, 2);
   result := Copy(Hex, 1, 2);
   Hex := IntToHex(Float2Coord(Coord.Lon),8);
-  LatLon := LatLon + ' ' + Hex + ' = ' + Coord2Float(Float2Coord(Coord.Lon));
+  LatLon := LatLon + ' ' + Hex + ' = ' + Debug_Coord2Float(Float2Coord(Coord.Lon));
   LastSub := LastSub + Copy(Hex, 5, 2) + Copy(Hex, 3, 2);
   result := result + Copy(Hex, 1, 2) + 'xx';
   result := result + LastSub + ' ' + LatLon;
@@ -277,7 +307,7 @@ end;
 procedure TGPXfile.CreateGlobals;
 begin
   FProcessOptions := TProcessOptions.Create(FOnFunctionPrefs, FOnSavePrefs);
-  MinTrackDistKms := FProcessOptions.GetMinTrackDistKms;
+  MinTrackDistKms := ProcessOptions.GetMinTrackDistKms;
   FRouteViaPointList := TXmlVSNodeList.Create;
   FWayPointFromRouteList := TXmlVSNodeList.Create;
   FWayPointList := TXmlVSNodeList.Create;
@@ -358,7 +388,7 @@ procedure TGPXfile.BuildSubClasses(const ARtePt: TXmlVSNode;
       exit;
 
     RtePtCoord.FromAttributes(ARtePt.AttributeList);
-    ScanGpxxRptNode := GetLastExtensionsNode(PrevRtePt);
+    ScanGpxxRptNode := GetLastGpxxRptNode(PrevRtePt);
     while (ScanGpxxRptNode <> nil) do
     begin
       GpxxRptCoord.FromAttributes(ScanGpxxRptNode.AttributeList);
@@ -378,7 +408,7 @@ procedure TGPXfile.BuildSubClasses(const ARtePt: TXmlVSNode;
     SegmentCnt: integer;
     CurType: TSubClassType;
   begin
-    ScanGpxxRptNode := GetFirstExtensionsNode(ARtePt);
+    ScanGpxxRptNode := GetFirstGpxxRptNode(ARtePt);
     SegmentCnt := 0;
     while (ScanGpxxRptNode <> nil) do
     begin
@@ -408,7 +438,7 @@ procedure TGPXfile.BuildSubClasses(const ARtePt: TXmlVSNode;
       exit;
 
     RtePtCoord.FromAttributes(NextRtePt.AttributeList);
-    ScanGpxxRptNode := GetFirstExtensionsNode(NextRtePt);
+    ScanGpxxRptNode := GetFirstGpxxRptNode(NextRtePt);
     while (ScanGpxxRptNode <> nil) do
     begin
       GpxxRptCoord.FromAttributes(ScanGpxxRptNode.AttributeList);
@@ -515,14 +545,13 @@ end;
 
 function TGPXfile.MapSegFromSubClass(const CalculatedSubclass: string): integer;
 var
-  ErrCode: DWORD;
   Reversed: string;
 begin
   Reversed := '$' + Copy(CalculatedSubclass, 7, 2) +
                     Copy(CalculatedSubclass, 5, 2) +
                     Copy(CalculatedSubclass, 3, 2) +
                     Copy(CalculatedSubclass, 1, 2);
-  Val(Reversed, result, ErrCode);
+  result := StrToIntDef(Reversed, 0);
 end;
 
 procedure TGPXfile.ComputeDistance(RptNode: TXmlVSNode);
@@ -549,7 +578,7 @@ begin
   end;
 end;
 
-procedure TGPXfile.UnglitchNode(RtePtNode, ExtensionNode: TXmlVSNode; ViaPtName: UTF8String);
+procedure TGPXfile.UnglitchNode(RtePtNode, ExtensionNode: TXmlVSNode; ViaPtName: string);
 var
   RptNode, DebugNode: TXmlVSNode;
   ViaPtCoord, NextCoord: TCoords;
@@ -605,7 +634,7 @@ begin
 {$IFDEF GEOCODE}
   Lat := RtePtNode.AttributeList.Find('lat').Value;
   Lon := RtePtNode.AttributeList.Find('lon').Value;
-  AdjustLatLon(Lat, Lon, Place_Decimals);
+  AdjustLatLon(Lat, Lon, OSM_Place_Decimals);
 
   EnsureSubNodeAfter(RtePtNode, 'cmt', ['name']);
   RenameSubNode(RtePtNode, 'cmt',  Format('%s, %s', [Lat, Lon], FormatSettings));
@@ -647,7 +676,7 @@ end;
 procedure TGPXfile.ReplaceCategory(const ExtensionsNode: TXmlVsNode; const NS, Category: string);
 var
   AnExtensionsNode, CategoriesNode: TXmlVsNode;
-  CatPos:integer;
+  CatPos: integer;
 begin
   if (ExtensionsNode = nil) then
     exit;
@@ -694,7 +723,7 @@ begin
   WptNode := ExtensionsNode.Parent;
   Lat := WptNode.AttributeList.Find('lat').Value;
   Lon := WptNode.AttributeList.Find('lon').Value;
-  AdjustLatLon(Lat, Lon, Place_Decimals);
+  AdjustLatLon(Lat, Lon, OSM_Place_Decimals);
   Place := GetPlaceOfCoords(Lat, Lon, ProcessOptions.LookUpWindow, ProcessOptions.LookUpMessage);
   if (Place <> nil) then
   begin
@@ -728,7 +757,8 @@ procedure TGpxFile.AddWptPoint(const ChildNode: TXmlVsNode;
                                const Symbol: string = '';
                                const Description: string = '');
 var
-  ExtensionsNode: TXmlVsNode;
+  LinkNodes: TXmlVSNodeList;
+  ExtensionsNode, NewLink: TXmlVsNode;
   NewSymbol, WptTime, WptDesc, WptCmt: string;
 begin
   with ChildNode do
@@ -755,6 +785,18 @@ begin
     if (NewSymbol = '') then
       NewSymbol := ProcessOptions.DefWayPointSymbol;
     AddChild('sym').NodeValue := NewSymbol;
+
+    // Add link for TourGuide
+    LinkNodes := RtePtNode.FindNodes('link');
+    try
+      for NewLink in LinkNodes do
+      begin
+        if (NewLink.HasAttribute('href')) then
+          AddChild('link').SetAttribute('href', NewLink.Attributes['href']);
+      end;
+    finally
+      LinkNodes.Free;
+    end;
   end;
 
   if (ProcessOptions.ProcessWpt) and
@@ -774,9 +816,37 @@ begin
   end;
 end;
 
+procedure TGPXFile.AddRouteExtensions(const RtePtNode, ExtensionsNode: TXmlVsNode;
+                                      const ProcessPointType: TProcessPointType);
+var
+  ToVia, FromExtensions, FromVia, FromTm: TXmlVsNode;
+begin
+  case (ProcessPointType) of
+    TProcessPointType.pptViaPt:
+      begin
+        ToVia := ExtensionsNode.AddChild('trp:ViaPoint');
+        FromExtensions := RtePtNode.Find('extensions');
+        if (FromExtensions = nil) then
+          exit;
+        FromVia := FromExtensions.Find('trp:ViaPoint');
+        if (FromVia = nil) then
+          exit;
+        CloneNode(FromVia, ToVia);
+
+        // Add TM extension?
+        FromTm := FromExtensions.Find('tm:AdventurousLevel');
+        if (FromTm = nil) then
+          exit;
+        ExtensionsNode.AddChild('tm:AdventurousLevel').NodeValue := FromTm.NodeValue;
+      end;
+    TProcessPointType.pptShapePt:
+      ExtensionsNode.AddChild('trp:ShapingPoint');
+  end;
+end;
+
 procedure TGPXFile.AddWayPointFromRoute(const RtePtNode: TXmlVsNode;
                                         const WayPointName: string;
-                                        const ViaPt: boolean;
+                                        const ProcessPointType: TProcessPointType;
                                         const Symbol: string;
                                         const Category: string;
                                         const Route: string);
@@ -784,25 +854,12 @@ var
   NewNode, ExtensionsNode: TXmlVsNode;
 begin
   NewNode := CurrentWayPointFromRoute.AddChild('wpt');
-  if (ViaPt) then
-    AddWptPoint(NewNode,
-                RtePtNode,
-                WayPointName,
-                TProcessPointType.pptViaPt,
-                Symbol)
-  else
-    AddWptPoint(NewNode,
-                RtePtNode,
-                WayPointName,
-                TProcessPointType.pptShapePt,
-                Symbol);
-
+  AddWptPoint(NewNode,
+              RtePtNode,
+              WayPointName,
+              ProcessPointType,
+              Symbol);
   ExtensionsNode := NewNode.AddChild('extensions');
-  if (ViaPt) then
-    ExtensionsNode.AddChild('trp:ViaPoint')
-  else
-    ExtensionsNode.AddChild('trp:ShapingPoint');
-
   AddRouteCategory(ExtensionsNode, 'gpxx:', Category, Route);
   AddRouteCategory(ExtensionsNode, 'wptx1:', Category, Route);
 end;
@@ -834,11 +891,9 @@ begin
               DefinedSymbol,
               Distance);
 
+  // Add Extensions?
   ExtensionsNode := NewNode.AddChild('extensions');
-  if (ProcessPointType = pptViaPt) then
-    ExtensionsNode.AddChild('trp:ViaPoint');
-  if (ProcessPointType = pptShapePt) then
-    ExtensionsNode.AddChild('trp:ShapingPoint');
+  AddRouteExtensions(RtePtNode, ExtensionsNode, ProcessPointType);
 end;
 
 procedure TGPXFile.AddBeginPoint(const RtePtNode: TXmlVsNode;
@@ -875,7 +930,7 @@ var
   ExtensionsNode: TXmlVsNode;
   NewNode: TXmlVsNode;
 begin
-  NewNode := FWayPointList.Add('wpt');
+  NewNode := WayPointList.Add('wpt');
   AddWptPoint(NewNode,
               RtePtNode,
               WayPointName,
@@ -907,48 +962,69 @@ begin
   TrackPoint := CurrentTrack.AddChild('trkpt');
   CloneAttributes(RptNode, TrackPoint);
 
-// For track
-  SubNodeValue := FindSubNodeValue(RptNode, 'ele');
-  if (SubNodeValue <> '') then
-    TrackPoint.AddChild('ele').NodeValue := SubNodeValue;
-
-  SubNodeValue := '';
-  if (ExtensionNode <> nil) then
-  begin
-    // Use Departure from (Start) point as time
-    RtePtViaPoint := ExtensionNode.Find('trp:ViaPoint');
-    if (RtePtViaPoint <> nil) then
-      SubNodeValue := FindSubNodeValue(RtePtViaPoint,'trp:DepartureTime');
-  end
+  // If the source is a track, copy all items
+  if (RptNode.Name = 'trkpt') then
+    CloneNode(RptNode, TrackPoint)
   else
-    SubNodeValue := FindSubNodeValue(RptNode, 'time');
-
-  if (SubNodeValue <> '') then
-    TrackPoint.AddChild('time').NodeValue := SubNodeValue;
+  begin
+    // Use Departure from (Start) point as time for route points
+    if (ExtensionNode = nil) then
+      exit;
+    RtePtViaPoint := ExtensionNode.Find('trp:ViaPoint');
+    if (RtePtViaPoint = nil) then
+      exit;
+    SubNodeValue := FindSubNodeValue(RtePtViaPoint,'trp:DepartureTime');
+    if (SubNodeValue <> '') then
+      TrackPoint.AddChild('time').NodeValue := SubNodeValue;
+  end;
 end;
 
 procedure TGPXFile.ProcessRtePt(const RtePtNode: TXmlVsNode;
                                 const RouteName: string;
                                 const Cnt, LastCnt: integer);
-
 var
-  ExtensionNode: TXmlVSNode;
-  RptNode, RtePtExtensions, RtePtShapingPoint, RtePtViaPoint: TXmlVSNode;
+  RtePtExtension: TXmlVSNode;
+  RptNode, ExtensionsNode, RtePtShapingPoint, RtePtViaPoint: TXmlVSNode;
   WptName, Symbol, ViaPtName, ShapePtName: string;
   IsShapePt: boolean;
-  DescNode, RteNode: TXmlVSNode;
-  CalculatedSubClass, MapName: string;
-  MapSeg, NewDescPos: integer;
+  CalculatedSubClass, MapName, MapSegName: string;
+  MapSeg: integer;
 begin
   Symbol := FindSubNodeValue(RtePtNode, 'sym');
-  RtePtExtensions := RtePtNode.Find('extensions');
-  if (RtePtExtensions = nil) then
+  ExtensionsNode := RtePtNode.Find('extensions');
+  if (ExtensionsNode = nil) then
     exit;
-  ExtensionNode := RtePtExtensions.Find('gpxx:RoutePointExtension');
-  RtePtShapingPoint := RtePtExtensions.Find('trp:ShapingPoint');
-  RtePtViaPoint := RtePtExtensions.Find('trp:ViaPoint');
+  RtePtExtension := ExtensionsNode.Find('gpxx:RoutePointExtension');
+  RtePtShapingPoint := ExtensionsNode.Find('trp:ShapingPoint');
+  RtePtViaPoint := ExtensionsNode.Find('trp:ViaPoint');
   IsShapePt := (RtePtShapingPoint <> nil) or                          // BaseCamp, or other planner using Via and Shaping points
                ((RtePtShapingPoint = nil) and (RtePtViaPoint = nil)); // Mapsource, or other planner not using Via and Shaping points
+
+  // Fill Mapsegment
+  if (RtePtExtension <> nil) then
+  begin
+    // Delete old comments
+    while (RtePtExtension.ChildNodes <> nil) and
+          (RtePtExtension.ChildNodes.Count > 0) and
+          (RtePtExtension.ChildNodes[0].NodeType = TXmlVSNodeType.ntComment) do
+      RtePtExtension.ChildNodes.Delete(0);
+
+    CalculatedSubClass := GetFirstSubClass(RtePtExtension);
+    MapSeg := MapSegFromSubClass(CalculatedSubClass);
+    if (MapSeg <> 0) then
+    begin
+      MapSegName := LookupMap(MapSeg);
+      if (MapSegName <> '') then
+      begin
+        MapName := NextField(MapSegName, #9);
+        RtePtExtension.InsertChild('', 0, TXmlVSNodeType.ntComment).NodeValue := MapSegName;
+        RtePtExtension.InsertChild('', 0, TXmlVSNodeType.ntComment).NodeValue := MapName;
+      end
+      else
+        RtePtExtension.InsertChild('', 0, TXmlVSNodeType.ntComment).NodeValue :='Map segment: '+ IntToStr(MapSeg);
+    end;
+  end;
+
   // Begin
   if (ProcessOptions.ProcessDistance) and
      (Cnt = 1) then
@@ -965,7 +1041,7 @@ begin
       Symbol := ProcessOptions.BeginSymbol;
 
     if (ProcessOptions.ProcessSubClass) then
-      ClearSubClass(ExtensionNode);
+      ClearSubClass(RtePtExtension);
 
     if (ProcessOptions.ProcessBegin) then
     begin
@@ -978,41 +1054,11 @@ begin
 
       if (ProcessOptions.ProcessFlags) then
         RenameSubNode(RtePtNode, 'sym', Symbol);
-
-      // Fill Mapsegment
-      RteNode := RtePtNode.Parent;
-      if (RteNode <> nil) then
-      begin
-        DescNode := RteNode.Find('desc');
-        if  (DescNode = nil) then                   // No Desc node, add it.
-        begin
-          NewDescPos := RteNode.FindPos('cmt');     // After existing Cmt?
-          if (NewDescPos < 0) then
-            NewDescPos := RteNode.FindPos('name');  // No, After name
-          if (NewDescPos > -1) then
-            DescNode := RteNode.InsertChild('desc', NewDescPos +1);
-        end;
-
-        if (DescNode <> nil) and
-           (ExtensionNode <> nil) then
-        begin
-          CalculatedSubClass := GetFirstSubClass(ExtensionNode);
-          MapSeg := MapSegFromSubClass(CalculatedSubClass);
-          DescNode.ChildNodes.DeleteRange(0, DescNode.ChildNodes.Count);
-          if (MapSeg <> 0) then
-          begin
-            MapName := LookupMap(IntToStr(MapSeg));
-            if (MapName <> '') then
-              DescNode.AddChild('Map', TXmlVSNodeType.ntComment).NodeValue := 'Map name: '+ MapName + ' Map segment: ' + IntToStr(MapSeg)
-            else
-              DescNode.AddChild('Map', TXmlVSNodeType.ntComment).NodeValue :='Map segment: '+ IntToStr(MapSeg);
-          end;
-        end;
-      end;
     end;
 
     if (ProcessOptions.ProcessWayPtsFromRoute) then
-      AddWayPointFromRoute(RtePtNode, WptName, true, Symbol, ProcessOptions.BeginStr, RouteName);
+      AddWayPointFromRoute(RtePtNode, WptName, TProcessPointType.pptViaPt,
+                           Symbol, ProcessOptions.BeginStr, RouteName);
 
     if (ProcessOptions.ProcessCreateRoutePoints) then
       AddBeginPoint(RtePtNode, WptName, Symbol);
@@ -1027,7 +1073,7 @@ begin
       Symbol := ProcessOptions.EndSymbol;
 
     if (ProcessOptions.ProcessSubClass) then
-      ClearSubClass(ExtensionNode);
+      ClearSubClass(RtePtExtension);
 
     if (ProcessOptions.ProcessEnd) then
     begin
@@ -1043,7 +1089,8 @@ begin
     end;
 
     if (ProcessOptions.ProcessWayPtsFromRoute) then
-      AddWayPointFromRoute(RtePtNode, WptName, true, Symbol, ProcessOptions.EndStr, RouteName);
+      AddWayPointFromRoute(RtePtNode, WptName, TProcessPointType.pptViaPt,
+                           Symbol, ProcessOptions.EndStr, RouteName);
 
     if (ProcessOptions.ProcessCreateRoutePoints) then
     begin
@@ -1069,7 +1116,7 @@ begin
       Symbol := ProcessOptions.DefShapingPointSymbol;
 
     if (ProcessOptions.ProcessSubClass) then
-      ClearSubClass(ExtensionNode);
+      ClearSubClass(RtePtExtension);
 
     if (ProcessOptions.ProcessShape) then
     begin
@@ -1085,7 +1132,7 @@ begin
           ShapePtName := Format('%3.3d %s_%s', [Round(TotalDistance), Processoptions.DistanceStr, RouteName]);
       end;
 
-      UnglitchNode(RtePtNode, ExtensionNode, UTF8String(ShapePtName));
+      UnglitchNode(RtePtNode, RtePtExtension, ShapePtName);
 
       RenameNode(RtePtNode, ShapePtName);
 
@@ -1101,7 +1148,8 @@ begin
       AddShapingPoint(RtePtNode, ShapePtName, Symbol);
 
     if (ProcessOptions.ProcessWayPtsFromRoute) then
-      AddWayPointFromRoute(RtePtNode, ShapePtName, false, Symbol, ProcessOptions.ShapingPointCategory, RouteName);
+      AddWayPointFromRoute(RtePtNode, ShapePtName, TProcessPointType.pptShapePt,
+                           Symbol, ProcessOptions.ShapingPointCategory, RouteName);
   end;
 
   // Via point
@@ -1114,7 +1162,7 @@ begin
       Symbol := ProcessOptions.DefViaPointSymbol;
 
     if (ProcessOptions.ProcessSubClass) then
-      ClearSubClass(ExtensionNode);
+      ClearSubClass(RtePtExtension);
 
     ViaPtName := FindSubNodeValue(RtePtNode, 'name');
     if (ProcessOptions.ProcessVia) then
@@ -1127,13 +1175,14 @@ begin
       AddViaPoint(RtePtNode, ViaPtName, Symbol);
 
     if (ProcessOptions.ProcessWayPtsFromRoute) then
-      AddWayPointFromRoute(RtePtNode, ViaPtName, true, Symbol, ProcessOptions.ViaPointCategory, RouteName);
+      AddWayPointFromRoute(RtePtNode, ViaPtName, TProcessPointType.pptViaPt,
+                           Symbol, ProcessOptions.ViaPointCategory, RouteName);
   end;
 
   if (ProcessOptions.ProcessDistance) and
-     (ExtensionNode <> nil) then
+     (RtePtExtension <> nil) then
   begin
-    for RptNode in ExtensionNode.ChildNodes do
+    for RptNode in RtePtExtension.ChildNodes do
     begin
       if (RptNode.Name = 'gpxx:rpt') then
         ComputeDistance(RptNode);
@@ -1141,10 +1190,10 @@ begin
   end;
 
   if (ProcessOptions.ProcessTracks) and
-     (ExtensionNode <> nil) then
+     (RtePtExtension <> nil) then
   begin
-    AddTrackPoint(RtePtNode, ExtensionNode);  // Add the <rtept> as a trackpoint. Will draw straight lines. In line with BC
-    for RptNode in ExtensionNode.ChildNodes do
+    AddTrackPoint(RtePtNode, ExtensionsNode);  // Add the <rtept> as a trackpoint. Will draw straight lines. In line with BC
+    for RptNode in RtePtExtension.ChildNodes do
     begin
       if (RptNode.Name = 'gpxx:rpt') then
         AddTrackPoint(RptNode);
@@ -1169,24 +1218,22 @@ begin
 
   if (ProcessOptions.ProcessWayPtsFromRoute) then
   begin
-    CurrentWayPointFromRoute := FWayPointFromRouteList.Add(CurrentRouteTrackName);
-    CurrentWayPointFromRoute.NodeValue := CurrentRouteTrackName;
+    CurrentWayPointFromRoute := WayPointFromRouteList.Add(CurrentRouteTrackName);
+    CurrentWayPointFromRoute.Text := RteOrigin;
   end;
 
   if (ProcessOptions.ProcessCreateRoutePoints) then
   begin
-    CurrentViaPointRoute := FRouteViaPointList.Add(CurrentRouteTrackName);
-    CurrentViaPointRoute.NodeValue := CurrentRouteTrackName;
+    CurrentViaPointRoute := RouteViaPointList.Add(CurrentRouteTrackName);
+    CurrentViaPointRoute.Text := RteOrigin;
   end;
 
   NumberNode := nil;
   if (ProcessOptions.ProcessTracks) then
   begin
-    FillChar(PrevTrackCoords, SizeOf(PrevTrackCoords), 0);
-    CurrentTrack := FTrackList.Add(CurrentRouteTrackName);
-    CurrentTrack.NodeValue := CurrentRouteTrackName;
-    CurrentTrack.AddChild('desc').NodeValue := RteOrigin;
-
+    PrevTrackCoords := Default(TCoords);
+    CurrentTrack := TrackList.Add(CurrentRouteTrackName);
+    CurrentTrack.Text := RteOrigin;
     NumberNode := CurrentTrack.AddChild('number');
     if (ExtensionsNode <> nil) then
     begin
@@ -1239,16 +1286,15 @@ begin
 
   if (ProcessOptions.ProcessCreateRoutePoints) then
   begin
-    CurrentViaPointRoute := FRouteViaPointList.Add(CurrentRouteTrackName);
-    CurrentViaPointRoute.NodeValue := CurrentRouteTrackName;
+    CurrentViaPointRoute := RouteViaPointList.Add(CurrentRouteTrackName);
+    CurrentViaPointRoute.Text := TrkOrigin;
   end;
 
   if (ProcessOptions.ProcessTracks) then
   begin
-    FillChar(PrevTrackCoords, SizeOf(PrevTrackCoords), 0);
-    CurrentTrack := FTrackList.Add(CurrentRouteTrackName);
-    CurrentTrack.NodeValue := CurrentRouteTrackName;
-    CurrentTrack.AddChild('desc').NodeValue := TrkOrigin;
+    PrevTrackCoords := Default(TCoords);
+    CurrentTrack := TrackList.Add(CurrentRouteTrackName);
+    CurrentTrack.Text := TrkOrigin;
     if (ExtensionsNode <> nil) then
     begin
       TrackExtension := ExtensionsNode.Find('gpxx:TrackExtension');
@@ -1351,6 +1397,155 @@ begin
   end;
 end;
 
+{$IFDEF TRIPOBJECTS}
+procedure TGPXFile.ProcessGeometry(const GeometryNode: TXmlVSNode);
+var
+  GeoSubNode: TXmlVSNode;
+  TrkPtNode: TXmlVSNode;
+  Lat, Lon: string;
+begin
+  Lat := '';
+  Lon := '';
+  for GeoSubNode in GeometryNode.ChildNodes do
+  begin
+    if (GeoSubNode.Name = 'lon') and
+       (Lon = '') then
+      Lon := GeoSubNode.NodeValue
+    else if (GeoSubNode.Name = 'lat') and
+            (Lat = '') then
+      Lat := GeoSubNode.NodeValue;
+
+    if (Lon <> '') and
+       (Lat <> '') then
+    begin
+      TrkPtNode := CurrentTrack.AddChild('trkpt');
+      TrkPtNode.SetAttribute('lon', Lon);
+      TrkPtNode.SetAttribute('lat', Lat);
+      Lat := '';
+      Lon := '';
+    end;
+  end;
+end;
+{$ENDIF}
+
+// Parse output from GeoAPify
+procedure TGPXfile.ProcessRootNode(RootNode: TXmlVSNode);
+{$IFDEF TRIPOBJECTS}
+var
+  MainNode, ResultsNode, LegsNode: TXmlVSNode;
+  BetterDist, TrkPtDist, LastDist, DiffDist: double;
+  CurTrackPtIndex, FromTrackPtIndex, ToTrackPtIndex, BetterTrackPtIndex: integer;
+  GeometryCnt, SkipTrkPts: integer;
+{$ENDIF}
+begin
+{$IFDEF TRIPOBJECTS}
+  if not (ProcessOptions.ProcessTracks) then
+    exit;
+  if not (ProcessOptions.ProcessCreateRoutePoints) then
+    exit;
+
+  // Scan Geometry
+  // Convert <lon></lon><lat></lat> to <trkpt lat="" lon="">
+  GeometryCnt := LegCnt;
+  for MainNode in RootNode.ChildNodes do
+  begin
+    if (MainNode.Name <> 'results') then
+      continue;
+    for ResultsNode in MainNode.ChildNodes do
+    begin
+      if (ResultsNode.Name = 'geometry') then
+      begin
+        // Create new track for every leg
+        CurrentRouteTrackName := Format('GeoApify %3d', [GeometryCnt]);
+        CurrentTrack := TrackList.Add(CurrentRouteTrackName);
+        CurrentTrack.Text := TrkOrigin;
+
+        ProcessGeometry(ResultsNode);
+        Inc(GeometryCnt);
+      end;
+    end;
+  end;
+
+  // Have a track?
+  if (CurrentTrack.ChildNodes.Count = 0) then
+    exit;
+
+  // Add Shaping points from the turns (steps), looking up the coordinates from the track[to_index]
+  for MainNode in RootNode.ChildNodes do
+  begin
+    if (MainNode.Name <> 'results') then
+      continue;
+    for ResultsNode in MainNode.ChildNodes do
+    begin
+      if (ResultsNode.Name <> 'legs') then
+        continue;
+
+      CurrentTrack := TrackList[LegCnt];
+      CurrentViaPointRoute := RouteViaPointList.Add(CurrentTrack.Name);
+      CurrentViaPointRoute.Text := RteOrigin;
+      LastDist := TotalDistance;
+
+      // Skip non trkpt nodes
+      SkipTrkPts := 0;
+      while (CurrentTrack.ChildNodes[SkipTrkPts].Name <> 'trkpt') do
+        Inc(SkipTrkPts);
+
+      CurTrackPtIndex := 0;
+      for LegsNode in ResultsNode.ChildNodes do
+      begin
+        if (LegsNode.Name <> 'steps') then
+          continue;
+        FromTrackPtIndex := StrToIntDef(FindSubNodeValue(LegsNode, 'from_index'), -1);
+        ToTrackPtIndex := StrToIntDef(FindSubNodeValue(LegsNode, 'to_index'), -1);
+        if (ToTrackPtIndex = FromTrackPtIndex) then // arrived at dest. Dest is already a via/shaping point
+          continue;
+
+        // Advance forward in track, to find the trackpoint that matches the turn.
+        PrevTrackCoords.FromAttributes(CurrentTrack.ChildNodes[CurTrackPtIndex + SkipTrkPts].AttributeList);
+        while (CurTrackPtIndex < ToTrackPtIndex) and
+              ((CurTrackPtIndex + SkipTrkPts) < (CurrentTrack.ChildNodes.Count -1)) do
+        begin
+          Inc(CurTrackPtIndex);
+          CurrentCoord.FromAttributes(CurrentTrack.ChildNodes[CurTrackPtIndex + SkipTrkPts].AttributeList);
+          TrkPtDist := CoordDistance(CurrentCoord, PrevTrackCoords, TDistanceUnit.duKm);
+          PrevTrackCoords := CurrentCoord;
+          TotalDistance := TotalDistance + TrkPtDist;
+        end;
+
+        // Advance forward in track, to place a shaping point 'ProcessOptions.GetMinDistAfterTurn' AFTER the turn.
+        BetterDist := 0;
+        BetterTrackPtIndex := CurTrackPtIndex;
+        PrevTrackCoords.FromAttributes(CurrentTrack.ChildNodes[BetterTrackPtIndex].AttributeList);
+        while (BetterTrackPtIndex < CurrentTrack.ChildNodes.Count -1) and
+              (BetterDist < ProcessOptions.GetGeoApifyMinDistTurn) do
+        begin
+          Inc(BetterTrackPtIndex);
+          if (CurrentTrack.ChildNodes[BetterTrackPtIndex].Name = 'trkpt') then
+          begin
+            CurrentCoord.FromAttributes(CurrentTrack.ChildNodes[BetterTrackPtIndex].AttributeList);
+            BetterDist := BetterDist + CoordDistance(CurrentCoord, PrevTrackCoords, TDistanceUnit.duKm);
+            PrevTrackCoords := CurrentCoord;
+          end;
+        end;
+
+        // Only add a shapingpoint if the distance is at least 'ProcessOptions.GetMinShapeDistKms' from the last added.
+        // EG Roundabout at 'Enter' and 'Exit' very close.
+        DiffDist := (TotalDistance + BetterDist) - LastDist;
+        if (DiffDist > ProcessOptions.GetMinShapeDistKms) and
+           (BetterTrackPtIndex < CurrentTrack.ChildNodes.Count) then
+        begin
+          AddShapingPoint(CurrentTrack.ChildNodes[BetterTrackPtIndex],
+                                                  Format('%f Km', [TotalDistance + BetterDist]),
+                                                  ProcessOptions.DefRtePtSymbol);
+          LastDist := TotalDistance + BetterDist;
+        end;
+      end;
+      Inc(LegCnt);
+    end;
+  end;
+{$ENDIF}
+end;
+
 procedure TGPXfile.FixCurrentGPX;
 var
   AllXml: string;
@@ -1359,23 +1554,30 @@ begin
   AllXml := ReplaceAll(AllXml,
     ['</extensions><rte>', '</extensions></gpx>'],
     ['</extensions><rtept lat="0" lon="0"><name>Begin</name></rtept><rtept lat="0" lon="0"><name>End</name></rtept></rte><rte>',
-     '</extensions><rtept lat="0" lon="0"><name>Begin</name></rtept><rtept lat="0" lon="0"><name>End</name></rtept></rte></gpx>'],
-    [rfReplaceAll]);
+     '</extensions><rtept lat="0" lon="0"><name>Begin</name></rtept><rtept lat="0" lon="0"><name>End</name></rtept></rte></gpx>']);
   TFile.WriteAllText(FGPXFile, AllXml);
 end;
 
-procedure TGPXfile.ProcessGPX;
+procedure TGPXfile.ProcessGPX(GPXFiles: TGPXFiles);
 var
-  GpxNode: TXmlVSNode;
+  MainNode: TXmlVSNode;
+  GPXFile: string;
 begin
-  MinTrackDistKms := FProcessOptions.GetMinTrackDistKms;
+  LegCnt := 0;
+  TotalDistance := 0;
+  MinTrackDistKms := ProcessOptions.GetMinTrackDistKms;
   ClearGlobals;
   try
-    FXmlDocument.LoadFromFile(FGPXFile);
-    for GpxNode in FXmlDocument.ChildNodes do
+    for GPXFile in GPXFiles do
     begin
-      if (GpxNode.Name = 'gpx') then
-        ProcessGPXNode(GpxNode);
+      XmlDocument.LoadFromFile(GPXFile);
+      for MainNode in XmlDocument.ChildNodes do
+      begin
+        if (MainNode.Name = 'gpx') then
+          ProcessGPXNode(MainNode)
+        else if (MainNode.Name = 'root') then
+          ProcessRootNode(MainNode);
+      end;
     end;
   finally
   { Future use }
@@ -1432,7 +1634,7 @@ begin
   end;
 end;
 
-function TGPXfile.GPXWayPoint(CatId, BmpId: integer; WayPoint: TXmlVSNode): TGPXWayPoint;
+function TGPXfile.GPXWayPoint(ACatId, ABmpId, AMediaId, AMp3Id: integer; AWayPoint: TXmlVSNode): TGPXWayPoint;
 var
   ExtensionsNode, AddressNode: TXmlVSNode;
   ProximityStr: TGPXString;
@@ -1441,18 +1643,28 @@ begin
   result := TGPXWayPoint.Create;
   with result do
   begin
-    Name        := TGPXString(FindSubNodeValue(WayPoint, 'name'));
-    Comment     := TGPXString(FindSubNodeValue(WayPoint, 'cmt'));
-    Lat         := TGPXString(WayPoint.AttributeList.Find('lat').Value);
-    Lon         := TGPXString(WayPoint.AttributeList.Find('lon').Value);
+    Name        := TGPXString(FindSubNodeValue(AWayPoint, 'name'));
+    Comment     := TGPXString(FindSubNodeValue(AWayPoint, 'cmt'));
+    Description := TGPXString(FindSubNodeValue(AWayPoint, 'desc'));
+    Lat         := TGPXString(AWayPoint.AttributeList.Find('lat').Value);
+    Lon         := TGPXString(AWayPoint.AttributeList.Find('lon').Value);
     Proximity   := 0;
     if (ProcessOptions.DefaultProximityStr <> '') then
       Proximity := StrToInt(ProcessOptions.DefaultProximityStr);
     Speed       := GetSpeedFromName(string(result.Name));
+    if (Speed > 0) then
+      AlertType := 1
+    else
+      AlertType := 0;
 
-    ExtensionsNode := WayPoint.Find('extensions');
+    ExtensionsNode := AWayPoint.Find('extensions');
     if (ExtensionsNode <> nil) then
+    begin
+      if (ExtensionsNode.Find('trp:ShapingPoint') <> nil) then
+        AlertType := 1;
       ExtensionsNode := ExtensionsNode.Find('gpxx:WaypointExtension');
+    end;
+
     if (ExtensionsNode <> nil) then
     begin
       Phone         := TGPXString(FindSubNodeValue(ExtensionsNode, 'gpxx:PhoneNumber'));
@@ -1470,14 +1682,31 @@ begin
         Street      := TGPXString(FindSubNodeValue(AddressNode, 'gpxx:StreetAddress'));  // Has HouseNbr
       end;
     end;
-    CategoryId := CatId;
-    BitmapId := BmpId;
+
+    if (Speed > 0) then
+      SoundNbr := 5       // Double plung
+    else if (Proximity > 0) then
+      SoundNbr := 4;      // Plung
+
+    CategoryId := ACatId;
+    BitmapId := ABmpId;
+    AudioAlert := $10;
+    MediaId := AMediaId;
+
+    // TourGuide?
+    if (AMediaId > -1) and
+       (AMp3Id > -1)  then
+    begin
+      AudioAlert := $20;        // Custom Audio
+      AlertType  := $02;        // Tour Guide
+      SoundNbr   := AMp3Id;     // Media Id
+    end;
   end;
 end;
 
 function TGPXfile.GPXBitMap(WayPoint: TXmlVSNode): TGPXBitmap;
 begin
-  result := TGPXBitmap.Create(ProcessOptions.GPISymbolsDir);
+  result := TGPXBitmap.Create(TGPXString(ProcessOptions.GPISymbolsDir));
   result.Bitmap := TGPXString(FindSubNodeValue(WayPoint, 'sym'));
 end;
 
@@ -1524,22 +1753,189 @@ begin
   inherited Destroy;
 end;
 
-procedure TGPXfile.AnalyzeGpx;
-var
-  BaseFile: string;
+procedure TGPXfile.AnalyzeGpx(AllGPXFiles: TGPXFiles = []);
 begin
-  BaseFile := ChangeFileExt(ExtractFileName(FGPXFile), '');
-  ProcessGPX;
+  if (Length(AllGPXFiles) = 0) then
+    ProcessGPX([FGPXFile])
+  else
+    ProcessGPX(AllGPXFiles);
+end;
+
+function GPSLocalTime(const Iso: string): string;
+begin
+  result := FormatDateTime('yyyy-mm-dd hh:nn:ss', ISO8601ToDate(Iso, false));
+end;
+
+procedure TGPXfile.ProcessTrackLogs(const TempFiles: TGPXFiles;
+                                    const OutDir: string;
+                                    const AStatusBar: TStatusBar = nil);
+{$IFDEF TRIPOBJECTS}
+var
+  CurrentDayList: TDayList;
+  DayList: TObjectDictionary<string, TDayList>;
+  TracksProcessed: TXmlVSNodeList;
+  Track, TrackPoint,
+  OutTrack, OutTrackSeg, OutTrackPoint, OutWpt: TXmlVSNode;
+  TrackDate, DisplayColor: string;
+  PrevDateTime, ThisDateTime: TDateTime;
+  Index: integer;
+  MinTimeAutoStop: integer;
+  TracksXml: TXmlVSDocument;
+  TracksRoot: TXmlVSNode;
+  OutFile: string;
+  CurCursor: HCURSOR;
+  Comparison: TComparison<TTimedXmlVSNode>;
+{$ENDIF}
+begin
+{$IFDEF TRIPOBJECTS}
+  CurCursor := GetCursor;
+  MinTimeAutoStop := TProcessOptions.GetMinTimeTrackPoints;
+  Comparison :=
+    function(const Left, Right: TTimedXmlVSNode): Integer
+    begin
+      result := CompareStr(Left.FDateTime, Right.FDateTime);
+    end;
+
+  if Assigned(AStatusBar) then
+  begin
+    AStatusBar.Panels[0].Text := 'Analyzing';
+    AStatusBar.Panels[1].Text := Format('%d GPX Files', [Length(Tempfiles)]);
+    AStatusBar.Update;
+  end;
+
+  SetCursor(CurCursor);
+  AnalyzeGpx(TempFiles);
+
+  if not ShowSelectTracks(
+    TTagsToShow.WptTrk,
+    Format('%s (+ %d more)', [ExtractFileName(Tempfiles[0]), Length(TempFiles) -1] ),
+    'Use the Checkboxes to select tracks',
+     '*', nil) then
+    exit;
+
+  SetCursor(CurCursor);
+  DayList := TObjectDictionary<string, TDayList>.Create([doOwnsValues]);
+  try
+    TracksProcessed := GetSelectedTracks;
+    try
+      for Track in TracksProcessed do
+      begin
+        if Assigned(AStatusBar) then
+        begin
+          AStatusBar.Panels[0].Text := 'Reading tracklog';
+          AStatusBar.Panels[1].Text := Track.NodeValue;
+          AStatusBar.Update;
+        end;
+        DisplayColor := FrmSelectGPX.TrackSelectedColor(Track.Name, Track.Text);
+        for TrackPoint in Track.ChildNodes do
+        begin
+          if (TrackPoint.Name <> 'trkpt') then
+            continue;
+          TrackDate := FindSubNodeValue(TrackPoint, 'time');
+          if (TrackDate = '') then
+            continue;
+          TrackDate := LeftStr(GPSLocalTime(TrackDate), 10);
+          if (DayList.ContainsKey(TrackDate)) then
+            CurrentDayList := DayList[TrackDate]
+          else
+          begin
+            CurrentDayList := TDayList.Create(True);
+            DayList.Add(TrackDate, CurrentDayList)
+          end;
+          CurrentDayList.Add(TTimedXmlVSNode.Create(TrackPoint));
+        end;
+      end;
+    finally
+      TracksProcessed.Free;
+    end;
+
+    if (DayList.Count = 0) then
+    begin
+      ShowMessage('Selected GPX file(s) have no date/time');
+      exit;
+    end;
+
+    for TrackDate in DayList.Keys do
+    begin
+      if Assigned(AStatusBar) then
+      begin
+        AStatusBar.Panels[0].Text := 'Sorting track log for date';
+        AStatusBar.Panels[1].Text := TrackDate;
+        AStatusBar.Update;
+      end;
+
+      CurrentDayList := DayList[TrackDate];
+      CurrentDayList.Sort(TComparer<TTimedXmlVSNode>.Construct(Comparison));
+
+      if Assigned(AStatusBar) then
+      begin
+        AStatusBar.Panels[0].Text := 'Writing track log for date';
+        AStatusBar.Update;
+      end;
+
+      TracksXml := TXmlVSDocument.Create;
+      TracksXml.Options := [];
+      TracksXml.Encoding := 'utf-8';
+      try
+        TracksRoot := InitGarminGpx(TracksXml);
+        OutTrack := TracksRoot.AddChild('trk');
+        OutTrack.AddChild('name').NodeValue := TrackDate;
+        OutTrack.AddChild('extensions').
+                 AddChild('gpxx:TrackExtension').
+                 AddChild('gpxx:DisplayColor').NodeValue := DisplayColor;
+
+        OutTrackSeg := OutTrack.AddChild('trkseg');
+        PrevDateTime := 0;
+        for Index := 0 to CurrentDayList.Count -1 do
+        begin
+          ThisDateTime := ISO8601ToDate(CurrentDayList[Index].FDateTime);
+          if (SecondsBetween(ThisDateTime, PrevDateTime) < 1) then
+            continue;
+
+          if (PrevDateTime <> 0) and
+             (SecondsBetween(ThisDateTime, PrevDateTime) > MinTimeAutoStop) then
+          begin
+            OutWpt := TracksRoot.InsertChild('wpt', 0);
+            CloneAttributes(CurrentDayList[Index].FXmlNode, OutWpt);
+            OutWpt.AddChild('name').NodeValue :=
+              Format('Stop %s-%s',
+                 [ GPSLocalTime(CurrentDayList[Index-1].FDateTime),
+                   RightStr(GPSLocalTime(CurrentDayList[Index].FDateTime), 8)
+                 ]);
+          end;
+
+          PrevDateTime := ThisDateTime;
+          OutTrackPoint := OutTrackSeg.AddChild('trkpt');
+          CloneNode(CurrentDayList[Index].FXmlNode, OutTrackPoint);
+        end;
+        OutFile := FOutDir +
+                   'TrackLog_' +
+                   TrackDate + '.gpx';
+        TracksXml.SaveToFile(OutFile);
+      finally
+        TracksXml.Free;
+      end;
+
+    end;
+    AStatusBar.Panels[0].Text := 'Processing track logs finished.';
+    AStatusBar.Panels[1].Text := '';
+    AStatusBar.Update;
+  finally
+    DayList.Free;
+  end;
+{$ENDIF}
 end;
 
 // Add AllTracks to FrmSelectGpx
 procedure TGPXfile.AddSelectTracks(const TagsToShow: TTagsToShow);
 var
-  Track, RoutePoints: TXmlVSNode;
+  Track: TXmlVSNode;
   DisplayColor, RteTrk: string;
+  RouteIndex: integer;
   ChildNodeCount: string;
 begin
   FrmSelectGPX.AllTracks.Clear;
+
   // Add Wpt line
   case TagsToShow of
     TTagsToShow.WptRte,
@@ -1555,9 +1951,9 @@ begin
   end;
 
   // Add Rte or Trk lines
-  for Track in FTrackList do
+  for Track in TrackList do
   begin
-    RteTrk := FindSubNodeValue(Track, 'desc');
+    RteTrk := Track.Text;
     case TagsToShow of
       TTagsToShow.WptRte,
       TTagsToShow.Rte:
@@ -1569,13 +1965,14 @@ begin
           continue;
     end;
 
-    ChildNodeCount := IntToStr(Track.ChildNodes.Count);
     if SameText(RteTrk, 'rte') then
     begin
-      RoutePoints := RouteViaPointList.Find(Track.Name);
-      if (RoutePoints <> nil) then
-        ChildNodeCount := IntToStr(RoutePoints.ChildNodes.Count);
-    end;
+      RouteIndex := RouteViaPointList.FindPos(Track.Name, RteOrigin);
+      if (RouteIndex > -1) then
+        ChildNodeCount := IntToStr(RouteViaPointList[RouteIndex].ChildNodes.Count);
+    end
+    else
+      ChildNodeCount := IntToStr(Track.ChildNodes.Count);
 
     if (Track.Find('extensions') <> nil) then
       DisplayColor := GetTrackColor(Track.Find('extensions').Find('gpxx:TrackExtension'))
@@ -1593,17 +1990,24 @@ end;
 function TGPXfile.ShowSelectTracks(const TagsToShow: TTagsToShow;
                                    const Caption, SubCaption, CheckMask: string;
                                    const AGetPreviewInfo: TOnGetPreviewInfo): boolean;
+var
+  TrackColor: string;
 begin
   AddSelectTracks(TagsToShow);
+  TrackColor := '';
+  if (ProcessOptions.SkipTrackDialog = false) then
+    TrackColor := ProcessOptions.TrackColor;
 
-  FrmSelectGPX.LoadTracks(TagsToShow, ProcessOptions.TrackColor, CheckMask, Self, AGetPreviewInfo);
+  FrmSelectGPX.LoadTracks(TagsToShow, TrackColor, CheckMask, Self, AGetPreviewInfo);
   FrmSelectGPX.Caption := Caption;
   FrmSelectGPX.PnlTop.Caption := SubCaption;
-  result := ProcessOptions.HasConsole or ProcessOptions.SkipTrackDialog;
+  result := ProcessOptions.HasConsole or
+            ProcessOptions.SkipTrackDialog;
   if not result then
     result := (FrmSelectGPX.ShowModal = ID_OK);
 
-  if (result) then
+  if (result) and
+     (ProcessOptions.SkipTrackDialog = false) then
   begin
     if (FrmSelectGPX.CmbOverruleColor.ItemIndex = 0) then
       ProcessOptions.TrackColor := ''
@@ -1615,28 +2019,40 @@ end;
 
 procedure TGPXfile.DoPostProcess;
 begin
-  FXmlDocument.Encoding := 'utf-8';
-  FXmlDocument.SaveToFile(FGPXFile);
+  XmlDocument.Encoding := 'utf-8';
+  XmlDocument.SaveToFile(FGPXFile);
 end;
 
 procedure TGPXfile.WriteTrack2XML(TracksRoot, Track: TXmlVSNode; DisplayColor: string);
 var
-  WptTrack: TXmlVSNode;
-  TrackPoint: TXmlVSNode;
+  OutTrack: TXmlVSNode;
+  OutTrackSeg: TXmlVSNode;
+  OutTrackPoint: TXmlVSNode;
+  InTrackPoint: TXmlVSNode;
+  SubNodeValue: string;
 begin
-  WptTrack := TracksRoot.AddChild('trk');
-  WptTrack.AddChild('name').NodeValue := Track.NodeValue;
+  OutTrack := TracksRoot.AddChild('trk');
+  OutTrack.AddChild('name').NodeValue := Track.Name;
 
-  WptTrack.AddChild('extensions').
+  OutTrack.AddChild('extensions').
            AddChild('gpxx:TrackExtension').
            AddChild('gpxx:DisplayColor').NodeValue := DisplayColor;
 
-  WptTrack := WptTrack.AddChild('trkseg');
-  for TrackPoint in Track.ChildNodes do
+  OutTrackSeg := OutTrack.AddChild('trkseg');
+  for InTrackPoint in Track.ChildNodes do
   begin
-    if (TrackPoint.Name <> 'trkpt') then
+    if (InTrackPoint.Name <> 'trkpt') then
       continue;
-    CloneAttributes(TrackPoint, WptTrack.AddChild('trkpt'));
+    OutTrackPoint := OutTrackSeg.AddChild('trkpt');
+    CloneAttributes(InTrackPoint, OutTrackPoint);
+
+    // Write ele and time. If avail
+    SubNodeValue := FindSubNodeValue(InTrackPoint, 'ele');
+    if (SubNodeValue <> '') then
+      OutTrackPoint.AddChild('ele').NodeValue := SubNodeValue;
+    SubNodeValue := FindSubNodeValue(InTrackPoint, 'time');
+    if (SubNodeValue <> '') then
+      OutTrackPoint.AddChild('time').NodeValue := SubNodeValue;
   end;
 end;
 
@@ -1718,7 +2134,7 @@ begin
 
     for Track in TracksProcessed do
     begin
-      DisplayColor := FrmSelectGPX.TrackSelectedColor(Track.Name, FindSubNodeValue(Track, 'desc'));
+      DisplayColor := FrmSelectGPX.TrackSelectedColor(Track.Name, Track.Text);
       WriteTrack2XML(TracksRoot, Track, DisplayColor);
     end;
 
@@ -1750,16 +2166,19 @@ begin
   // Create Way points, from Way points
     if (ProcessOptions.ProcessWayPtsInWayPts) then
     begin
-      for WayPoint in FWayPointList do
+      for WayPoint in WayPointList do
       begin
         if (WayPointNotProcessed(WayPoint)) then
           CloneNode(WayPoint, WptRoot.AddChild(WayPoint.Name));
       end;
-      OutFile := FOutDir +
-           'WayPoints_' +
-           FBaseFile +
-           ExtractFileExt(FGPXFile);
-      WptXml.SaveToFile(OutFile);
+      if (WptRoot.ChildNodes.Count > 0) then
+      begin
+        OutFile := FOutDir +
+             'WayPoints_' +
+             FBaseFile +
+             ExtractFileExt(FGPXFile);
+        WptXml.SaveToFile(OutFile);
+      end;
     end;
 
   // Create Way points, from Via, or Shaping points in routes.
@@ -1767,7 +2186,7 @@ begin
     if ((ProcessOptions.ProcessViaPtsInWayPts) or (ProcessOptions.ProcessShapePtsInWayPts)) and
        (ProcessOptions.ProcessWayPtsFromRoute) then
     begin
-      for RouteWayPoints in FWayPointFromRouteList do
+      for RouteWayPoints in WayPointFromRouteList do
       begin
         WptXml.Clear;
         WptRoot := InitGarminGpx(WptXml);
@@ -1787,11 +2206,14 @@ begin
           end;
         end;
 
-        OutFile := FOutDir +
-                   'WayPoints_' +
-                   EscapeFileName(RouteWayPoints.Name) +
-                   ExtractFileExt(FGPXFile);
-        WptXml.SaveToFile(OutFile);
+        if (WptRoot.ChildNodes.Count > 0) then
+        begin
+          OutFile := FOutDir +
+                     'WayPoints_' +
+                     EscapeFileName(RouteWayPoints.Name) +
+                     ExtractFileExt(FGPXFile);
+          WptXml.SaveToFile(OutFile);
+        end;
       end;
     end;
   finally
@@ -1803,70 +2225,112 @@ procedure TGPXFile.DoCreatePOI;
 {$IFDEF GPI}
 var
   OutFile: string;
+  TourGuidePath: string;
   RouteWayPoints, WayPoint: TXmlVSNode;
   GPIFile: TGPI;
   POIGroup: TPOIGroup;
   S: TBufferedFileStream;
   CatId: integer;
   BmpId: integer;
+  Mp3Id: integer;
+  MediaId: smallint;
   IsViaPt: boolean;
   ExtensionsNode: TXmlVSNode;
+  LinkNode: TXmlVSNode;
+  RoutesProcessed: TXmlVSNodeList;
+  LinkNodes: TXmlVsNodeList;
 {$ENDIF}
 begin
 {$IFDEF GPI}
   OutFile := ChangeFileExt(FOutDir + FBaseFile, '.gpi');
   try
     S := TBufferedFileStream.Create(OutFile, fmCreate);
-    GPIFile := TGPI.Create(GPIVersion);
-    GPIFile.WriteHeader(S);
-    PoiGroup := GPIFile.CreatePOIGroup(TGPXString(ProcessOptions.CatGPX + FBaseFile));
+    try
+      GPIFile := TGPI.Create(GPIVersion);
+      GPIFile.WriteHeader(S);
+      PoiGroup := GPIFile.CreatePOIGroup(TGPXString(ProcessOptions.CatGPX + FBaseFile));
 
-    if (ProcessOptions.ProcessWayPtsInGpi) then
-    begin
-      for WayPoint in FWayPointList do
+      if (ProcessOptions.ProcessWayPtsInGpi) then
       begin
-        if (WayPointNotProcessed(WayPoint)) then
-        begin
-          CatId := PoiGroup.AddCat(GPXCategory(ProcessOptions.CatSymbol + FindSubNodeValue(WayPoint, 'sym'))); // Symbol
-          BmpId := PoiGroup.AddBmp(GPXBitMap(WayPoint));
-          PoiGroup.AddWpt(GPXWayPoint(CatId, BmpId, WayPoint));
-        end;
-      end;
-    end;
-
-  // Create Way points, from Via, or Shaping points in routes.
-  // Create a file per route/track
-    if ((ProcessOptions.ProcessViaPtsInGpi) or (ProcessOptions.ProcessShapePtsInGpi)) and
-       (ProcessOptions.ProcessWayPtsFromRoute) then
-    begin
-      for RouteWayPoints in FWayPointFromRouteList do
-      begin
-        CatId := PoiGroup.AddCat(GPXCategory(ProcessOptions.CatRoute + RouteWayPoints.NodeValue)); // RouteName
-
-        for WayPoint in RouteWayPoints.ChildNodes do
+        for WayPoint in WayPointList do
         begin
           if (WayPointNotProcessed(WayPoint)) then
           begin
-            IsViaPt := false;
-            ExtensionsNode := WayPoint.find('extensions');
-            if (ExtensionsNode <> nil) then
-              IsViaPt := (ExtensionsNode.Find('trp:ViaPoint') <> nil);
+            CatId := PoiGroup.AddCat(GPXCategory(ProcessOptions.CatSymbol + FindSubNodeValue(WayPoint, 'sym'))); // Symbol
 
-            if ((IsViaPt) and (ProcessOptions.ProcessViaPtsInGpi)) or
-               ((IsViaPt = false) and (ProcessOptions.ProcessShapePtsInGpi)) then
-            begin
-              BmpId := PoiGroup.AddBmp(GPXBitMap(WayPoint));
-              PoiGroup.AddWpt(GPXWayPoint(CatId, BmpId, WayPoint));
+            // MediaId for TourGuide.
+            // Use either fully qualified names, or subdir of GPX
+            LinkNodes := WayPoint.FindNodes('link');
+            try
+              MediaId := -1;
+              for LinkNode in LinkNodes do
+              begin
+                TourGuidePath := ReplaceAll(LinkNode.Attributes['href'], ['/', '%20'], ['\', ' ']);
+                if (MediaId < 0) then
+                  MediaId := PoiGroup.AddGPXMedia;
+                PoiGroup.AddMedia(MediaId, ExtractFilePath(FGPXFile), TourGuidePath);
+              end;
+            finally
+              LinkNodes.Free;
             end;
+
+            // Check media.
+            // Returns BmpId to use if not specified. EG from <sym>
+            // Returns Mp3Id. Usually MediaId, but if duplicate found uses original
+            POIGroup.CheckTourGuideMedia(MediaId, BmpId, Mp3Id);
+
+            // If no Media requested, or no Bmp in Media, use the symbol as bitmap
+            if (BmpId < 0) then
+              BmpId := PoiGroup.AddBmp(GPXBitMap(WayPoint));
+
+            // Add WPt
+            PoiGroup.AddWpt(GPXWayPoint(CatId, BmpId, MediaId, Mp3Id, WayPoint));
           end;
         end;
-
       end;
-    end;
 
-    POIGroup.Write(S);
-    GPIFile.WriteEnd(S);
-    S.Free;
+      // Create Way points, from Via, or Shaping points in routes.
+      // Create a file per route/track
+      RoutesProcessed := GetSelectedRoutes;
+      try
+        if ((ProcessOptions.ProcessViaPtsInGpi) or (ProcessOptions.ProcessShapePtsInGpi)) and
+           (ProcessOptions.ProcessWayPtsFromRoute) then
+        begin
+          for RouteWayPoints in WayPointFromRouteList do
+          begin
+            if (RoutesProcessed.Find(RouteWayPoints.Name) = nil) then
+              continue;
+            CatId := PoiGroup.AddCat(GPXCategory(ProcessOptions.CatRoute + RouteWayPoints.Name)); // RouteName
+
+            for WayPoint in RouteWayPoints.ChildNodes do
+            begin
+              if (WayPointNotProcessed(WayPoint)) then
+              begin
+                IsViaPt := false;
+                ExtensionsNode := WayPoint.find('extensions');
+                if (ExtensionsNode <> nil) then
+                  IsViaPt := (ExtensionsNode.Find('trp:ViaPoint') <> nil);
+
+                if ((IsViaPt) and (ProcessOptions.ProcessViaPtsInGpi)) or
+                   ((IsViaPt = false) and (ProcessOptions.ProcessShapePtsInGpi)) then
+                begin
+                  BmpId := PoiGroup.AddBmp(GPXBitMap(WayPoint));
+                  PoiGroup.AddWpt(GPXWayPoint(CatId, BmpId, -1, -1, WayPoint));
+                end;
+              end;
+            end;
+
+          end;
+        end;
+      finally
+        RoutesProcessed.Free;
+      end;
+
+      POIGroup.Write(S);
+      GPIFile.WriteEnd(S);
+    finally
+      S.Free;
+    end;
   except
     on E:Exception do
       MessageDlg(e.Message, TMsgDlgType.mtError, [TMsgDlgBtn.mbOK], 0);
@@ -1902,8 +2366,8 @@ begin
       try
         for Track in TracksProcessed do
         begin
-          DisplayColor := FrmSelectGPX.TrackSelectedColor(Track.Name, FindSubNodeValue(Track, 'desc'));
-          Helper.WritePointsStart(Track.NodeValue, DisplayColor);
+          DisplayColor := FrmSelectGPX.TrackSelectedColor(Track.Name, Track.Text);
+          Helper.WritePointsStart(Track.Name, DisplayColor);
           for TrackPoint in Track.ChildNodes do
           begin
             if (TrackPoint.Name <> 'trkpt') then
@@ -1917,9 +2381,10 @@ begin
 
           if (ProcessOptions.ProcessCreateRoutePoints) then
           begin
-            for RouteWayPoint in FRouteViaPointList do
+            for RouteWayPoint in RouteViaPointList do
             begin
-              if (RouteWayPoint.NodeValue <> Track.NodeValue) then
+              if (RouteWayPoint.Text <> Track.Text) or
+                 (RouteWayPoint.Name <> Track.Name) then
                 continue;
               for WayPoint in RouteWayPoint.ChildNodes do
               begin
@@ -1952,6 +2417,125 @@ begin
 {$ENDIF}
 end;
 
+procedure TGPXFile.DoCreateCalc(const RouteName, TransportMode, CalculationMode, OutFile: string;
+                                const IncludeRoute: boolean;
+                                const GeoApifyRecords: TGeoApifyRecords);
+{$IFDEF TRIPOBJECTS}
+var
+  Lat, Lon: string;
+  OutExtensions, OutPointType, CalcRoot, RouteWayPoint, WayPoint: TXmlVSNode;
+  Track : TXmlVSNode;
+  OutRte, OutRtePt, OutName: TXmlVSNode;
+  OutTrack, OutTrackSeg, OutTrackPt, TrackPoint: TXmlVSNode;
+  RoutePtDist: double;
+  AddedRoutePtCoords, PrevRoutePtCoords, NextRoutePtCoords: TCoords;
+  CalcXml: TXmlVSDocument;
+  RoutePtCnt, AddedCnt: integer;
+
+  procedure AddOrgRoutePoint;
+  begin
+    OutRtePt := OutRte.AddChild('rtept');
+    OutRtePt.AttributeList.Add('lon').Value := GeoApifyRecords[RoutePtCnt].Lon;
+    OutRtePt.AttributeList.Add('lat').Value := GeoApifyRecords[RoutePtCnt].Lat;
+    OutRtePt.AddChild('name').NodeValue := GeoApifyRecords[RoutePtCnt].Name;
+    OutRtePt.AddChild('cmt').NodeValue := GeoApifyRecords[RoutePtCnt].Address;
+    OutRtePt.AddChild('desc').NodeValue := GeoApifyRecords[RoutePtCnt].Address;
+
+    // Add Symbol
+    if (RoutePtCnt = Low(GeoApifyRecords)) then
+      OutRtePt.AddChild('sym').NodeValue := ProcessOptions.BeginSymbol
+    else if (RoutePtCnt = High(GeoApifyRecords)) then
+      OutRtePt.AddChild('sym').NodeValue := ProcessOptions.EndSymbol
+    else
+      OutRtePt.AddChild('sym').NodeValue := ProcessOptions.DefRtePtSymbol;
+
+    if (GeoApifyRecords[RoutePtCnt].Via) then
+    begin
+      OutPointType := OutRtePt.AddChild('extensions').AddChild('trp:ViaPoint');
+      OutPointType.AddChild('trp:CalculationMode').NodeValue := CalculationMode;
+    end
+    else
+      OutRtePt.AddChild('extensions').AddChild('trp:ShapingPoint');
+  end;
+{$ENDIF}
+begin
+{$IFDEF TRIPOBJECTS}
+  CalcXml := TXmlVSDocument.Create;
+  try
+    CalcRoot := InitGarminGpx(CalcXml);
+
+    if (IncludeRoute) and
+       (ProcessOptions.ProcessCreateRoutePoints) and
+       (High(GeoApifyRecords) = RouteViaPointList.Count) then // intermediate_waypoint_mode=pass_through not supported for routes.
+    begin
+      RoutePtCnt := 0;
+      OutRte := CalcRoot.AddChild('rte');
+      OutRte.AddChild('name').NodeValue := RouteName;
+      OutExtensions := OutRte.AddChild('extensions');
+      OutExtensions.AddChild('gpxx:RouteExtension').AddChild('gpxx:IsAutoNamed').NodeValue := 'false';
+      OutExtensions.AddChild('trp:Trip').AddChild('trp:TransportationMode').NodeValue := TransportMode;
+
+      for RouteWayPoint in RouteViaPointList do
+      begin
+        AddOrgRoutePoint;
+        PrevRoutePtCoords.Lat := StrToFloat(GeoApifyRecords[RoutePtCnt].Lat, FormatSettings);;
+        PrevRoutePtCoords.Lon := StrToFloat(GeoApifyRecords[RoutePtCnt].Lon, FormatSettings);;
+        NextRoutePtCoords.Lat := StrToFloat(GeoApifyRecords[RoutePtCnt +1].Lat, FormatSettings);;
+        NextRoutePtCoords.Lon := StrToFloat(GeoApifyRecords[RoutePtCnt +1].Lon, FormatSettings);;
+        AddedCnt := 0;
+        for WayPoint in RouteWayPoint.ChildNodes do
+        begin
+          AddedRoutePtCoords.FromAttributes(WayPoint.AttributeList);
+          // Check not too close to existing route points
+          RoutePtDist := CoordDistance(PrevRoutePtCoords, AddedRoutePtCoords, TDistanceUnit.duKm);
+          if (RoutePtDist < ProcessOptions.MinShapeDistKms) then
+            continue;
+          RoutePtDist := CoordDistance(NextRoutePtCoords, AddedRoutePtCoords, TDistanceUnit.duKm);
+          if (RoutePtDist < ProcessOptions.MinShapeDistKms) then
+            continue;
+
+          AddedRoutePtCoords.FormatLatLon(Lat, Lon);
+          OutRtePt := OutRte.AddChild('rtept');
+          CloneNode(WayPoint, OutRtePt);
+          Inc(AddedCnt);
+          OutName := OutRtePt.Find('name');
+          if (Assigned(OutName)) then
+            OutName.NodeValue := Format('%s_%d (%s)', [GeoApifyRecords[RoutePtCnt].Name, AddedCnt, OutName.NodeValue]);
+        end;
+
+        Inc(RoutePtCnt);
+      end;
+      AddOrgRoutePoint;
+    end;
+
+    if (ProcessOptions.ProcessTracks) then
+    begin
+      OutTrack := CalcRoot.AddChild('trk');
+      OutTrack.AddChild('name').NodeValue := RouteName;
+      OutTrack.AddChild('extensions').
+               AddChild('gpxx:TrackExtension').
+               AddChild('gpxx:DisplayColor').NodeValue := ProcessOptions.GeoApifyColor;
+
+      OutTrackSeg := OutTrack.AddChild('trkseg');
+      for Track in TrackList do
+      begin
+        for TrackPoint in Track.ChildNodes do
+        begin
+          if (TrackPoint.Name <> 'trkpt') then
+            continue;
+          OutTrackPt := OutTrackSeg.AddChild('trkpt');
+          CloneNode(TrackPoint, OutTrackPt);
+        end;
+      end;
+    end;
+    CalcXml.SaveToFile(OutFile);
+
+  finally
+    CalcXml.Free;
+  end;
+{$ENDIF}
+end;
+
 function TGPXFile.GetSelected(const Preferred: string): TXmlVSNodeList;
 var
   Track: TXmlVSNode;
@@ -1959,27 +2543,27 @@ var
 begin
   result := TXmlVSNodeList.Create(false);
 
-  // First add the rreferred (trk, or rte)
-  for Track in FTrackList do
+  // First add the preferred (trk, or rte)
+  for Track in TrackList do
   begin
-    DisplayColor := FrmSelectGPX.TrackSelectedColor(Track.Name, FindSubNodeValue(Track, 'desc'));
+    DisplayColor := FrmSelectGPX.TrackSelectedColor(Track.Name, Track.Text);
     if (DisplayColor = '') then
       continue;
-    if (FindSubNodeValue(Track, 'desc') <> Preferred) then
+    if (Track.Text <> Preferred) then
       continue;
 
     result.Add(Track);
   end;
 
   // Now add not preferred only if not exists
-  for Track in FTrackList do
+  for Track in TrackList do
   begin
-    DisplayColor := FrmSelectGPX.TrackSelectedColor(Track.Name, FindSubNodeValue(Track, 'desc'));
+    DisplayColor := FrmSelectGPX.TrackSelectedColor(Track.Name, Track.Text);
     if (DisplayColor = '') then
       continue;
 
     if (UniqueTracks) and
-       (result.FindPos(Track.NodeValue, Track.NodeValue) > -1) then
+       (result.FindPos(Track.Name, Track.Text) > -1) then
         continue;
 
      result.Add(Track);
@@ -1994,10 +2578,16 @@ begin
   result := GetSelected(TrkOrigin);
 end;
 
-// Prefer origin <trk>
+// Prefer origin <rte>
 function TGPXFile.GetSelectedRoutes: TXmlVSNodeList;
 begin
   result := GetSelected(RteOrigin);
+end;
+
+// Waypoints selected. (all or none)
+function TGPXFile.GetSelectedWayPts: boolean;
+begin
+  result := FrmSelectGpx.WayPtsSelected;
 end;
 
 procedure TGPXFile.Track2OSMTrackPoints(Track: TXmlVSNode;
@@ -2010,30 +2600,34 @@ var
   TrackPoint: TXmlVSNode;
   RtePtExtensions: TXmlVSNode;
   LayerId: integer;
+  HasTrackPts: boolean;
   TrackCoords: TCoords;
 {$ENDIF}
 begin
 {$IFDEF OSMMAP}
   TrackStringList.Clear;
-  DisplayColor := FrmSelectGpx.TrackSelectedColor(Track.Name, FindSubNodeValue(Track, 'desc'));
+  DisplayColor := FrmSelectGpx.TrackSelectedColor(Track.Name, Track.Text);
   if (DisplayColor = '') then
-  	exit;
+    exit;
 
+  HasTrackPts := false;
   for TrackPoint in Track.ChildNodes do
   begin
     if (TrackPoint.Name <> 'trkpt') then
       continue;
 
+    HasTrackPts := true;
     TrackCoords.FromAttributes(TrackPoint.AttributeList);
     TrackCoords.FormatLatLon(Lat, Lon);
-    TrackStringList.Add(Format('     AddTrkPoint(%s,%s);', [ Lat, Lon]));
+    TrackStringList.Add(Format('  AddTrkPoint(%s,%s);', [ Lat, Lon]));
   end;
 
   if (ProcessOptions.ProcessCreateRoutePoints) then
   begin
-    for RouteWayPoint in FRouteViaPointList do
+    for RouteWayPoint in RouteViaPointList do
     begin
-      if (RouteWayPoint.NodeValue <> Track.NodeValue) then
+      if (RouteWayPoint.Text <> Track.Text) or
+         (RouteWayPoint.Name <> Track.Name) then
         continue;
 
       for WayPoint in RouteWayPoint.ChildNodes do
@@ -2053,8 +2647,9 @@ begin
           LayerName := Format('Via: %s', [EscapeDQuote(Track.name)]);
           Color := 'red';
         end;
-
-        TrackStringList.Add(Format('     AddRoutePoint(%d, "%s", "%s", %s, %s, "%s");',
+        if (HasTrackPts = false) then // Draw straight lines between route points if no track avail.
+          TrackStringList.Add(Format('  AddTrkPoint(%s,%s);', [ Lat, Lon]));
+        TrackStringList.Add(Format('  AddRoutePoint(%d, "%s", "%s", %s, %s, "%s");',
                                    [LayerId,
                                     LayerName,
                                     RoutePointName,
@@ -2065,7 +2660,7 @@ begin
       Inc(TrackId, 2);
     end;
   end;
-  TrackStringList.Add(Format('     CreateTrack("%s", "%s");', [EscapeDQuote(Track.Name), OSMColor(DisplayColor)]));
+  TrackStringList.Add(Format('  CreateTrack("%s", "%s");', [EscapeDQuote(Track.Name), OSMColor(DisplayColor)]));
 {$ENDIF}
 end;
 
@@ -2092,7 +2687,7 @@ var
 {$ENDIF}
 begin
 {$IFDEF TRIPOBJECTS}
-  BikeSpeed := (FProcessOptions.DefRoadSpeed * 100000) / 3600;
+  BikeSpeed := (ProcessOptions.DefRoadSpeed * 100000) / 3600;
   TrackStringList.Clear;
   UnixTime := 0;
 
@@ -2118,7 +2713,7 @@ begin
 
   for Rte in RouteViaPointList do
   begin
-    if (Rte.NodeName <> Track.Name) then
+    if (Rte.Name <> Track.Name) then
       continue;
     for RtePt in Rte.ChildNodes do
     begin
@@ -2184,7 +2779,7 @@ begin
     begin
       TrackId := 0; // We get a new HTML file for every track/route
       Track2OSMTrackPoints(Track, TrackId, TrackPointList);
-      OutFile := FOutDir + ChangeFileExt(EscapeFileName(Track.NodeValue), '.html');
+      OutFile := FOutDir + ChangeFileExt(EscapeFileName(Track.Name), '.html');
       CreateOSMMapHtml(OutFile, TrackPointList);
     end;
   finally
@@ -2195,6 +2790,7 @@ begin
 end;
 
 procedure TGPXFile.DoCreateKurviger;
+{$IFDEF TRIPOBJECTS}
 {$IFDEF OSMMAP}
 var
   RoutesProcessed: TXmlVSNodeList;
@@ -2202,7 +2798,9 @@ var
   KurvUrl, HTML: string;
   OutFile: string;
 {$ENDIF}
+{$ENDIF}
 begin
+{$IFDEF TRIPOBJECTS}
 {$IFDEF OSMMAP}
   if (ProcessOptions.KurvigerUrl = '') then
     exit;
@@ -2214,7 +2812,7 @@ begin
       for Rte in WayPointFromRouteList do
       begin
         // Get Route Via points of this route
-        if (Rte.NodeName <> Route.Name) then
+        if (Rte.Name <> Route.Name) then
           continue;
 
         KurvUrl := ProcessOptions.GetKurvigerUrl(Rte);
@@ -2224,10 +2822,10 @@ begin
         begin
           if (ProcessOptions.HtmlOutput <> THtmlOutput.OSM) then
           begin
-            OutFile := FOutDir + ChangeFileExt(EscapeFileName(Route.Name), '_kurviger.html');
+            OutFile := FOutDir + ChangeFileExt(EscapeFileName(Rte.Name), '_kurviger.html');
             HTML := Format('<html><head><meta http-equiv="refresh" content="3;url=%s" /></head><body>', [KurvUrl]);
             HTML := HTML + '<h1>If not redirected in 3 Seconds.<br><br>';
-            HTML := HTML + Format('<a href="%s">Click here to open %s in <b>Kurviger</b></a></h1></body></html>', [KurvUrl, Route.Name]);
+            HTML := HTML + Format('<a href="%s">Click here to open %s in <b>Kurviger</b></a></h1></body></html>', [KurvUrl, Rte.Name]);
             TFile.WriteAllText(OutFile, HTML);
           end;
         end;
@@ -2237,13 +2835,16 @@ begin
     RoutesProcessed.Free;
   end;
 {$ENDIF}
+{$ENDIF}
 end;
 
 procedure TGPXFile.DoCreateOSMPoints;
 var
   TracksProcessed: TXmlVSNodeList;
-  Track : TXmlVSNode;
+  WayPoint, Track : TXmlVSNode;
   TrackId: integer;
+  WptCoords: TCoords;
+  Lat, Lon: string;
   TrackPointList: TStringList;
 begin
   FOutStringList.Clear;
@@ -2256,6 +2857,23 @@ begin
       Track2OSMTrackPoints(Track, TrackId, TrackPointList);
       FOutStringList.AddStrings(TrackPointList);
     end;
+
+    if (GetSelectedWayPts) then
+    begin
+      for WayPoint in WayPointList do
+      begin
+          WptCoords.FromAttributes(WayPoint.AttributeList);
+          WptCoords.FormatLatLon(Lat, Lon);
+
+          FOutStringList.Add(Format('  AddRoutePoint(%d, "%s", "%s", %s, %s, "%s");',
+                                 [TrackId,
+                                  'Wpt',
+                                  FindSubNodeValue(WayPoint, 'name'),
+                                  Lat,
+                                  Lon,
+                                  ProcessOptions.DefWayPointColor]));
+      end;
+    end;
   finally
     TrackPointList.Free;
     TracksProcessed.Free;
@@ -2264,28 +2882,27 @@ end;
 
 procedure TGPXFile.DoCreatePOLY;
 var
-  RouteWayPoints, WayPoint: TXmlVSNode;
+  RouteViaPoints, ViaPoint: TXmlVSNode;
   OutFile: string;
   F: TextFile;
   Coords: TCoords;
 begin
-  for RouteWayPoints in FRouteViaPointList do
+  for RouteViaPoints in RouteViaPointList do
   begin
     OutFile := FOutDir +
-               EscapeFileName(RouteWayPoints.Name) +
+               EscapeFileName(RouteViaPoints.Name) +
                '.poly';
     AssignFile(F, OutFile);
     Rewrite(F);
-    Writeln(F, EscapeFileName(RouteWayPoints.Name) );
+    Writeln(F, EscapeFileName(RouteViaPoints.Name) );
     Writeln(F, '1');
-
-    for WayPoint in RouteWayPoints.ChildNodes do
+    for ViaPoint in RouteViaPoints.ChildNodes do
     begin
-      Coords.FromAttributes(WayPoint.AttributeList);
+      Coords.FromAttributes(ViaPoint.AttributeList);
       Writeln(F, ' ',
-              FormatFloat('0.00000;-0.00000;0.00', Coords.Lon, FormatSettings),
+              FormatFloat('  0.00000000;  -0.00000000;  0.00', Coords.Lon, FormatSettings),
               ' ',
-              FormatFloat('0.00000;-0.00000;0.00', Coords.Lat, FormatSettings));
+              FormatFloat('  0.00000000;  -0.00000000;  0.00', Coords.Lat, FormatSettings));
     end;
     Writeln(F, 'END');
     Writeln(F, 'END');
@@ -2355,44 +2972,59 @@ var
   RteNode, GpxNode: TXmlVSNode;
   Node2Delete: TXmlVSNode;
   Node2DeletePos: integer;
+  RoutesProcessed: TXmlVSNodeList;
 begin
-  GpxNode := FXmlDocument.ChildNodes.find('gpx');  // Look for <gpx> node
-  if (GpxNode = nil) or
-   (GpxNode.Name <> 'gpx') then
-    exit;
+  RoutesProcessed := GetSelectedRoutes;
+  try
+    GpxNode := FXmlDocument.ChildNodes.find('gpx');  // Look for <gpx> node
+    if (GpxNode = nil) or
+     (GpxNode.Name <> 'gpx') then
+      exit;
 
-  // Remove WayPt and Trk from GPX
-  for Node2DeletePos := GpxNode.ChildNodes.Count -1 downto 0 do
-  begin
-    Node2Delete := GpxNode.ChildNodes[Node2DeletePos];
-
-    if (DeleteWayPtsInRoute) and
-       (Node2Delete.Name = 'wpt') then
+    // Remove WayPt and Trk from GPX
+    for Node2DeletePos := GpxNode.ChildNodes.Count -1 downto 0 do
     begin
-      GpxNode.ChildNodes.Delete(Node2DeletePos);
-      continue;
+      Node2Delete := GpxNode.ChildNodes[Node2DeletePos];
+
+      if (DeleteWayPtsInRoute) and
+         (Node2Delete.Name = 'wpt') then
+      begin
+        GpxNode.ChildNodes.Delete(Node2DeletePos);
+        continue;
+      end;
+
+      if (DeleteTracksInRoute) and
+         (Node2Delete.Name = 'trk') then
+      begin
+        GpxNode.ChildNodes.Delete(Node2DeletePos);
+        continue;
+      end;
+
+      if (Node2Delete.Name = 'rte') and
+         (RoutesProcessed.Find(FindSubNodeValue(Node2Delete, 'name')) = nil) then // Delete routes not selected
+      begin
+        GpxNode.ChildNodes.Delete(Node2DeletePos);
+        continue;
+      end;
+
     end;
 
-    if (DeleteTracksInRoute) and
-       (Node2Delete.Name = 'trk') then
+    for RteNode in GpxNode.ChildNodes do
     begin
-      GpxNode.ChildNodes.Delete(Node2DeletePos);
-      continue
+      if (RteNode.Name = 'rte') then // Only want <rte> nodes. No <trk> or <wpt>
+        StripRte(RteNode);
     end;
-  end;
 
-  for RteNode in GpxNode.ChildNodes do
-  begin
-    if (RteNode.Name = 'rte') then // Only want <rte> nodes. No <trk> or <wpt>
-      StripRte(RteNode);
+  finally
+    RoutesProcessed.Free;
   end;
 
   OutFile := FOutDir +
              'Routes_' +
              FBaseFile +
              ExtractFileExt(FGPXFile);
-  FXmlDocument.Encoding := 'utf-8';
-  FXmlDocument.SaveToFile(OutFile);
+  XmlDocument.Encoding := 'utf-8';
+  XmlDocument.SaveToFile(OutFile);
 end;
 
 procedure TGPXFile.DoCreateCompleteRoutes;
@@ -2401,7 +3033,7 @@ var
 begin
   OutFile := FOutDir + ExtractFilename(FGPXFile);
   if not CopyFile(PWideChar(FGPXFile), PWideChar(OutFile), false) then
-    raise Exception.Create(Format('Could not copy %s to:%s%s', [FGPXFile, #10, FOutDir]))
+    raise Exception.Create(Format(GPX_ERR_CouldNotCopy, [FGPXFile, #10, FOutDir]))
 end;
 
 {$IFDEF TRIPOBJECTS}
@@ -2439,26 +3071,21 @@ end;
 procedure TGPXFile.CreateLocations(Locations: TmLocations; RtePts: TXmlVSNodeList);
 var
   RtePtNode: TXmlVSNode;
-  RtePtName: string;
   Coords: TCoords;
   RtePtExtensions: TXmlVSNode;
   RtePtViaPoint: TXmlVSNode;
   RtePtCalculationMode: TXmlVSNode;
   RtePtAdvLevel: TXmlVSNode;
-  RtePtCmt: string;
   DepartureDateString: string;
-  DepartureDate: TDateTime;
   PointCnt: integer;
-  RoutePoint: TRoutePoint;
-  RoutePref: TRoutePreference;
-  AdvLevel: TAdvlevel;
+  Location2Add: TLocation2Add;
 begin
   PointCnt := 0;
-  RoutePref := TRoutePreference.rmFasterTime;  // If the GPX has no trp:CalculationMode at all
   for RtePtNode in RtePts do
   begin
+    Location2Add := Default(TLocation2Add); // RoutePref and AdvLevel are sensible defaults
     Inc(PointCnt);
-    AdvLevel := TAdvlevel.advNA;
+    Location2Add.AdvLevel := TAdvlevel.advNA;
     if (ProcessOptions.TripOption in [TTripOption.ttTripTrack]) then
     begin
       if (PointCnt <> 1) and
@@ -2466,16 +3093,17 @@ begin
         continue;
     end;
     // Get Data from RtePt
-    RtePtName := FindSubNodeValue(RtePtNode, 'name');
+    Location2Add.Name := FindSubNodeValue(RtePtNode, 'name');
     // Coords
     Coords.FromAttributes(RtePtNode.AttributeList);
-
+    Location2Add.Lat := Coords.Lat;
+    Location2Add.Lon := Coords.Lon;
     // Via/Shape
     if (PointCnt = 1) or
        (PointCnt = RtePts.Count) then
-      RoutePoint := TRoutePoint.rpVia
+      Location2Add.RoutePoint := TRoutePoint.rpVia
     else
-      RoutePoint := TRoutePoint.rpShaping;
+      Location2Add.RoutePoint := TRoutePoint.rpShaping;
 
     RtePtViaPoint := nil;
     RtePtExtensions := RtePtNode.Find('extensions');
@@ -2483,52 +3111,52 @@ begin
       RtePtViaPoint := RtePtExtensions.Find('trp:ViaPoint');
     if (RtePtViaPoint <> nil) then
     begin
-      RoutePoint := TRoutePoint.rpVia;
+      Location2Add.RoutePoint := TRoutePoint.rpVia;
 
       // RoutePref
       if (ProcessOptions.TripOption in [TTripOption.ttTripTrack, TTripOption.ttTripTrackLoc]) then
       begin
-        RoutePref := TRoutePreference.rmTripTrack;
-        AdvLevel := TAdvlevel.advNA;
+        Location2Add.RoutePref := TRoutePreference.rmTripTrack;
+        Location2Add.AdvLevel := TAdvlevel.advNA;
       end
       else
       begin
         RtePtCalculationMode := RtePtViaPoint.Find('trp:CalculationMode');
         if (RtePtCalculationMode <> nil) then
-          RoutePref := TmRoutePreference.RoutePreference(RtePtCalculationMode.NodeValue);
-        if (RoutePref = TRoutePreference.rmCurvyRoads) then
+          Location2Add.RoutePref := TmRoutePreference.RoutePreference(RtePtCalculationMode.NodeValue, ProcessOptions.TripModel);
+        if (Location2Add.RoutePref in [TRoutePreference.rmAdventurous]) then
         begin
-          AdvLevel := TAdvlevel.advNA;
-          RtePtAdvLevel := RtePtViaPoint.Find('trp:AdventurousLevel');
+          Location2Add.AdvLevel := TAdvlevel.advNA;
+          RtePtAdvLevel := RtePtExtensions.Find('tm:AdventurousLevel');
           if (RtePtAdvLevel <> nil) then
-            AdvLevel := TmRoutePreference.AdvLevel(RtePtAdvLevel.NodeValue);
+            Location2Add.AdvLevel := TmRoutePreference.AdvLevel(RtePtAdvLevel.NodeValue)
+          else
+          begin
+            RtePtAdvLevel := RtePtViaPoint.Find('trp:AdventurousLevel');
+            if (RtePtAdvLevel <> nil) then
+              Location2Add.AdvLevel := TmRoutePreference.AdvLevel(RtePtAdvLevel.NodeValue);
+          end;
         end;
       end;
     end;
 
     // Address
-    RtePtCmt := FindSubNodeValue(RtePtNode, 'cmt');
-    if (RtePtCmt = '') then
-      RtePtCmt := Format('%s, %s', [FormatFloat('##0.00000', Coords.Lat, FormatSettings),
-                                    FormatFloat('##0.00000', Coords.Lon, FormatSettings)]
-                        );
+    Location2Add.Address := FindSubNodeValue(RtePtNode, 'cmt');
+    if (Location2Add.Address = '') then
+      Location2Add.Address := Format('%s, %s', [FormatFloat('##0.00000', Coords.Lat, FormatSettings),
+                                                FormatFloat('##0.00000', Coords.Lon, FormatSettings)]
+                                    );
     // Departure
     DepartureDateString := '';
     if (RtePtViaPoint <> nil) then
       DepartureDateString := FindSubNodeValue(RtePtViaPoint,'trp:DepartureTime');
     if (DepartureDateString <> '') and
-      TryISO8601ToDate(DepartureDateString, DepartureDate, false) then
+      TryISO8601ToDate(DepartureDateString, Location2Add.DepartureDate, false) then
     else
-      DepartureDate := 0;
+      Location2Add.DepartureDate := 0;
 
     // Have all we need. Create location
-    FTripList.AddLocation(Locations,
-                          ProcessOptions,
-                          RoutePoint,
-                          RoutePref,
-                          AdvLevel,
-                          Coords.Lat, Coords.Lon,
-                          DepartureDate, RtePtName, RtePtCmt);
+    FTripList.AddLocation(Locations, Location2Add);
   end;
 end;
 
@@ -2536,21 +3164,26 @@ procedure TGPXFile.UpdateTemplate(const TripName: string; RouteCnt, ParentTripId
 var
   HasSubClasses:    boolean;
   Locations:        TmLocations;
+  mParentTripId:    TmParentTripId;
   mParentTripName:  TmParentTripName;
-  RouteNode:        TXmlVSNode;
   GpxDistance:      double;
   mExploreUuid:     TmExploreUuid;
   KnownExploreUuid: string;
+  RouteIndex:       integer;
 begin
-  if (ProcessOptions.AllowGrouping) and
-     (ProcessOptions.TripModel in [TTripModel.XT, TTripModel.Drive66]) then
-    (FTripList.GetItem('mParentTripId') as TmParentTripId).AsCardinal := ParentTripId;
+  if (SupportsGrouping[ProcessOptions.TripModel]) and
+     (ProcessOptions.AllowGrouping) then
+  begin
+    mParentTripId := FTripList.GetItem(TmParentTripId.GetKey) as TmParentTripId;
+    if (Assigned(mParentTripId)) then
+      mParentTripId.AsCardinal := ParentTripId;
+  end;
 
-  mParentTripName := FTripList.GetItem('mParentTripName') as TmParentTripName;
+  mParentTripName := FTripList.GetItem(TmParentTripName.GetKey) as TmParentTripName;
   if (Assigned(mParentTripName)) then
     mParentTripName.AsString := FBaseFile;
 
-  Locations := FTripList.GetItem('mLocations') as TmLocations;
+  Locations := FTripList.GetItem(TmLocations.GetKey) as TmLocations;
   CreateLocations(Locations, RtePts);
 
   if (Assigned(ProcessOptions.ExploreUUIDList)) and
@@ -2559,7 +3192,7 @@ begin
     KnownExploreUuid := ProcessOptions.ExploreUUIDList.Values[TripName];
     if (KnownExploreUuid <> '') then
     begin
-      mExploreUuid := FTripList.GetItem('mExploreUuid') as TmExploreUuid;
+      mExploreUuid := FTripList.GetItem(TmExploreUuid.GetKey) as TmExploreUuid;
       if (Assigned(mExploreUuid)) then
         mExploreUuid.AsString := KnownExploreUuid;
     end;
@@ -2567,7 +3200,8 @@ begin
 
   HasSubClasses := BuildSubClassesList(RtePts);
 
-  if (HasSubClasses = false) then
+  if (HasSubClasses = false) or
+     (ProcessOptions.TripOption in [TTripOption.ttCalc]) then
     // Create Dummy AllRoutes, to force recalc on the Zumo. Just an entry for every Via.
     FTripList.ForceRecalc(FTripList.TripModel)
   else
@@ -2576,9 +3210,9 @@ begin
     begin
       // Get distance from GPX, the subclasses are not accurate enough
       GpxDistance := 0;
-      RouteNode := FTrackList.Find(TripName);
-      if (Assigned(RouteNode)) then
-        TryStrToFloat(FindSubNodeValue(RouteNode, 'number'), GpxDistance);
+      RouteIndex := TrackList.FindPos(TripName, RteOrigin);
+      if (RouteIndex > -1) then
+        TryStrToFloat(FindSubNodeValue(TrackList[RouteIndex], 'number'), GpxDistance);
 
       // Create TripTrack from BC calculation
       FTripList.TripTrack(FTripList.TripModel, RtePts, SubClassList, GpxDistance);
@@ -2595,16 +3229,27 @@ var
   TripName, OutFile: string;
   CalculationMode, TransportMode: string;
   RteExtensions, RteTrpPoint, RtePtExtensions, RtePtNode, RtePtViaPoint: TXmlVSNode;
+  KnownExploreIndex: integer;
 begin
   RtePts := RteNode.FindNodes('rtept');
   if (RtePts = nil) then // No route points, no trip
     exit;
 
-  FTripList := TTripList.Create;
+  FTripList := TTripList.Create(ProcessOptions.TripModel);
   try
     FTripList.RouteCnt := RouteCnt;
     TripName := FindSubNodeValue(RteNode, 'name');
     OutFile := Format('%s%s%s', [FOutDir, EscapeFileName(TripName), '.trip']);
+
+    if (Assigned(ProcessOptions.ExploreUUIDList)) and
+       (ProcessOptions.ExploreUUIDList.Count > 0) then
+    begin
+      KnownExploreIndex := ProcessOptions.ExploreUUIDList.IndexOfName(TripName);
+      if (KnownExploreIndex > -1) and
+         (ProcessOptions.ExploreUUIDList.Objects[KnownExploreIndex] <> nil) and
+         (ProcessOptions.ExploreUUIDList.Objects[KnownExploreIndex] is TStringObject) then
+        OutFile := Format('%s%s', [FOutDir, TStringObject(ProcessOptions.ExploreUUIDList.Objects[KnownExploreIndex]).Value]);
+    end;
 
     // Get TransportationMode
     TransportMode := '';
@@ -2631,8 +3276,7 @@ begin
           break;
       end;
     end;
-    FTripList.CreateTemplate(ProcessOptions.TripModel,
-                             TripName, CalculationMode, TransportMode);
+    FTripList.CreateTemplate(TripName, CalculationMode, TransportMode);
 
     UpdateTemplate(TripName, RouteCnt, ParentTripId, RtePts);
 
@@ -2661,7 +3305,7 @@ var
 {$ENDIF}
 begin
 {$IFDEF TRIPOBJECTS}
-  GpxNode := FXmlDocument.ChildNodes.find('gpx');  // Look for <gpx> node
+  GpxNode := XmlDocument.ChildNodes.find('gpx');  // Look for <gpx> node
   if (GpxNode = nil) or
      (GpxNode.Name <> 'gpx') then
     exit;
@@ -2683,13 +3327,14 @@ begin
 end;
 
 class procedure TGPXFile.PerformFunctions(const AllFuncs: array of TGPXFunc;
-                                          const GPXFile:string;
+                                          const GPXFile: string;
                                           const FunctionPrefs, SavePrefs: TNotifyEvent;
                                           const ForceOutDir: string = '';
                                           const OutStringList: TStringList = nil;
                                           const SeqNo: cardinal = 0);
 var
   Func: TGPXFunc;
+  TagsToShow: TTagsToShow;
   GpxFileObj: TGPXFile;
   SubCaption: string;
   CrWait, CrNormal: HCURSOR;
@@ -2732,14 +3377,21 @@ begin
     end;
 
     SetCursor(CrWait);
-    GpxFileObj.ProcessGPX;
+    GpxFileObj.AnalyzeGpx;
 
     SubCaption := '';
+    TagsToShow := TTagsToShow.RteTrk;
     for Func in AllFuncs do
     begin
       case Func of
+        CreateRoutes:
+          SubCaption := AddSubCaption(SubCaption, 'Routes');
         CreateTracks:
           SubCaption := AddSubCaption(SubCaption, 'Tracks');
+        CreatePOI:
+          if (GpxFileObj.ProcessOptions.ProcessViaPtsInGpi) or
+             (GpxFileObj.ProcessOptions.ProcessShapePtsInGpi) then
+            SubCaption := AddSubCaption(SubCaption, 'POI');
         CreateKML:
           SubCaption := AddSubCaption(SubCaption, 'Kml');
         CreateHTML:
@@ -2747,17 +3399,19 @@ begin
         CreateKurviger:
           SubCaption := AddSubCaption(SubCaption, 'Kurviger');
         CreateOSMPoints:
-          SubCaption := AddSubCaption(SubCaption, 'Map');
+          begin
+            SubCaption := AddSubCaption(SubCaption, 'Map');
+            TagsToShow := TTagsToShow.WptRteTrk;
+          end;
         CreateFITPoints:
           SubCaption := AddSubCaption(SubCaption, 'Fit');
         CreateTrips:
           SubCaption := AddSubCaption(SubCaption, 'Trip');
       end;
     end;
-
     if (SubCaption <> '') then
     begin
-      if (not GpxFileObj.ShowSelectTracks(TTagsToShow.RteTrk,
+      if (not GpxFileObj.ShowSelectTracks(TagsToShow,
                                           ExtractFileName(GPXFile),
                                           Format('Use the Checkboxes to select Routes/Tracks to add to %s', [SubCaption]),
                                           '*', nil)) then
@@ -2893,9 +3547,7 @@ begin
         Writeln;
         Writeln('Processing started for: ', GPXMask);
 {$IFDEF TRIPOBJECTS}
-{$IFDEF REGISTRYKEYS}
-        Writeln('Selected model: ', TModelConv.GetDefaultDevice(GetRegistry(Reg_CurrentModel, 0)));
-{$ENDIF}
+        Writeln('Selected model: ', TModelConv.GetDefaultDevice(TModelConv.GetCurrentDevice));
 {$ENDIF}
         Write('Selected functions:');
         for AFunc in Funcs do

@@ -3,13 +3,14 @@ unit UnitGpxDefs;
 interface
 
 uses
-  UnitVerySimpleXml, System.Generics.Collections;
+  UnitVerySimpleXml;
 
 const
   EarthRadiusKm: Double       = 6371.009;
   EarthRadiusMi: Double       = 3958.761;
   ProcessCategoryPick: string = 'None' + #10 + 'Symbol' + #10 + 'GPX filename' + #10 + 'Symbol + GPX filename';
   LatLonFormat                = '%1.5f';
+  DirectRoutingClass          = '000000000000FFFFFFFFFFFFFFFFFFFFFFFF';
   RecalcMapSeg                = 'FFFFFFFF';          // Mapseg and RoadId forcing a recalc
   RecalcRoad                  = 'FFFFFFFF';          // Mapseg and RoadId forcing a recalc
   RecalcMapSegAndRoad         = RecalcMapSeg + RecalcRoad ;
@@ -22,6 +23,9 @@ const
   GpxMask                     = '*' + GpxExtension;
   NotApplicable               = 'N/A';
 
+resourcestring
+  GPX_ERR_CouldNotCopy        = 'Could not copy %s to:%s%s';
+
 type
   TDistanceUnit = (duKm, duMi);
   TProcessCategory = (pcSymbol, pcGPX);
@@ -30,7 +34,7 @@ type
   TCoords = record
     Lat: double;
     Lon: double;
-    procedure FormatLatLon(var OLat: string; var OLon: string);
+    procedure FormatLatLon(var OLat: string; var OLon: string; const FormatStr: string = '');
     procedure FromAttributes(Attributes: TObject);
   end;
   TGPXFunc = (PostProcess, CreateTracks, CreateWayPoints, CreatePOI, CreateKML,
@@ -39,30 +43,31 @@ type
   TGPXFuncArray = array of TGPXFunc;
   TSubClassType = set of (scCompare, scFirst, ScLast);
   // Note: See TModelConv for mapping to TripModel
-  TGarminModel  = (XT, XT2, XT3, Tread2, Zumo595, Zumo590, Zumo3x0, Drive51, Drive66, Nuvi2595, GarminEdge, GarminGeneric, Unknown);
+  TGarminModel  = (XT, XT2, XT3, Tread2,
+                   Zumo346, Zumo595, Zumo395, Zumo590, Zumo3x0,
+                   Drive51, Drive66, Nuvi2595, Nuvi2599, Nuvi57,
+                   GarminEdge, GarminForeRunner,
+                   GarminGeneric, Unknown);
 
-  // Trip Info to CSV
-  TTripInfo = class(TObject)
-    SegmentId: integer;
-    RoutePointId: integer;
-    RoutePoint: string;
-    RoadClass: byte;
-    MapSegRoadId: string;
-    Description: string;
-    Coords: string;
-    Speed: integer;
-    Distance: double;
-    Time: double;
-  end;
-  TTripInfoList = TObjectDictionary<string, TTripInfo>;
   TTagsToShow = (WptRte = 1, WptTrk = 2, WptRteTrk = 3, RteTrk = 10, Rte = 20, Trk = 30);
   THtmlOutput = (OSM, Kurviger, Both);
+  TGeoApifyRecord = record
+    LegCnt: integer;
+    Name: string;
+    Via: boolean;
+    Lat: string;
+    Lon: string;
+    Address: string;
+  end;
+  TGeoApifyRecords = array of TGeoApifyRecord;
 
+function Debug_Coord2Float(ACoord: LongInt): string;
 function Coord2Float(ACoord: LongInt): string;
 function Float2Coord(ACoord: Double): LongInt;
 function CoordDistance(Coord1, Coord2: TCoords; DistanceUnit: TDistanceUnit): double;
-function GetFirstExtensionsNode(const ARtePt: TXmlVSNode): TXmlVSNode;
-function GetLastExtensionsNode(const ARtePt: TXmlVSNode): TXmlVSNode;
+function GetFirstGpxxRptNode(const ARtePt: TXmlVSNode): TXmlVSNode;
+function GetLastGpxxRptNode(const ARtePt: TXmlVSNode): TXmlVSNode;
+function GetTMExtensionsNode(const ARtePt: TXmlVSNode): TXmlVSNode;
 function RecalcSubClass(ASubClass: string): string;
 
 implementation
@@ -74,10 +79,16 @@ uses
 var
   FormatSettings: TFormatSettings;
 
-procedure TCoords.FormatLatLon(var OLat: string; var OLon: string);
+procedure TCoords.FormatLatLon(var OLat: string; var OLon: string; const FormatStr: string = '');
+var
+  Fmt: string;
 begin
-  OLat := Format(LatLonFormat, [Lat], FormatSettings);
-  OLon := Format(LatLonFormat, [Lon], FormatSettings);
+  if (FormatStr <> '') then
+    Fmt := FormatStr
+  else
+    Fmt := LatLonFormat;
+  OLat := Format(Fmt, [Lat], FormatSettings);
+  OLon := Format(Fmt, [Lon], FormatSettings);
 end;
 
 procedure TCoords.FromAttributes(Attributes: TObject);
@@ -91,11 +102,11 @@ begin
       Lon := StrToFloat(Find('lon').Value, FormatSettings);
     end;
   except
-    FillChar(Self, SizeOf(Self), 0);
+    Self := Default(TCoords);
   end;
 end;
 
-function Coord2Float(ACoord: LongInt): string;
+function Debug_Coord2Float(ACoord: LongInt): string;
 var
   HCoord: Double;
 begin
@@ -106,6 +117,20 @@ begin
     Result := result + ' * 360 = ' + FormatFloat('0', HCoord);
     HCoord := HCoord / 4294967296; {2^32}
     Result := result + ' / 2^32 = ' + FormatFloat('0.000000000000000', HCoord);
+  except
+    result := '';
+  end;
+end;
+
+function Coord2Float(ACoord: LongInt): string;
+var
+  HCoord: Double;
+begin
+  HCoord := ACoord;
+  try
+    HCoord := HCoord * 360;
+    HCoord := HCoord / 4294967296; {2^32}
+    Result := FormatFloat('0.000000000000000', HCoord, FormatSettings);
   except
     result := '';
   end;
@@ -148,32 +173,47 @@ begin
     result := EarthRadiusKm * C;
 end;
 
-function GetExtensionsNode(const ARtePt: TXmlVSNode; const LastChild: boolean): TXmlVSNode;
+function GetRoutePointExtensionsNode(const ARtePt: TXmlVSNode): TXmlVSNode;
 var
-  ExtensionsNode, RoutePointExtensionNode: TXmlVSNode;
+  ExtensionsNode: TXmlVSNode;
 begin
   ExtensionsNode := ARtePt.Find('extensions');
   if (ExtensionsNode = nil) then
     exit(nil);
 
-  RoutePointExtensionNode := ExtensionsNode.Find('gpxx:RoutePointExtension');
-  if (RoutePointExtensionNode = nil) then
+  result := ExtensionsNode.Find('gpxx:RoutePointExtension');
+end;
+
+function GetFirstGpxxRptNode(const ARtePt: TXmlVSNode): TXmlVSNode;
+begin
+  result := GetRoutePointExtensionsNode(ARtePt);
+  if (result = nil) then
     exit(nil);
 
-  if (LastChild) then
-    exit(RoutePointExtensionNode.LastChild);  // Should be a 'gpxx:rpt'. Need to check?
-
-  result := RoutePointExtensionNode.Find('gpxx:rpt')
+  result := result.Find('gpxx:rpt');
 end;
 
-function GetFirstExtensionsNode(const ARtePt: TXmlVSNode): TXmlVSNode;
+function GetLastGpxxRptNode(const ARtePt: TXmlVSNode): TXmlVSNode;
 begin
-  result := GetExtensionsNode(ARtePt, false);
+  result := GetRoutePointExtensionsNode(ARtePt);
+  if (result = nil) then
+    exit(nil);
+
+  result := result.LastChild;
+
+  // Should be a 'gpxx:rpt'. Need to check.
+  while (result.Name <> 'gpxx:rpt') and
+        (result.PreviousSibling <> nil) do
+    result := result.PreviousSibling;
 end;
 
-function GetLastExtensionsNode(const ARtePt: TXmlVSNode): TXmlVSNode;
+function GetTMExtensionsNode(const ARtePt: TXmlVSNode): TXmlVSNode;
 begin
-  result := GetExtensionsNode(ARtePt, true);
+  result := GetRoutePointExtensionsNode(ARtePt);
+  if (result = nil) then
+    exit(nil);
+
+  result := result.Find('gpxx:Extensions');
 end;
 
 function RecalcSubClass(ASubClass: string): string;

@@ -9,7 +9,17 @@ uses
 
 type
   T4Bytes = array[0..3] of byte;
+  TDynArrayType = array of integer;
+  TStringObject = class
+  private
+    FValue: string;
+  public
+    constructor Create(AValue: string);
+    destructor Destroy; override;
+    property Value: string read FValue write FValue;
+  end;
 
+procedure BreakPoint;
 function SenSize(const S: int64): string;
 function Intd(const N: Integer; const D: Integer): string;
 function Spc(const Cnt: integer): string;
@@ -36,30 +46,49 @@ function EscapeHtml(const HTML: string): string;
 function EscapeUrl(const URL: string): string;
 function EscapeDQuote(const HTML: string): string;
 function EscapeFileName(InFile: string): string;
+function CombinePath(const APath, AFile: string): string;
 function CreateTempPath(const Prefix: string): string;
 function GetHtmlTmp: string;
 function GetTracksExt: string;
 function GetTracksMask: string;
+function GetXMLExt: string;
+function GetXMLMask: string;
 function GetTracksTmp: string;
 function GetOSMTemp: string;
 function GetRoutesTmp: string;
 function GetDeviceTmp: string;
 procedure DeleteTempFiles(const ATempPath, AMask: string);
+function RemovePath(const ADir: string; const AFlags: FILEOP_FLAGS = FOF_NO_UI; Retries: integer = 3): boolean;
+function SelectDirectory(const ACaption: string; var ADirectory: string): boolean;
+function SelectDirectoryOrFile(const ACaption: string;
+                               const ARoot: WideString;
+                               var APath: string): boolean;
 function GPX2HTMLColor(GPXColor: string): string;
+function Explore2GPXColor(ExploreColor: integer): string;
 function GetLocaleSetting: TFormatSettings;
 function VerInfo(IncludeCompany: boolean = false): string;
 function UserAgent: string;
+function DynArray(const ConstArray: array of integer): TDynArrayType;
+procedure CheckSurrogate(const AWideString: string);
+function ShiftPressed: boolean;
+function AltPressed: boolean;
+function CtrlPressed: boolean;
+function VKeyPressed(AKey: integer): boolean;
+function FormatHex(ACardinal: Cardinal): string;
 
 var
   CreatedTempPath: string;
   App_Prefix: string;
 
+resourcestring
+  STR_ERR_ErrorCreating   = 'Error creating: %s';
+  STR_ERR_Invalid_Chars   = 'Invalid characters for file name: %s';
+
 implementation
 
 uses
   System.Math, System.StrUtils, Winapi.ShlObj, Winapi.KnownFolders, Winapi.ActiveX,
-  Vcl.Forms, Vcl.Dialogs,
-  MsgLoop;
+  Vcl.Forms, Vcl.Dialogs, Vcl.FileCtrl;
 
 var
   FloatFormatSettings: TFormatSettings; // for FormatFloat -see Initialization
@@ -70,11 +99,31 @@ const
   Kb = ' Kb';
   Mb = ' Mb';
   HtmlTempFileName  = '.html';
+  XMLFileExt        = '.xml';
   TrackFileExt      = '.track';
   OSMDir            = 'OSM\';
   RoutesDir         = 'Routes\';
   DeviceDir         = 'Device\';
 
+constructor TStringObject.Create(AValue: string);
+begin
+  inherited Create;
+  FValue := AValue;
+end;
+
+destructor TStringObject.Destroy;
+begin
+  FValue := '';
+  inherited;
+end;
+
+procedure BreakPoint;
+{$IFDEF DEBUG}
+asm int 3
+{$ELSE}
+begin
+{$ENDIF}
+end;
 
 function SenSize(const S: int64): string;
 var
@@ -269,7 +318,7 @@ begin
   begin
     result := IncludeTrailingPathDelimiter(StrPas(NameBuffer)) + IncludeTrailingPathDelimiter(Application.Title);
     CoTaskMemFree(NameBuffer);
-    if not DirectoryExists(result) then
+    if not System.Sysutils.DirectoryExists(result) then
       CreateDir(result);
   end;
 end;
@@ -296,17 +345,17 @@ begin
 
   // Strip .tmp from directory name, and create
   result := ChangeFileExt(result, '');
-  if not ForceDirectories(result) then
-    raise Exception.Create(Format('Error creating: %s', [result]));
+  if not System.Sysutils.ForceDirectories(result) then
+    raise Exception.Create(Format(STR_ERR_ErrorCreating, [result]));
 
   // Save path name
   CreatedTempPath := IncludeTrailingPathDelimiter(result);
 
-  if not ForceDirectories(GetOSMTemp) then
-    raise Exception.Create(Format('Error creating: %s', [GetOSMTemp]));
+  if not System.Sysutils.ForceDirectories(GetOSMTemp) then
+    raise Exception.Create(Format(STR_ERR_ErrorCreating, [GetOSMTemp]));
 
-  if not ForceDirectories(GetRoutesTmp) then
-    raise Exception.Create(Format('Error creating: %s', [GetRoutesTmp]));
+  if not System.Sysutils.ForceDirectories(GetRoutesTmp) then
+    raise Exception.Create(Format(STR_ERR_ErrorCreating, [GetRoutesTmp]));
 end;
 
 function GetHtmlTmp: string;
@@ -322,6 +371,16 @@ end;
 function GetTracksMask: string;
 begin
   result := '*' + GetTracksExt;
+end;
+
+function GetXMLExt: string;
+begin
+  result := XMLFileExt;
+end;
+
+function GetXMLMask: string;
+begin
+  result := '*' + GetXMLExt;
 end;
 
 function GetTracksTmp: string;
@@ -389,9 +448,15 @@ begin
 
   for Indx := 1 to Length(result) do
   begin
-    if (CharInSet(result[Indx], InvalidChars)) then
+    if (CharInSet(result[Indx], InvalidChars)) or
+       (IsLeadChar(result[Indx])) then
       result[Indx] := '_';
   end;
+end;
+
+function CombinePath(const APath, AFile: string): string;
+begin
+  result := Format('%s%s', [IncludeTrailingPathDelimiter(APath), AFile]);
 end;
 
 function RemovePath(const ADir: string; const AFlags: FILEOP_FLAGS = FOF_NO_UI; Retries: integer = 3): boolean;
@@ -401,12 +466,12 @@ var
   CurrentTry: integer;
 begin
   result := false;
-  if not(DirectoryExists(ADir)) then
+  if not(System.Sysutils.DirectoryExists(ADir)) then
     exit;
 
   CurrentTry := Retries;
   repeat
-    FillChar(ShOp, SizeOf(ShOp), 0);
+    ShOp := Default(TSHFileOpStruct);
     ShOp.Wnd := Application.Handle;
     ShOp.wFunc := FO_DELETE;
     ShOp.pFrom := PChar(ADir + #0);
@@ -418,7 +483,7 @@ begin
 
     Dec(CurrentTry);
     Sleep(100);
-    ProcessMessages;
+
   until (CurrentTry < 1);
 
   if (ShResult <> 0) and (ShOp.fAnyOperationsAborted = false) then
@@ -446,6 +511,32 @@ begin
   if (GPXColor = 'Cyan')        then exit('00ffff');
   if (GPXColor = 'White')       then exit('ffffff');
   if (GPXColor = 'Transparent') then exit('ffffff');
+end;
+
+function Explore2GPXColor(ExploreColor: integer): string;
+const
+  ExploreColors: array[0..15] of string =
+    ( 'Black',
+      'DarkRed',
+      'DarkGreen',
+      'DarkYellow',
+      'DarkBlue',
+      'DarkMagenta',
+      'DarkCyan',
+      'LightGray',
+      'DarkGray',
+      'Red',
+      'Green',
+      'Yellow',
+      'Blue',
+      'Magenta',
+      'Cyan',
+      'White' );
+begin
+  result := 'Blue';
+  if (ExploreColor >= Low(ExploreColors)) and
+     (ExploreColor <= High(ExploreColors)) then
+    result := ExploreColors[ExploreColor];
 end;
 
 function GetLocaleSetting: TFormatSettings;
@@ -527,6 +618,73 @@ begin
   end
 end;
 
+function SelectDirectory(const ACaption: string; var ADirectory: string): boolean;
+var
+  ADialog: TFileOpenDialog;
+begin
+  ADialog := TFileOpenDialog.Create(nil);
+  try
+    ADialog.Title := ACaption;
+    ADialog.DefaultFolder := ADirectory;
+    ADialog.Options := [fdoPickFolders, fdoForceFileSystem, fdoPathMustExist, fdoNoReadOnlyReturn];
+    result := ADialog.Execute(Application.Handle);
+    if (result) then
+      ADirectory := IncludeTrailingPathDelimiter(ADialog.FileName);
+  finally
+    ADialog.Free;
+  end;
+end;
+
+function SelectDirectoryOrFile(const ACaption: string;
+                               const ARoot: WideString;
+                               var APath: string): boolean;
+begin
+  result := Vcl.FileCtrl.SelectDirectory(ACaption, ARoot, APath,
+              [TSelectDirExtOpt.sdNewFolder, TSelectDirExtOpt.sdShowEdit, TSelectDirExtOpt.sdNewUI, TSelectDirExtOpt.sdShowFiles],
+              nil);
+end;
+
+function DynArray(const ConstArray: array of integer): TDynArrayType;
+begin
+  SetLength(result, Length(ConstArray));
+  MoveMemory(@result[0], @ConstArray, SizeOf(ConstArray));
+end;
+
+procedure CheckSurrogate(const AWideString: string);
+var
+  AWideChar: Char;
+begin
+  for AWideChar in AWideString do
+    if (IsLeadChar(AWideChar)) then
+      raise Exception.Create(Format(STR_ERR_Invalid_Chars, [AWideString]));
+end;
+
+function ShiftPressed: boolean;
+begin
+  result := (GetAsyncKeyState(VK_SHIFT) and $8000) <> 0;
+end;
+
+function AltPressed: boolean;
+begin
+  result := (GetAsyncKeyState(VK_MENU) and $8000) <> 0;
+end;
+
+function CtrlPressed: boolean;
+begin
+  result := (GetAsyncKeyState(VK_CONTROL) and $8000) <> 0;
+end;
+
+function VKeyPressed(AKey: integer): boolean;
+begin
+  result := (GetAsyncKeyState(AKey) and $8000) <> 0;
+end;
+
+function FormatHex(ACardinal: Cardinal): string;
+begin
+  result := IntToHex(ACardinal, 8);
+  result := Format('%s%s %s%s %s%s %s%s', [result[1], result[2], result[3], result[4], result[5], result[6], result[7], result[8]]);
+end;
+
 initialization
 begin
   FloatFormatSettings.ThousandSeparator := ',';
@@ -534,7 +692,6 @@ begin
 end;
 
 finalization
-
 begin
   RemovePath(CreatedTempPath);
 end;

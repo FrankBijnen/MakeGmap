@@ -1,5 +1,9 @@
 program MakeGmap;
 
+
+
+{$R 'TripManager_JS.res' '..\CommonUnits\osm\Resources\TripManager_JS.rc'}
+
 uses
   MidasLib,
   Vcl.Forms,

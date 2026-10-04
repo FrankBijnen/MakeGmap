@@ -3,26 +3,41 @@ unit UnitMapUtils;
 
 interface
 
-uses System.Classes;
+uses
+  System.Classes, System.Generics.Collections;
+
+type
+  TMapSegment = class
+    MapSegment: integer;
+    MapDescription: string;
+    constructor Create(AMapSegment: integer);
+  end;
+  TMapSegmentList = TObjectDictionary<integer, TMapSegment>;
 
 function CreateLink(const PathObj, PathLink, Desc, Param: string): Boolean;
 function ResolveLink(const Path: string): string;
-procedure ListMapsRegistryKey(MapsList: TStringList; MapsKey: string);
-procedure ListMapsAppData(const BaseDir: string; MapsList: TStringList; IncludePath: boolean = false);
-function ListMaps(const BaseDir: string): TStringList;
+procedure ListMapsRegistryKey(const MapsList: TStringList;
+                              const MapsKey: string);
+procedure ListMapsAppData(const BaseDir: string;
+                          const MapsList: TStringList;
+                          const IncludePath: boolean = false);
+procedure ListMaps(const BaseDir: string;
+                   const InstalledMaps: TStringList);
 function DeleteLink(const Path: string): boolean;
 function GetMapFolder: string;
 function GetKnownFolder(const Known: TGUID): string;
-function LookupMap(const MapSegment: string): string;
+function LookupMap(const MapSegment: integer): string;
 procedure ClearTileCache;
 
 implementation
 
-uses Winapi.Windows, Winapi.ShlObj, Winapi.ActiveX, Winapi.ShellAPI, System.Win.ComObj, Winapi.KnownFolders,
-     System.Win.Registry, System.SysUtils, System.StrUtils,
-     UnitVerySimpleXml;
+uses
+  System.Win.Registry, System.SysUtils, System.StrUtils, System.Win.ComObj,
+  Winapi.Windows, Winapi.ShlObj, Winapi.ActiveX, Winapi.ShellAPI, Winapi.KnownFolders,
+  UnitVerySimpleXml, UnitStringUtils;
 
-var InstalledMaps: TStringList;
+var
+  InstalledMaps: TStringList;
 
 function CreateLink(const PathObj, PathLink, Desc, Param: string): Boolean;
 var
@@ -53,7 +68,6 @@ var
   FileData: TWin32FindData;
   Buf: Array[0..MAX_PATH] of char;
   Widepath: WideString;
-
 begin
   IObject := CreateComObject(CLSID_ShellLink);
   SLink := IObject as IShellLink;
@@ -69,7 +83,7 @@ end;
 
 function DeleteLink(const Path: string): boolean;
 begin
-  result := DeleteFile(Path);
+  result := System.SysUtils.DeleteFile(Path);
 end;
 
 type
@@ -90,18 +104,40 @@ type
     procedure Init;
   end;
 
+  TDetailRec = packed record
+    MapSegment: integer;
+    MapParent:  integer;
+    Bounds:     array[0..3] of integer;
+  end;
+
+  TMIdxRec = packed record
+    MapId:      integer;
+    ProductId:  SmallInt;
+    FamilyId:   SmallInt;
+    MapName:    integer;
+  end;
+
 procedure TPNameRec.Init;
 begin
-  FillChar(PRec, SizeOf(PRec), 0);
+  Prec := Default(TPRec);
   MapName := '';
 end;
 
-function ScanTdb(const TdbFile: string): TPNameRec;
-var F: File;
-    TDBRec: TTDBRec;
-    Rec: array of byte;
-    BR: integer;
-    SaveFileMode: byte;
+constructor TMapSegment.Create(AMapSegment: integer);
+begin
+  inherited Create;
+  MapSegment := AMapSegment;
+end;
+
+function ScanTdb(const TdbFile: string;
+                 const InstalledMapSegs: TMapSegmentList): TPNameRec;
+var
+  TDBRec: TTDBRec;
+  DetailRec: TDetailRec;
+  AMapSegment: TMapSegment;
+  Rec: array of byte;
+  BR: integer;
+  S: TBufferedFileStream;
 
   procedure ReadString(Indx: integer; var OutString: string);
   begin
@@ -118,94 +154,109 @@ begin
   Result.Init;
   if not (FileExists(TdbFile)) then
     exit;
-  AssignFile(F, TdbFile);
-  SaveFileMode := FileMode;
-  FileMode := 0;
+  S := TBufferedFileStream.Create(TdbFile, fmOpenRead);
   try
-    Reset(F, 1);
-    try
-      while true do
-      begin
-        BlockRead(F, TDBRec, SizeOf(TDBRec), BR);
-        if (BR <> SizeOf(TDBRec)) then
-          exit;
+    while true do
+    begin
+      BR := S.Read(TDBRec, SizeOf(TDBRec));
+      if (BR <> SizeOf(TDBRec)) then
+        exit;
 
-        SetLength(Rec, TDBRec.RecLen);
-        BlockRead(F, Rec[0], TDBRec.RecLen, BR);
-        if (BR <> TDBRec.RecLen) then
-          exit;
+      SetLength(Rec, TDBRec.RecLen);
+      BR := S.Read(Rec[0], TDBRec.RecLen);
+      if (BR <> TDBRec.RecLen) then
+        exit;
 
-        case (TDBRec.RecType) of
-          'P':
+      case (TDBRec.RecType) of
+        'P':
+          begin
+            if (BR >= SizeOf(result.Prec)) then
             begin
               Move(Rec[0], result.Prec, SizeOf(result.Prec));
               ReadString(SizeOf(result.Prec), result.MapName);
-              exit;
             end;
-        end;
+          end;
+        'L':
+          begin
+            if (BR >= SizeOf(DetailRec)) then
+            begin
+              DetailRec := Default(TDetailRec);
+              Move(Rec[0], DetailRec, SizeOf(DetailRec));
+              AMapSegment := TMapSegment.Create(DetailRec.MapSegment);
+              ReadString(SizeOf(DetailRec), AMapSegment.MapDescription);
+              InstalledMapSegs.Add(DetailRec.MapSegment, AMapSegment);
+            end;
+          end;
       end;
-    finally
-      CloseFile(F);
     end;
   finally
-    FileMode := SaveFileMode;
+    S.Free;
   end;
 end;
 
-procedure ListMdx(const MdxFile: string; MapSegments: TStringList);
-var F: File;
-    SaveFileMode: byte;
-    Sign: array[0..5] of byte;
-    Rec: array of byte;
-    BR, RecLen: integer;
-    RecCount, Cnt, MapSegment: DWord;
+procedure ListMdx(const MdxFile: string;
+                  const MapSegments: TStringList;
+                  const InstalledMapSegs: TMapSegmentList);
+var
+  Sign: array[0..5] of byte;
+  Rec: array of byte;
+  BR, RecLen: integer;
+  RecCount, Cnt: DWord;
+  IdxRec: TMidxRec;
+  MapSegDescription: string;
+  S: TBufferedFileStream;
+const
+  MDXInvalid = 'MDX Invalid';
 
-const MDXInvalid = 'MDX Invalid';
 begin
-  AssignFile(F, MdxFile);
-  SaveFileMode := FileMode;
-  Filemode := 0;
+  S := TBufferedFileStream.Create(MdxFile, fmOpenRead);
   try
-    Reset(F, 1);
-    try
-      BlockRead(F, Sign[0], SizeOf(Sign), BR);
-      if (BR <> SizeOf(Sign)) then
+    BR := S.Read(Sign[0], SizeOf(Sign));
+    if (BR <> SizeOf(Sign)) then
+      raise Exception.Create(MDXInvalid);
+
+    BR := S.Read(RecLen, SizeOf(RecLen));
+    if (BR <> SizeOf(RecLen)) then
+      raise Exception.Create(MDXInvalid);
+
+    BR := S.Read(RecCount, SizeOf(RecCount));
+    if (BR <> SizeOf(RecCount)) then
+      raise Exception.Create(MDXInvalid);
+
+    SetLength(Rec, RecLen);
+    for Cnt := 1 to RecCount do
+    begin
+      BR := S.Read(Rec[0], RecLen);
+      if (BR <> RecLen) then
         raise Exception.Create(MDXInvalid);
 
-      BlockRead(F, RecLen, SizeOf(RecLen), BR);
-      if (BR <> SizeOf(RecLen)) then
-        raise Exception.Create(MDXInvalid);
-
-      BlockRead(F, RecCount, SizeOf(RecCount), BR);
-      if (BR <> SizeOf(RecCount)) then
-        raise Exception.Create(MDXInvalid);
-
-      SetLength(Rec, RecLen);
-      for Cnt := 1 to RecCount do
+      if (BR >= SizeOf(IdxRec)) then
       begin
-        BlockRead(F, Rec[0], RecLen, BR);
-        if (BR <> RecLen) then
-          raise Exception.Create(MDXInvalid);
-        Move(Rec[0], MapSegment, SizeOf(MapSegment));
-        MapSegments.Add(IntToStr(MapSegment));
+        Move(Rec[0], IdxRec, SizeOf(IdxRec));
+        MapSegDescription := IntToStr(IdxRec.MapId);
+        if (InstalledMapSegs.ContainsKey(IdxRec.MapName)) then
+          MapSegDescription := InstalledMapSegs.Items[IdxRec.MapName].MapDescription;
+        MapSegments.AddObject(MapSegDescription, pointer(IdxRec.MapId));
       end;
-    finally
-      CloseFile(F);
     end;
   finally
-    FileMode := SaveFileMode;
+    S.Free;
   end;
 end;
 
-procedure ListMapsRegistryKey(MapsList: TStringList; MapsKey: string);
-var Maps, SubProducts, MapSegments: TStringList;
-    Idx, Tdb, AMapKey, BMap: string;
-    ProductNameRec: TPNameRec;
-    Reg: TRegistry;
+procedure ListMapsRegistryKey(const MapsList: TStringList;
+                              const MapsKey: string);
+var
+  Maps, SubProducts, MapSegments: TStringList;
+  Idx, Tdb, AMapKey, BMap: string;
+  ProductNameRec: TPNameRec;
+  Reg: TRegistry;
+  InstalledMapSegs: TMapSegmentList;
 begin
   Maps := TStringList.Create;
   SubProducts := TStringList.Create;
   Reg := TRegistry.Create;
+  InstalledMapSegs := TMapSegmentList.Create([DoOwnsValues]);
   try
     Reg.RootKey := HKEY_LOCAL_MACHINE;
     if (Reg.OpenKeyReadOnly(MapsKey) = false) then
@@ -236,9 +287,10 @@ begin
             else
               BMap := '';
 
+            InstalledMapSegs.Clear;
             Tdb := Reg.ReadString('TDB');
             if (Tdb <> '') then
-              ProductNameRec := ScanTdb(Tdb);
+              ProductNameRec := ScanTdb(Tdb, InstalledMapSegs);
             Reg.CloseKey;
           end;
         end;
@@ -255,7 +307,7 @@ begin
           if (ProductNameRec.MapName = '') then
             ProductNameRec.MapName := ChangeFileExt(ExtractFileName(Idx), '');
           MapSegments := TStringList.Create;
-          ListMdx(Idx, MapSegments);
+          ListMdx(Idx, MapSegments, InstalledMapSegs);
           MapsList.AddObject(ProductNameRec.MapName, TStringList(MapSegments));
         end;
         Reg.CloseKey;
@@ -263,43 +315,49 @@ begin
     end;
 
   finally
+    InstalledMapSegs.Free;
     Maps.Free;
     SubProducts.Free;
     Reg.Free;
   end;
 end;
 
-procedure ListMapsRegistry(MapsList: TStringList);
-const MapsKey = 'SOFTWARE\Wow6432Node\Garmin\MapSource\Families';
-      MapsKeyNT = 'SOFTWARE\Wow6432Node\Garmin\MapSource\FamiliesNT';
+procedure ListMapsRegistry(const MapsList: TStringList);
+const
+  MapsKey = 'SOFTWARE\Wow6432Node\Garmin\MapSource\Families';
+  MapsKeyNT = 'SOFTWARE\Wow6432Node\Garmin\MapSource\FamiliesNT';
 begin
   ListMapsRegistryKey(MapsList, MapsKey);
   ListMapsRegistryKey(MapsList, MapsKeyNT);
 end;
 
-procedure ListMapsAppData(const BaseDir: string; MapsList: TStringList; IncludePath: boolean = false);
-var Fs: TSearchRec;
-    Rc: Integer;
-    First: boolean;
-    Xml, MapDir, Tdb, Idx: string;
-    ProductNameRec: TPNameRec;
-
-    MapSegments: TStringList;
-    XmlDoc: TXmlVSDocument;
-    ProductNode, IdxNode, SubProductNode, SubProductDirNode, TDBNode: TXmlVSNode;
+procedure ListMapsAppData(const BaseDir: string;
+                          const MapsList: TStringList;
+                          const IncludePath: boolean = false);
+var
+  Fs: TSearchRec;
+  Rc: Integer;
+  First: boolean;
+  Xml, MapDir, Tdb, Idx: string;
+  ProductNameRec: TPNameRec;
+  MapSegments: TStringList;
+  InstalledMapSegs: TMapSegmentList;
+  XmlDoc: TXmlVSDocument;
+  ProductNode, IdxNode, SubProductNode, SubProductDirNode, TDBNode: TXmlVSNode;
 begin
   if not DirectoryExists(BaseDir) then
     exit;
   ChDir(BaseDir);
   XmlDoc := TXmlVSDocument.Create;
+  InstalledMapSegs := TMapSegmentList.Create([doOwnsValues]);
   try
     First := true;
     while (True) do
     begin
       if (First) then
-        Rc := FindFirst(IncludeTrailingPathDelimiter(BaseDir) + '*.*', faSymLink, Fs)
+        Rc := System.SysUtils.FindFirst(IncludeTrailingPathDelimiter(BaseDir) + '*.*', faSymLink, Fs)
       else
-        Rc := FindNext(Fs);
+        Rc := System.SysUtils.FindNext(Fs);
       if (Rc <> 0) then
         break;
       First := false;
@@ -329,6 +387,8 @@ begin
       Tdb := IncludeTrailingPathDelimiter(MapDir + SubProductDirNode.NodeValue) + TDBNode.NodeValue;
       if not FileExists(Tdb) then
         continue;
+      InstalledMapSegs.Clear;
+      ProductNameRec := ScanTdb(Tdb, InstalledMapSegs);
 
       MapSegments := TStringList.Create;
       IdxNode := ProductNode.Find('IDX');
@@ -336,35 +396,37 @@ begin
       begin
         Idx := MapDir + IdxNode.NodeValue;
         if FileExists(Idx) then
-          ListMdx(Idx, MapSegments);
+          ListMdx(Idx, MapSegments, InstalledMapSegs);
       end;
       if (IncludePath) then
         MapSegments.Add(ExpandFileName((Fs.Name)));
 
-      ProductNameRec := ScanTdb(Tdb);
       MapsList.AddObject(ProductNameRec.MapName, TStringList(MapSegments));
     end;
-    FindClose(Fs);
+    System.SysUtils.FindClose(Fs);
   finally
     XmlDoc.Free;
+    InstalledMapSegs.Free;
   end;
 end;
 
-function ListMaps(const BaseDir: string): TStringList;
+procedure ListMaps(const BaseDir: string;
+                   const InstalledMaps: TStringList);
 begin
-  result := TStringList.Create;
-  ListMapsAppData(BaseDir, result);
-  ListMapsRegistry(result);
+  ListMapsAppData(BaseDir, InstalledMaps);
+  ListMapsRegistry(InstalledMaps);
 end;
 
 procedure ScanInstalledMaps;
 begin
-  InstalledMaps := ListMaps(GetMapFolder);
+  InstalledMaps := TStringList.Create;
+  ListMaps(GetMapFolder, InstalledMaps);
 end;
 
-function LookupMap(const MapSegment: string): string;
-var Map, MapSeg: integer;
-    MapsegList: TStringList;
+function LookupMap(const MapSegment: integer): string;
+var
+  Map, MapSeg: integer;
+  MapsegList: TStringList;
 begin
   result := '';
   if (InstalledMaps = nil) then
@@ -375,9 +437,9 @@ begin
     MapsegList := TStringList(InstalledMaps.Objects[Map]);
     for MapSeg := 0 to MapsegList.Count -1 do
     begin
-      if (MapsegList[MapSeg] = MapSegment) then
+      if (integer(MapsegList.Objects[MapSeg]) = MapSegment) then
       begin
-        result := InstalledMaps[Map];
+        result := InstalledMaps[Map] + #9 + IntToStr(MapSegment) + ': ' + MapsegList[MapSeg];
         exit;
       end;
     end;
@@ -385,8 +447,10 @@ begin
 end;
 
 function GetKnownFolder(const Known: TGUID): string;
-var NameBuffer: PChar;
+var
+  NameBuffer: PChar;
 begin
+  result := '';
   if SUCCEEDED(SHGetKnownFolderPath(Known, 0, 0, NameBuffer)) then
     result := StrPas(NameBuffer);
   CoTaskMemFree(NameBuffer);
@@ -416,12 +480,14 @@ begin
 end;
 
 finalization
-var Indx: integer;
+var
+  Index: integer;
 begin
-  if (InstalledMaps = nil) then
-    exit;
-  for Indx := 0 to InstalledMaps.Count -1 do
-    TStringList(InstalledMaps.Objects[Indx]).Free;
+  if (InstalledMaps <> nil) then
+  begin
+    for Index := 0 to InstalledMaps.Count -1 do
+      TStringList(InstalledMaps.Objects[Index]).Free;
+  end;
   InstalledMaps.Free;
 end;
 

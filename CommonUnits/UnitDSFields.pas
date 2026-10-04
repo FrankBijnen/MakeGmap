@@ -92,6 +92,8 @@ begin
     Caption := AField.DisplayLabel;
     Tag := AField.Index;
     OnClick := LabelClick;
+    OnMouseEnter := FOwnerPanel.OnMouseEnter;
+    OnMouseLeave := FOwnerPanel.OnMouseLeave;
   end;
 end;
 
@@ -108,6 +110,8 @@ begin
     DataField := AField.FieldName;
     ReadOnly := AField.ReadOnly;
     Tag := Afield.Index;
+    OnMouseEnter := FOwnerPanel.OnMouseEnter;
+    OnMouseLeave := FOwnerPanel.OnMouseLeave;
   end;
 end;
 
@@ -120,7 +124,8 @@ begin
     Left := ControlMargin;
     Top := FNewTop;
     Height := ControlHeight;
-    if (AField is TStringField) then
+    if (AField is TStringField) or
+       (AField is TBlobField) then
       Width := Parent.Width - (ControlMargin * 2)
     else
       Width := NonStringWidth;
@@ -129,6 +134,8 @@ begin
     DataField := AField.FieldName;
     ReadOnly := AField.ReadOnly;
     Tag := Afield.Index;
+    OnMouseEnter := FOwnerPanel.OnMouseEnter;
+    OnMouseLeave := FOwnerPanel.OnMouseLeave;
   end;
 end;
 
@@ -140,7 +147,8 @@ begin
     Left := ControlMargin;
     Top := FNewTop;
     Height := ControlHeight;
-    if (AField is TStringField) then
+    if (AField is TStringField) or
+       (AField is TBlobField) then
       Width := Parent.Width - (ControlMargin * 2)
     else
       Width := NonStringWidth;
@@ -149,6 +157,8 @@ begin
     DataField := AField.FieldName;
     ReadOnly := AField.ReadOnly;
     Tag := Afield.Index;
+    OnMouseEnter := FOwnerPanel.OnMouseEnter;
+    OnMouseLeave := FOwnerPanel.OnMouseLeave;
   end;
 end;
 
@@ -214,6 +224,8 @@ var
   AControl: TControl;
   AField: TField;
 begin
+  if not Assigned(FieldsPanel)  then
+    exit;
   for Indx := 0 to FieldsPanel.ControlCount -1 do
   begin
     AControl := FieldsPanel.Controls[Indx];
@@ -233,12 +245,16 @@ begin
   LabelPanel.Parent := OwnerPanel;
   LabelPanel.Width := MinLabelWidth;
   LabelPanel.Align := alLeft;
+  LabelPanel.OnMouseEnter := OwnerPanel.OnMouseEnter;
+  LabelPanel.OnMouseLeave := OwnerPanel.OnMouseLeave;
 
   FieldsPanel := TPanel.Create(OwnerPanel);
   FieldsPanel.Parent := OwnerPanel;
   FieldsPanel.Align := alClient;
   FieldsPanel.Constraints.MinWidth := NonStringWidth + (ControlMargin * 2);
   FieldsPanel.OnResize := FieldsResize;
+  FieldsPanel.OnMouseEnter := OwnerPanel.OnMouseEnter;
+  FieldsPanel.OnMouseLeave := OwnerPanel.OnMouseLeave;
 end;
 
 end.

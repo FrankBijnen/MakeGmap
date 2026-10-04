@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "MakeGmap"
-#define MyAppVersion "1.9.9"
+#define MyAppVersion "1.9.10"
 #define MyAppPublisher "TDBware"
 #define MyAppExeName "MakeGMap.exe"
 
@@ -20,7 +20,6 @@ OutputDir=.
 OutputBaseFilename=Setup_MakeGmap
 Compression=lzma2/normal
 LZMANumBlockThreads=16
-LZMAUseSeparateProcess=yes
 SolidCompression=no
 RestartIfNeededByRun=no
 ArchitecturesInstallIn64BitMode=x64os

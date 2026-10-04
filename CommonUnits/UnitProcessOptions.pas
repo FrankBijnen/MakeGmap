@@ -114,7 +114,7 @@ type
     ProcessShapePtsInGpi: boolean;            // False, Add Shaping points to <Gpx_name>.gpi
                                               // Category 'Route:<Route_name>
     DefaultProximityStr: string;              // 500, Default proximity for alerts (meters)
-    GPISymbolsDir: UTF8String;                // Symbols\24x24\ Sets the size of the GPI Symbols
+    GPISymbolsDir: string;                    // Symbols\24x24\ Sets the size of the GPI Symbols
 
     ProcessDistance: boolean;                 // True, Compute distance. Added in KML, and name of shaping points
     DistanceUnit: TDistanceUnit;              // duKm, Kilometers.
@@ -126,7 +126,8 @@ type
     DefTrackColor: string;                    // Blue, Used if no Displaycolor found in <trk>
     TrackColor: string;                       // '', The Track color possible changed by user. Saved in Registry
 
-    DefWaypointSymbol: string;                // Flag, Green, Default symbol for Via and Shaping points in GPX
+    DefWayPointSymbol: string;                // Flag, Green, Default symbol for Via and Shaping points in GPX
+    DefWayPointColor: string;                 // Green.
     CatSymbol: string;                        // Symbol:, used in created Waypoints/GPI
     CatGPX: string;                           // GPX:, used in created Waypoints/GPI from Original Way points
     CatRoute: string;                         // ROUTE:, used in created Waypoints/GPI from Via/Shaping points
@@ -143,20 +144,27 @@ type
 
     {$IFDEF TRIPOBJECTS}
     TripModel: TTripModel;                    // XT1 and XT2
-    ScPosn_Unknown1: Cardinal;                // XT1 and XT2
-    VehicleProfileGuid: string;               // XT2
-    VehicleProfileHash: string;               // XT2
-    VehicleId: string;                        // XT2
-    VehicleProfileTruckType: string;          // XT2
-    VehicleProfileName: string;               // XT2
-    AvoidancesChangedTimeAtSave: Cardinal;    // XT2
-    AllowGrouping: boolean;                   // XT1. (Not used anymore for XT2)
+    VehicleProfileGuid: string;               // XT2,XT3
+    VehicleProfileHash: Cardinal;             // XT2,XT3
+    VehicleId: integer;                       // XT2,XT3
+    VehicleProfileTruckType: integer;         // XT2,XT3
+    VehicleProfileName: string;               // XT2,XT3
+    AvoidancesChangedTimeAtSave: Cardinal;    // XT2,XT3
+    AllowGrouping: boolean;                   // XT1
     TripOption: TTripOption;                  // XT1 and XT2
     EnableTripOverview: boolean;              // XT1 and XT2
-    DefAdvLevel: TAdvlevel;                   // XT2
-    DefRoadSpeed: integer;                    // XT1 and XT2
+    DefAdvLevel: TAdvlevel;                   // XT2,XT3
+    AdvSetPrefRoads: boolean;                 // XT2,XT3  Only from EditRoutePrefs
+    AdvInclPopular: boolean;                  // XT2,XT3
+    AdvInclScenic: boolean;                   // XT2,XT3
+    AdvInclHills: boolean;                    // XT2,XT3
+    DefRoadSpeed: integer;                    // XT1,XT2,XT3
     RoadSpeedMap: array[0..11] of TIdentMapEntry;
-    ExploreUUIDList: TStrings;                // XT2
+    ExploreUUIDList: TStrings;                // XT2,XT3
+
+    //GeoApify
+    GeoApifyMinDistTurn: double;              // XT1,XT2,XT3
+    GeoApifyColor: string;                    // XT1,XT2,XT3
     {$ENDIF}
 
     FOnSetFuncPrefs: TNotifyEvent;
@@ -176,7 +184,7 @@ type
     function SpeedFromRoadClass(const RoadClass: string): integer;
     function ComputeTime(const RoadClass: string; const Dist: Double): double;
     class function GetMinDistTrackPoints: integer;
-    class procedure SetMinDistTrackPoints(AValue: integer);
+    class function GetMinTimeTrackPoints: integer;
     class function Trk2RtOptions: string;
     class procedure SetTrk2RtExportPerc(AValue: integer);
     class function GetTrk2RtExportPerc: integer;
@@ -185,6 +193,10 @@ type
     class function SafeModel2Write(ATripModel: TTripModel): boolean;
     class function MaxViaPoints: integer;
     function GetKurvigerUrl(Rte: TObject): string;
+    //GeoApify
+    function GetGeoApifyMinDistTurn: double;
+    function GetGeoApifyColor: string;
+
     {$ENDIF}
 
     property DistOKKms: double read GetDistOKKms;
@@ -271,7 +283,8 @@ begin
   DefTrackColor := 'Blue';
   TrackColor := '';
 
-  DefWaypointSymbol := 'Flag, Green';
+  DefWayPointSymbol := 'Flag, Green';
+  DefWayPointColor := 'Green';
   CatSymbol := TProcessOptions.GetCatSymbol + ':';
   CatGPX := 'GPX:';
   CatRoute := 'Route:';
@@ -293,12 +306,11 @@ begin
 
 {$IFDEF TRIPOBJECTS}
   TripModel := TTripModel.XT;
-  ScPosn_Unknown1 := 0;
-  VehicleProfileGuid := XT2_VehicleProfileGuid;
-  VehicleProfileHash := '0';
-  VehicleId := XT2_VehicleId;
-  VehicleProfileTruckType := XT2_VehicleProfileTruckType;
-  VehicleProfileName := XT2_VehicleProfileName;
+  VehicleProfileGuid := DEF_VehicleProfileGuid;
+  VehicleProfileHash := 0;
+  VehicleId := DEF_VehicleId;
+  VehicleProfileTruckType := DEF_VehicleProfileTruckType;
+  VehicleProfileName := DEF_VehicleProfileName;
   AvoidancesChangedTimeAtSave := 0;
   AllowGrouping := true;
   TripOption := TTripOption.ttCalc;
@@ -318,7 +330,14 @@ begin
   RoadSpeedMap[11].Value := 15;  RoadSpeedMap[11].Name := '0C';
   DefRoadSpeed := 25;
   DefAdvLevel := TAdvlevel.advLevel1;
+  AdvSetPrefRoads := false;
+  AdvInclHills := true;
+  AdvInclPopular := true;
+  AdvInclScenic := true;
   ExploreUUIDList := nil;
+  //GeoApify
+  GeoApifyMinDistTurn := Reg_GeoApifyMinDistTurn_Val;
+  GeoApifyColor := Reg_GeoApifyColor_Val;
 {$ENDIF}
 
 {$IFDEF REGISTRYKEYS}
@@ -417,12 +436,12 @@ end;
 
 class function TProcessOptions.GetMinDistTrackPoints: integer;
 begin
-  result := GetRegistry(Reg_MinDistTrackPoints_Key, 0);  // No filter
+  result := GetRegistry(Reg_MinDistTrackPoints, 0);  // 0=No filter
 end;
 
-class procedure TProcessOptions.SetMinDistTrackPoints(AValue: integer);
+class function TProcessOptions.GetMinTimeTrackPoints: integer;
 begin
-  SetRegistry(Reg_MinDistTrackPoints_Key, AValue);
+  result := GetRegistry(Reg_MinTimeTrackPoints, 60);
 end;
 
 class function TProcessOptions.Trk2RtOptions: string;
@@ -560,6 +579,16 @@ begin
     Inc(Cnt);
   end;
   result := result + Format('&document_title=%s', [EscapeUrl(RouteName)]);
+end;
+
+function TProcessOptions.GetGeoApifyMinDistTurn: double;
+begin
+  result := GeoApifyMinDistTurn / 1000;
+end;
+
+function TProcessOptions.GetGeoApifyColor: string;
+begin
+  result := GeoApifyColor;
 end;
 
 {$ENDIF}

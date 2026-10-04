@@ -90,7 +90,7 @@ end;
 
 function GetStartupInfo(ShowWindow: boolean): TStartupInfo;
 begin
-  FillChar(Result, SizeOf(result), 0);
+  result := Default(TStartupInfo);
   result.cb := SizeOf(result);
   result.dwFlags := STARTF_USESHOWWINDOW;
   if (ShowWindow) then
@@ -331,7 +331,8 @@ begin
       Error := myReadErrorThread.Content;
       GetExitCodeProcess(myProcessInfo.hProcess, ExitCode);
     finally
-      myWriteInputThread.Free;
+      if (hPipeInputWrite <> 0) then
+        myWriteInputThread.Free;
       myReadOutputThread.Free;
       myReadErrorThread.Free;
       CloseHandle(myProcessInfo.hThread);
@@ -347,7 +348,7 @@ procedure CloseProcess(var AProcess: TProcessInformation);
 begin
   CloseHandle(AProcess.hThread);
   CloseHandle(AProcess.hProcess);
-  FillChar(AProcess, sizeof(AProcess), 0);
+  AProcess := Default(TProcessInformation);
 end;
 
 function WaitOnProcess(var AProcess: TProcessInformation; WaitTime: DWORD = 50): DWORD;
@@ -382,20 +383,21 @@ function CreateProcessWait(CmdLine: string;
                            Environment: PAnsiChar = nil
                           ): TProcessInformation;
 begin
-  FillChar(Result, SizeOf(Result), 0);
+  result := Default(TProcessInformation);
   UniqueString(CmdLine);
 
   if not CreateProcess(nil, PChar(CmdLine), nil, nil, false,
-    GetCreationFlags(ShowWindow), Environment, nil, GetStartupInfo(ShowWindow), Result) then
+           GetCreationFlags(ShowWindow), Environment, nil, GetStartupInfo(ShowWindow), result) then
     RaiseLastOSError;
 end;
 
 function CreateProcessWait(CmdLine, User, Domain, Passwd: string;
                            const ShowWindow: Boolean = false
                           ): TProcessInformation;
-var Si: TStartupInfo;
+var
+  Si: TStartupInfo;
 begin
-  FillChar(Result, SizeOf(Result), 0);
+  result := Default(TProcessInformation);
   Si := GetStartupInfo(ShowWindow);
 
   UniqueString(User);
